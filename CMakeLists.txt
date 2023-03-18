@@ -75,4 +75,5 @@ if (MSVC)
 endif()
 
 subdirs (Source/ANN)
+subdirs (Source/XOR)
 subdirs (Source/DigitClassification)
