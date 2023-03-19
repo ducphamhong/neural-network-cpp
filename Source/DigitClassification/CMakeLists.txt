@@ -1,5 +1,6 @@
 include_directories(
-	${ANN_SOURCE_DIR}/Source/ANN/Source	
+	${ANN_SOURCE_DIR}/Source/ANN/Source
+	${ANN_SOURCE_DIR}/Source/ThirdParty/Source
 	${ANN_SOURCE_DIR}/Source/DigitClassification/Source
 )
 
@@ -17,7 +18,7 @@ endif()
 target_precompiled_header(DigitClassification ${ANN_SOURCE_DIR}/Source/DigitClassification/Source/pch.cpp ${application_source})
 
 # Linker
-target_link_libraries(DigitClassification ANN)
+target_link_libraries(DigitClassification ANN ThirdParty)
 
 set_target_properties(DigitClassification PROPERTIES VERSION ${ANN_VERSION})
 set_target_properties(DigitClassification PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")

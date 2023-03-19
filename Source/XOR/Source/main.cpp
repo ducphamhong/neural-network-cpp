@@ -26,15 +26,15 @@ int main()
 	// init 3 layers
 	ANN::CANN ann(dim, 3);
 
-	ann.LearnExpected = [](double* trainData, int trainId, int neuralOutputId) {
-		// XOR will return 0, 1 for neuralOutputId
-		return trainData[trainId];
+	ann.LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput) {
+		// XOR will return 0, 1
+		expectedOutput[0] = trainData[trainId];
 	};
 
-	ann.Predict = [](const ANN::SLayer& output)
+	ann.Predict = [](const double* output, int numOutput)
 	{
 		// Convert output layer to XOR result
-		if (output.Neurals[0].Output >= 0.5)
+		if (output[0] >= 0.5)
 			return 1;
 		else
 			return 0;

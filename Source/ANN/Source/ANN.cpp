@@ -8,7 +8,7 @@ namespace ANN
 	{
 		m_network = new SNetwork();
 		m_network->NumLayers = numLayer;
-		m_network->Layers.resize(numLayer);
+		m_network->Layers = new SLayer[numLayer];
 
 		time_t t;
 		srand((unsigned int)time(&t));
@@ -20,14 +20,12 @@ namespace ANN
 			// create neural
 			int numNeural = dim[i];
 			layer.NumNeurals = numNeural;
-			layer.Neurals.resize(numNeural);
+			layer.Neurals = new SNeural[numNeural];
 
 			for (int j = 0; j < numNeural; j++)
 			{
-				SNeural& neural = layer.Neurals[j];
-
 				// set aiases value
-				neural.Biases = i == 0 ? 0.0 : 1.0;
+				layer.Neurals[j].Biases = i == 0 ? 0.0 : 1.0;
 			}
 
 			// set connection weight for previous layer
@@ -36,7 +34,9 @@ namespace ANN
 				SLayer& previousLayer = m_network->Layers[i - 1];
 				for (int k = 0; k < previousLayer.NumNeurals; k++)
 				{
-					previousLayer.Neurals[k].Weights.resize(numNeural);
+					previousLayer.Neurals[k].NumWeights = numNeural;
+					previousLayer.Neurals[k].Weights = new double[numNeural];
+
 					for (int j = 0; j < numNeural; j++)
 					{
 						// init random value
@@ -103,14 +103,19 @@ namespace ANN
 			// feed forward
 			feedForward(p);
 
+			double* expectedOutput = new double[outputLayer.NumNeurals];
+			LearnExpected(targetOutput, learnId, expectedOutput, outputLayer.NumNeurals);
+
 			// learning expect
 			for (int i = 0; i < outputLayer.NumNeurals; i++) {
 
-				double expectedValue = LearnExpected(targetOutput, learnId, i);
+				double expectedValue = expectedOutput[i];
 				double observedValue = outputLayer.Neurals[i].Output;
 
 				outputLayer.Neurals[i].Delta = observedValue * (1.0 - observedValue) * (observedValue - expectedValue);
 			}
+
+			delete[]expectedOutput;
 
 			// hidden layers delta computation
 			for (int i = m_network->NumLayers - 2; i >= 0; i--)
@@ -159,16 +164,11 @@ namespace ANN
 		feedForward(inputs);
 
 		SLayer& outputLayer = m_network->Layers[m_network->NumLayers - 1];
-		return Predict(outputLayer);
-	}
-
-	bool CANN::save(const char* filename)
-	{
-		return false;
-	}
-
-	bool CANN::load(const char* filename)
-	{
-		return false;
+		double* output = new double[outputLayer.NumNeurals];
+		for (int i = 0; i < outputLayer.NumNeurals; i++)
+			output[i] = outputLayer.Neurals[i].Output;
+		double ret = Predict(output, outputLayer.NumNeurals);
+		delete[]output;
+		return ret;
 	}
 }

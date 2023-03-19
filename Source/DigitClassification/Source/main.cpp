@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ANN.h"
+#include "ImageLoaderPNG.h"
 
 int main()
 {
