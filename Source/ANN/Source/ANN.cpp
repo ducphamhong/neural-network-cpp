@@ -24,7 +24,7 @@ namespace ANN
 
 			for (int j = 0; j < numNeural; j++)
 			{
-				// set aiases value
+				// set Biases value
 				layer.Neurals[j].Biases = i == 0 ? 0.0 : 1.0;
 			}
 

@@ -5,7 +5,7 @@ int main()
 {
 	// input: 2
 	// hidden: 4
-	// output: 10
+	// output: 1
 	int dim[3] = { 2,4,1 };
 
 	// train data

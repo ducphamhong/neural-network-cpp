@@ -6,6 +6,7 @@ struct SPNGImage
 	unsigned int Height;
 	int BitDepth;
 	int ColorType;
+	int BPP;
 	unsigned char* Data;
 	unsigned int Pitch;
 
@@ -13,6 +14,7 @@ struct SPNGImage
 	{
 		Width = 0;
 		Height = 0;
+		BPP = 3;
 		Data = NULL;
 	}
 

@@ -155,17 +155,19 @@ bool loadPNG(const char* path, SPNGImage* image)
 	{
 		image->Data = new unsigned char[image->Width * image->Height * 4];
 		image->Pitch = image->Width * 4;
+		image->BPP = 4;
 	}
 	else
 	{
 		image->Data = new unsigned char[image->Width * image->Height * 3];
 		image->Pitch = image->Width * 3;
+		image->BPP = 3;
 	}
 
 	unsigned char* data = (unsigned char*)image->Data;
 	for (unsigned int i = 0; i < image->Height; ++i)
 	{
-		rowPointers[i] = image->Data;
+		rowPointers[i] = data;
 		data += image->Pitch;
 	}
 
@@ -185,5 +187,7 @@ bool loadPNG(const char* path, SPNGImage* image)
 
 	// Clean up memory
 	png_destroy_read_struct(&png_ptr, &info_ptr, 0);
+
+	file.close();
 	return true;
 }
