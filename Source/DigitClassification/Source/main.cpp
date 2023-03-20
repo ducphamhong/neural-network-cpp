@@ -21,28 +21,28 @@ double* getANNInput(SPNGImage* img)
 	return ret;
 }
 
-std::vector<std::string> learning;
-
-void learnInFolder(ANN::CANN* ann, const char* folder, double targetValue)
+void indexImageInFolder(std::vector<std::string>& lession, const char* folder)
 {
-	printf("Train: %s\n", folder);
+	printf("Prepare image in folder: %s\n", folder);
 	std::string p = folder;
 
 	for (const auto& entry : fs::directory_iterator(p))
 	{
 		std::wstring path = entry.path().c_str();
 		std::string filePng(path.begin(), path.end());
+		lession.push_back(filePng);
+	}
+}
 
-		SPNGImage img;
-		if (loadPNG(filePng.c_str(), &img))
-		{
-			double* input = getANNInput(&img);
-			double output[] = { targetValue };
-			ann->train(input, output, 1);
-			delete input;
-
-			learning.push_back(filePng);
-		}
+void train(ANN::CANN* ann, const char* file, double targetValue)
+{
+	SPNGImage img;
+	if (loadPNG(file, &img))
+	{
+		double* input = getANNInput(&img);
+		double output[] = { targetValue };
+		ann->train(input, output, 1);
+		delete input;
 	}
 }
 
@@ -82,23 +82,58 @@ int main()
 		return ret;
 	};
 
-	learnInFolder(&ann, "./0", 0.0);
-	learnInFolder(&ann, "./1", 1.0);
-	learnInFolder(&ann, "./2", 2.0);
-	learnInFolder(&ann, "./3", 3.0);
-	learnInFolder(&ann, "./4", 4.0);
-	learnInFolder(&ann, "./5", 5.0);
-	learnInFolder(&ann, "./6", 6.0);
-	learnInFolder(&ann, "./7", 7.0);
-	learnInFolder(&ann, "./8", 8.0);
-	learnInFolder(&ann, "./9", 9.0);
+	std::vector<std::string> lession[10];
+	int lessionLearned[10];
+	for (int i = 0; i < 10; i++)
+		lessionLearned[i] = 0;
+
+	indexImageInFolder(lession[0], "./0");
+	indexImageInFolder(lession[1], "./1");
+	indexImageInFolder(lession[2], "./2");
+	indexImageInFolder(lession[3], "./3");
+	indexImageInFolder(lession[4], "./4");
+	indexImageInFolder(lession[5], "./5");
+	indexImageInFolder(lession[6], "./6");
+	indexImageInFolder(lession[7], "./7");
+	indexImageInFolder(lession[8], "./8");
+	indexImageInFolder(lession[9], "./9");
+
+	printf("Training...\n");
+
+	int trainCount = 4000;
+	long trainPercent = 0;
+
+	// learning ~4000 file/number
+	for (int j = 0; j < trainCount; j++)
+	{
+		float f = ((float)j / (float)trainCount) * 100.0f;
+		long percent = (int)f;
+		if (trainPercent != percent)
+		{
+			trainPercent = percent;
+			printf("%d %%\n", trainPercent);
+		}
+
+		// parallel learning from 0 - 9
+		for (int i = 0; i < 10; i++)
+		{
+			if (lessionLearned[i] < lession[i].size())
+			{
+				std::string& file = lession[i][lessionLearned[i]];
+				train(&ann, file.c_str(), (double)i);
+				lessionLearned[i]++;
+			}
+		}
+	}
 
 	printf("Test classification\n");
-	int numLearning = (int)learning.size();
 	for (int i = 0; i < 100; i++)
 	{
-		int randomTest = rand() % numLearning;
-		std::string pngResource = learning[randomTest];
+		int a = rand() % 10;
+		int numFile = (int)lession[a].size();
+		int b = rand() % numFile;
+
+		std::string& pngResource = lession[a][b];
 
 		SPNGImage img;
 		if (loadPNG(pngResource.c_str(), &img))
