@@ -81,7 +81,8 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 			time++;
 		}
 
-		if ((posDoge.x + getWidth() > posPipe[ahead].x + 5) && (posDoge.x + 5 < posPipe[ahead].x + pipeWidth) &&
+		if ((posDoge.x + getWidth() > posPipe[ahead].x + 5) &&
+			(posDoge.x + 5 < posPipe[ahead].x + pipeWidth) &&
 			(posDoge.y + 5 < posPipe[ahead].y + pipeHeight || posDoge.y + getHeight() > posPipe[ahead].y + pipeHeight + PIPE_SPACE + 5))
 		{
 			die = true;

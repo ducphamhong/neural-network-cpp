@@ -1,3 +1,6 @@
+[Original Code](https://github.com/Ducanger/Flappy-Doge-SDL2.git)
+Edited: CMake and Build on Visual Studio
+
 #### Table of contents
 1. [Introduction](#introduction)
 2. [Features](#features)
@@ -6,7 +9,7 @@
 
 # Introduction <a name="introduction"></a>
 
-* The game is inspired by the dog [Kabosu](https://wikipedia.org/wiki/Doge_(meme)) - one of the hottest memes from 2013 until now and [Flappy Bird](https://wikipedia.org/wiki/Flappy_Bird) - the famous Vietnamese game developed by Nguyen Ha Dong in 2013.
+* The game is inspired by the dog [Kabosu](https://wikipedia.org/wiki/Doge_(meme)) - one of the hottest memes from 2013 until now and [Flappy Bird](https://wikipedia.org/wiki/Flappy_Bird)
 * Flappy Doge was created using [SDL2](https://www.libsdl.org/download-2.0.php) and C++.
 
 _*The resources used in the game are collected from the Internet and most of them have been edited to suit the property of the game, the edit files are saved at the path ./code/res/psd._
@@ -46,6 +49,9 @@ _*The resources used in the game are collected from the Internet and most of the
 
 # Installation <a name="installation"></a>
 
-After installing [Mingw64](https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-win32/seh/x86_64-8.1.0-release-win32-seh-rt_v6-rev0.7z/download), [SDL2](https://www.libsdl.org/download-2.0.php), [SDL_Image](https://www.libsdl.org/projects/SDL_image), [SDL_TTF](https://www.libsdl.org/projects/SDL_ttf), và [SDL_Mixer](https://www.libsdl.org/projects/SDL_mixer), run **Flappy Doge.exe** to enter the game.
+After installing
+[SDL2](https://www.libsdl.org/download-2.0.php), [SDL_Image](https://www.libsdl.org/projects/SDL_image)
+[SDL_TTF](https://www.libsdl.org/projects/SDL_ttf)
+[SDL_Mixer](https://www.libsdl.org/projects/SDL_mixer)
 
 _* You may not need to install SDL2, SDL_Image, SDL_TTF and SDL_Mixer because the **.dll** files are already in the ./res/sdl path._
