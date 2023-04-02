@@ -10,91 +10,91 @@
 
 using namespace std;
 
-class game:LTexture
+class game :LTexture
 {
 public:
-    struct input
-    {
-        enum type { QUIT, PLAY, NONE, PAUSE};
-        type Type;
-    };
-    input userInput;
-    doge shiba;
-    pipe pipe;
-    sound sound;
-    land land;
+	struct input
+	{
+		enum type { QUIT, PLAY, NONE, PAUSE };
+		type Type;
+	};
+	input userInput;
+	doge shiba;
+	pipe pipe;
+	sound sound;
+	land land;
 public:
-    game();
+	game();
 
-    ~game();
+	~game();
 
-    bool initGraphic();
+	bool initGraphic();
 
-    bool isQuit() 
-    {
-        return quit; 
-    }
+	bool isQuit()
+	{
+		return quit;
+	}
 
-    bool isDie()
-    {
-        return die;
-    }
+	bool isDie()
+	{
+		return die;
+	}
 
-    int getPipeWidth()
-    {
-        return pipe.width();
-    }
+	int getPipeWidth()
+	{
+		return pipe.width();
+	}
 
-    int getPipeHeight()
-    {
-        return pipe.height();
-    }
+	int getPipeHeight()
+	{
+		return pipe.height();
+	}
 
-    void takeInput();
+	void takeInput();
 
-    void display();
+	void display();
 
-    void releaseGraphic();
+	void releaseGraphic();
 
-    void renderScoreSmall();
+	void renderScoreSmall();
 
-    void renderScoreLarge();
+	void renderScoreLarge();
 
-    void renderBestScore();
+	void renderBestScore();
 
-    void renderMessage();
+	void renderMessage();
 
-    void renderBackground();
+	void renderBackground();
 
-    void renderBackgroundNight();
+	void renderBackgroundNight();
 
-    void renderLand();
+	void renderLand();
 
-    void resume();
+	void resume();
 
-    void pause();
+	void pause();
 
-    void renderPauseTab();
+	void renderPauseTab();
 
-    void lightTheme();
+	void lightTheme();
 
-    void darkTheme();
+	void darkTheme();
 
-    void nextButton();
+	void nextButton();
 
-    bool changeTheme();
+	bool changeTheme();
 
-    void renderGameOver();
+	void renderGameOver();
 
-    void renderMedal();
+	void renderMedal();
 
-    void replay();
+	void replay();
 
-    bool checkReplay();
+	bool checkReplay();
 
-    void Restart();
+	void Restart();
 
-private: 
-    const double scaleNumberS = 0.75;
-    short int bestScore;
+private:
+	const double scaleNumberS = 0.75;
+	short int bestScore;
 };

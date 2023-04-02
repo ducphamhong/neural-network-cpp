@@ -8,14 +8,14 @@ using namespace std;
 class land : LTexture
 {
 public:
-    bool init();
+	bool init();
 
-    void Free();
+	void Free();
 
-    void render();
+	void render();
 
-    void update();
+	void update();
 
 private:
-    position posLand;
+	position posLand;
 };

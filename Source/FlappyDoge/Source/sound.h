@@ -6,28 +6,28 @@
 
 using namespace std;
 
-class sound:LTexture
+class sound :LTexture
 {
 public:
-    bool init();
+	bool init();
 
-    void Free();
+	void Free();
 
-    void playBreath();
+	void playBreath();
 
-    void playHit();
+	void playHit();
 
-    void renderSound();
+	void renderSound();
 
-    bool checkSound();
+	bool checkSound();
 
 private:
-    const short int POS_X = 107;
-    const short int POS_Y = 267;
-    bool isPlay = 0;
-    Mix_Chunk* breath = NULL;
-    Mix_Chunk* hit = NULL;
-    Mix_Chunk* drop = NULL;
-    SDL_Rect Mute ;
-    SDL_Rect Active ;
+	const short int POS_X = 107;
+	const short int POS_Y = 267;
+	bool isPlay = 0;
+	Mix_Chunk* breath = NULL;
+	Mix_Chunk* hit = NULL;
+	Mix_Chunk* drop = NULL;
+	SDL_Rect Mute;
+	SDL_Rect Active;
 };

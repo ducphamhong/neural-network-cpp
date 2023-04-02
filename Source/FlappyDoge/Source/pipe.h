@@ -8,21 +8,21 @@ using namespace std;
 
 extern vector<position> posPipe;
 
-class pipe:LTexture
+class pipe :LTexture
 {
 private:
-    const short int randMin = -373 + 30;
-    const short int randMax = SCREEN_HEIGHT - LAND_HEIGHT - 373 - PIPE_DISTANCE - 30;
+	const short int randMin = -373 + 30;
+	const short int randMax = SCREEN_HEIGHT - LAND_HEIGHT - 373 - PIPE_DISTANCE - 30;
 public:
-    bool init();
+	bool init();
 
-    void Free();
+	void Free();
 
-    void render();
+	void render();
 
-    void update();
+	void update();
 
-    short int width() {return getWidth();}
+	short int width() { return getWidth(); }
 
-    short int height() {return getHeight();}
+	short int height() { return getHeight(); }
 };
