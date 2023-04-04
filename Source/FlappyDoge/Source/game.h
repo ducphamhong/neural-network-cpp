@@ -23,12 +23,31 @@ public:
 	pipe pipe;
 	sound sound;
 	land land;
+
+	LTexture imageNumberSmall[10];
+	LTexture imageNumberLarge[10];
+	LTexture imageMessage;
+	LTexture imageBG;
+	LTexture imageBGNight;
+	LTexture imageLand;
+	LTexture imageResume;
+	LTexture imagePause;
+	LTexture imagePauseTab;
+	LTexture imageShibaLight;
+	LTexture imageShibaDark;
+	LTexture imageRight;
+	LTexture imageLeft;
+	LTexture imageGameOver;
+	LTexture imageMedal[3];
+	LTexture imageReplay;
 public:
 	game();
 
 	~game();
 
 	bool initGraphic();
+
+	void initImages();
 
 	bool isQuit()
 	{

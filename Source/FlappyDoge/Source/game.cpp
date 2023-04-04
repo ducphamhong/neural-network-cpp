@@ -26,6 +26,7 @@ void game::takeInput()
 game::game()
 {
 	initGraphic();
+	initImages();
 	pipe.init();
 	land.init();
 	sound.init();
@@ -33,6 +34,12 @@ game::game()
 
 game::~game()
 {
+	for (int i = 0; i < 10; i++)
+	{
+		imageNumberSmall[i].free();
+		imageNumberLarge[i].free();
+	}
+
 	shiba.Free();
 	pipe.Free();
 	land.Free();
@@ -106,6 +113,19 @@ bool game::initGraphic()
 	return success;
 }
 
+void game::initImages()
+{
+	char path[512];
+	for (int i = 0; i < 10; i++)
+	{
+		sprintf(path, "FlappyDoge/number/small/%d.png", i);
+		imageNumberSmall[i].Load(std::string(path), scaleNumberS);
+
+		sprintf(path, "FlappyDoge/number/large/%d.png", i);
+		imageNumberLarge[i].Load(std::string(path), scaleNumberS);
+	}
+}
+
 void game::display()
 {
 	SDL_RenderPresent(gRenderer);
@@ -116,108 +136,24 @@ void game::renderScoreSmall()
 {
 	string s = to_string(score);
 	signed char len = s.length();
-	LTexture image;
 
 	for (signed char i = len - 1; i >= 0; i--)
 	{
 		signed char number = s[i] - '0';
-		if (number == 1)
-		{
-			image.Load("FlappyDoge/number/small/1.png", scaleNumberS);
-		}
-		else if (number == 2)
-		{
-			image.Load("FlappyDoge/number/small/2.png", scaleNumberS);
-		}
-		else if (number == 3)
-		{
-			image.Load("FlappyDoge/number/small/3.png", scaleNumberS);
-		}
-		else if (number == 4)
-		{
-			image.Load("FlappyDoge/number/small/4.png", scaleNumberS);
-		}
-		else if (number == 5)
-		{
-			image.Load("FlappyDoge/number/small/5.png", scaleNumberS);
-		}
-		else if (number == 6)
-		{
-			image.Load("FlappyDoge/number/small/6.png", scaleNumberS);
-		}
-		else if (number == 7)
-		{
-			image.Load("FlappyDoge/number/small/7.png", scaleNumberS);
-		}
-		else if (number == 8)
-		{
-			image.Load("FlappyDoge/number/small/8.png", scaleNumberS);
-		}
-		else if (number == 9)
-		{
-			image.Load("FlappyDoge/number/small/9.png", scaleNumberS);
-		}
-		else
-		{
-			image.Load("FlappyDoge/number/small/0.png", scaleNumberS);
-		}
-		image.Render(260 - image.getWidth() * (len - i - 1) * 0.75 - 5 * (len - i - 1), 268);
+		imageNumberSmall[number].Render(260 - imageNumberSmall[number].getWidth() * (len - i - 1) * 0.75 - 5 * (len - i - 1), 268);
 	}
-	image.free();
 }
 
 void game::renderScoreLarge()
 {
 	string s = to_string(score);
 	signed char len = s.length();
-	LTexture image;
 
 	for (signed char i = 0; i < len; i++)
 	{
 		signed char number = s[i] - '0';
-		if (number == 1)
-		{
-			image.Load("FlappyDoge/number/large/1.png", 1);
-		}
-		else if (number == 2)
-		{
-			image.Load("FlappyDoge/number/large/2.png", 1);
-		}
-		else if (number == 3)
-		{
-			image.Load("FlappyDoge/number/large/3.png", 1);
-		}
-		else if (number == 4)
-		{
-			image.Load("FlappyDoge/number/large/4.png", 1);
-		}
-		else if (number == 5)
-		{
-			image.Load("FlappyDoge/number/large/5.png", 1);
-		}
-		else if (number == 6)
-		{
-			image.Load("FlappyDoge/number/large/6.png", 1);
-		}
-		else if (number == 7)
-		{
-			image.Load("FlappyDoge/number/large/7.png", 1);
-		}
-		else if (number == 8)
-		{
-			image.Load("FlappyDoge/number/large/8.png", 1);
-		}
-		else if (number == 9)
-		{
-			image.Load("FlappyDoge/number/large/9.png", 1);
-		}
-		else
-		{
-			image.Load("FlappyDoge/number/large/0.png", 1);
-		}
-		image.Render((SCREEN_WIDTH - (image.getWidth() * len + (len - 1) * 10)) / 2 + (i + 30) * i, 100);
+		imageNumberLarge[number].Render((SCREEN_WIDTH - (imageNumberLarge[number].getWidth() * len + (len - 1) * 10)) / 2 + (i + 30) * i, 100);
 	}
-	image.free();
 }
 
 void game::renderBestScore()
@@ -232,54 +168,12 @@ void game::renderBestScore()
 	}
 	string s = to_string(bestScore);
 	signed char len = s.length();
-	LTexture image;
 
 	for (signed char i = len - 1; i >= 0; i--)
 	{
 		signed char number = s[i] - '0';
-		if (number == 1)
-		{
-			image.Load("FlappyDoge/number/small/1.png", scaleNumberS);
-		}
-		else if (number == 2)
-		{
-			image.Load("FlappyDoge/number/small/2.png", scaleNumberS);
-		}
-		else if (number == 3)
-		{
-			image.Load("FlappyDoge/number/small/3.png", scaleNumberS);
-		}
-		else if (number == 4)
-		{
-			image.Load("FlappyDoge/number/small/4.png", scaleNumberS);
-		}
-		else if (number == 5)
-		{
-			image.Load("FlappyDoge/number/small/5.png", scaleNumberS);
-		}
-		else if (number == 6)
-		{
-			image.Load("FlappyDoge/number/small/6.png", scaleNumberS);
-		}
-		else if (number == 7)
-		{
-			image.Load("FlappyDoge/number/small/7.png", scaleNumberS);
-		}
-		else if (number == 8)
-		{
-			image.Load("FlappyDoge/number/small/8.png", scaleNumberS);
-		}
-		else if (number == 9)
-		{
-			image.Load("FlappyDoge/number/small/9.png", scaleNumberS);
-		}
-		else
-		{
-			image.Load("FlappyDoge/number/small/0.png", scaleNumberS);
-		}
-		image.Render(260 - image.getWidth() * (len - i - 1) * 0.75 - 5 * (len - i - 1), 315);
+		imageNumberSmall[number].Render(260 - imageNumberSmall[number].getWidth() * (len - i - 1) * 0.75 - 5 * (len - i - 1), 315);
 	}
-	image.free();
 
 	fileOut << bestScore;
 	fileIn.close();
@@ -288,84 +182,76 @@ void game::renderBestScore()
 
 void game::renderMessage()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/message.png", 1);
-	image.Render((SCREEN_WIDTH - image.getWidth()) / 2, 180);
-	image.free();
+	imageMessage.Load("FlappyDoge/image/message.png", 1);
+	imageMessage.Render((SCREEN_WIDTH - imageMessage.getWidth()) / 2, 180);
+	imageMessage.free();
 }
 
 void game::renderBackground()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/background.png", 1);
-	image.Render(0, 0);
-	image.free();
+	imageBG.Load("FlappyDoge/image/background.png", 1);
+	imageBG.Render(0, 0);
+	imageBG.free();
 }
 
 void game::renderBackgroundNight()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/background-night.png", 1);
-	image.Render(0, 0);
-	image.free();
+	imageBGNight.Load("FlappyDoge/image/background-night.png", 1);
+	imageBGNight.Render(0, 0);
+	imageBGNight.free();
 }
 
 void game::renderLand()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/land.png", 1);
-	image.Render((SCREEN_WIDTH - image.getWidth()) / 2, SCREEN_HEIGHT - image.getHeight());
-	image.free();
+	imageLand.Load("FlappyDoge/image/land.png", 1);
+	imageLand.Render((SCREEN_WIDTH - imageLand.getWidth()) / 2, SCREEN_HEIGHT - imageLand.getHeight());
+	imageLand.free();
 }
 
 void game::resume()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/resume.png", 1);
-	image.Render(SCREEN_WIDTH - 50, 20);
-	image.free();
+	imageResume.Load("FlappyDoge/image/resume.png", 1);
+	imageResume.Render(SCREEN_WIDTH - 50, 20);
+	imageResume.free();
 }
 
 void game::pause()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/pause.png", 1);
-	image.Render(SCREEN_WIDTH - 50, 20);
-	image.free();
+	imagePause.Load("FlappyDoge/image/pause.png", 1);
+	imagePause.Render(SCREEN_WIDTH - 50, 20);
+	imagePause.free();
 }
 
 void game::renderPauseTab()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/pauseTab.png", 1);
-	image.Render((SCREEN_WIDTH - image.getWidth()) / 2, 230);
-	image.free();
+	imagePauseTab.Load("FlappyDoge/image/pauseTab.png", 1);
+	imagePauseTab.Render((SCREEN_WIDTH - imagePauseTab.getWidth()) / 2, 230);
+	imagePauseTab.free();
 }
 
 void game::lightTheme()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/shiba.png", 0.8);
-	image.Render(105, 315);
-	image.free();
+	imageShibaLight.Load("FlappyDoge/image/shiba.png", 0.8);
+	imageShibaLight.Render(105, 315);
+	imageShibaLight.free();
 }
 
 void game::darkTheme()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/shiba-dark.png", 0.8);
-	image.Render(105, 315);
-	image.free();
+	imageShibaDark.Load("FlappyDoge/image/shiba-dark.png", 0.8);
+	imageShibaDark.Render(105, 315);
+	imageShibaDark.free();
 }
 
 void game::nextButton()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/nextRight.png", 1);
-	image.Render(149, 322);
-	image.Load("FlappyDoge/image/nextLeft.png", 1);
-	image.Render(88, 322);
-	image.free();
+	imageRight.Load("FlappyDoge/image/nextRight.png", 1);
+	imageRight.Render(149, 322);
+	imageRight.free();
+
+	imageLeft.Load("FlappyDoge/image/nextLeft.png", 1);
+	imageLeft.Render(88, 322);
+	imageLeft.free();
 }
 
 bool game::changeTheme()
@@ -381,39 +267,39 @@ bool game::changeTheme()
 
 void game::renderGameOver()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/gameOver.png", 1);
-	image.Render((SCREEN_WIDTH - image.getWidth()) / 2, 150);
-	image.free();
+	imageGameOver.Load("FlappyDoge/image/gameOver.png", 1);
+	imageGameOver.Render((SCREEN_WIDTH - imageGameOver.getWidth()) / 2, 150);
+	imageGameOver.free();
 }
 
 void game::renderMedal()
 {
-	LTexture image;
-
+	int i = 0;
 	if (score > 20 && score <= 50)
 	{
-		image.Load("FlappyDoge/medal/silver.png", scaleNumberS);
+		imageMedal[0].Load("FlappyDoge/medal/silver.png", scaleNumberS);
+		i = 0;
 	}
 	else if (score > 50)
 	{
-		image.Load("FlappyDoge/medal/gold.png", scaleNumberS);
+		imageMedal[1].Load("FlappyDoge/medal/gold.png", scaleNumberS);
+		i = 1;
 	}
 	else
 	{
-		image.Load("FlappyDoge/medal/honor.png", scaleNumberS);
+		imageMedal[2].Load("FlappyDoge/medal/honor.png", scaleNumberS);
+		i = 2;
 	}
-	image.Render(82, 275);
 
-	image.free();
+	imageMedal[i].Render(82, 275);
+	imageMedal[i].free();
 }
 
 void game::replay()
 {
-	LTexture image;
-	image.Load("FlappyDoge/image/replay.png", 1);
-	image.Render((SCREEN_WIDTH - image.getWidth()) / 2, 380);
-	image.free();
+	imageReplay.Load("FlappyDoge/image/replay.png", 1);
+	imageReplay.Render((SCREEN_WIDTH - imageReplay.getWidth()) / 2, 380);
+	imageReplay.free();
 }
 
 bool game::checkReplay()
