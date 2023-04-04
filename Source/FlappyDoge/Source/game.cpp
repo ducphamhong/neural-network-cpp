@@ -11,8 +11,7 @@ void game::takeInput()
 			userInput.Type = input::QUIT;
 			quit = true;
 		}
-		else if (event.type == SDL_MOUSEBUTTONDOWN || (event.type == SDL_KEYDOWN &&
-			(event.key.keysym.sym == SDLK_SPACE || event.key.keysym.sym == SDLK_UP) && event.key.repeat == 0))
+		else if (event.type == SDL_MOUSEBUTTONDOWN || (event.type == SDL_KEYDOWN && (event.key.keysym.sym == SDLK_SPACE || event.key.keysym.sym == SDLK_UP) && event.key.repeat == 0))
 		{
 			userInput.Type = input::PLAY;
 		}
@@ -49,8 +48,8 @@ game::~game()
 void game::releaseGraphic()
 {
 	SDL_DestroyWindow(context::gWindow);
-	context::gWindow = NULL;
 	SDL_DestroyRenderer(context::gRenderer);
+	context::gWindow = NULL;
 	context::gRenderer = NULL;
 	IMG_Quit();
 	TTF_Quit();
@@ -210,6 +209,7 @@ void game::renderBestScore()
 	{
 		bestScore = score;
 	}
+
 	string s = to_string(bestScore);
 	signed char len = s.length();
 

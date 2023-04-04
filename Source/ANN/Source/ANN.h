@@ -79,7 +79,7 @@ namespace ANN
 		std::function<double(const double* output, int numOutput)> Predict;
 
 	public:
-		CANN(int* dim, int numLayer);
+		CANN(const int* dim, int numLayer);
 
 		virtual ~CANN();
 
@@ -88,5 +88,10 @@ namespace ANN
 		void feedForward(double* inputs);
 
 		double predict(double* inputs);
+
+		SNetwork* getNetwork()
+		{
+			return m_network;
+		}
 	};
 }

@@ -4,7 +4,7 @@
 
 namespace ANN
 {
-	CANN::CANN(int* dim, int numLayer)
+	CANN::CANN(const int* dim, int numLayer)
 	{
 		m_network = new SNetwork();
 		m_network->NumLayers = numLayer;

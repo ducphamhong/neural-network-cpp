@@ -7,6 +7,8 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 
+// #define AI_LEARNING_INPUT
+
 const short int FPS = 60;
 const short int frameDelay = 1000 / FPS;
 
@@ -93,12 +95,16 @@ int CALLBACK WinMain(
 				g.userInput.Type = game::input::NONE;
 			}
 
+#ifdef AI_LEARNING_INPUT
+
+#else
 			if (isPause == 0 && g.userInput.Type == game::input::PLAY)
 			{
 				if (isSound) g.sound.playBreath();
 				g.shiba.resetTime();
 				g.userInput.Type = game::input::NONE;
 			}
+#endif
 
 			if (!isDark) g.renderBackground();
 			else g.renderBackgroundNight();
