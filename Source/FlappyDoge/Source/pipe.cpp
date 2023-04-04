@@ -1,6 +1,8 @@
 #include "pipe.h"
 #include "stdio.h"
 
+#include "game.h"
+
 vector<position> posPipe;
 
 bool pipe::init()
@@ -41,7 +43,7 @@ void pipe::render()
 
 void pipe::update()
 {
-	if (!die)
+	if (!context::gGame->isDie())
 	{
 		for (signed char i = 0; i < TOTAL_PIPE; i++)
 		{

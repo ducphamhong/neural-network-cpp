@@ -18,7 +18,13 @@ public:
 		enum type { QUIT, PLAY, NONE, PAUSE };
 		type Type;
 	};
+
 	input userInput;
+	
+	SDL_Event event;
+	bool quit;
+	short int score;
+
 	doge shiba;
 	pipe pipe;
 	sound sound;
@@ -40,6 +46,7 @@ public:
 	LTexture imageGameOver;
 	LTexture imageMedal[3];
 	LTexture imageReplay;
+
 public:
 	game();
 
@@ -49,6 +56,8 @@ public:
 
 	void initImages();
 
+	void freeImages();
+
 	bool isQuit()
 	{
 		return quit;
@@ -56,7 +65,7 @@ public:
 
 	bool isDie()
 	{
-		return die;
+		return shiba.isDie();
 	}
 
 	int getPipeWidth()

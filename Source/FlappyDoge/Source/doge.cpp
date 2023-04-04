@@ -4,6 +4,7 @@
 
 bool doge::init(bool isDark)
 {
+	die = true;
 	string shiba_path = "FlappyDoge/image/shiba.png";
 	if (isDark) shiba_path = "FlappyDoge/image/shiba-dark.png";
 	if (saved_path == shiba_path)
@@ -58,7 +59,8 @@ void doge::fall()
 			time++;
 		}
 	}
-	else return;
+	else
+		return;
 }
 
 void doge::update(short int pipeWidth, short int pipeHeight)
@@ -90,7 +92,7 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 		else if (posDoge.x > posPipe[ahead].x + pipeWidth)
 		{
 			ahead = (ahead + 1) % TOTAL_PIPE;
-			score++;
+			context::score++;
 		}
 
 		if (posDoge.y > SCREEN_HEIGHT - LAND_HEIGHT - SHIBA_HEIGHT - 5 || posDoge.y < -10)

@@ -25,6 +25,9 @@ void game::takeInput()
 
 game::game()
 {
+	quit = false;
+	score = 0;
+
 	initGraphic();
 	initImages();
 	pipe.init();
@@ -34,12 +37,7 @@ game::game()
 
 game::~game()
 {
-	for (int i = 0; i < 10; i++)
-	{
-		imageNumberSmall[i].free();
-		imageNumberLarge[i].free();
-	}
-
+	freeImages();
 	shiba.Free();
 	pipe.Free();
 	land.Free();
@@ -50,10 +48,10 @@ game::~game()
 
 void game::releaseGraphic()
 {
-	SDL_DestroyWindow(gWindow);
-	gWindow = NULL;
-	SDL_DestroyRenderer(gRenderer);
-	gRenderer = NULL;
+	SDL_DestroyWindow(context::gWindow);
+	context::gWindow = NULL;
+	SDL_DestroyRenderer(context::gRenderer);
+	context::gRenderer = NULL;
 	IMG_Quit();
 	TTF_Quit();
 	SDL_Quit();
@@ -75,24 +73,24 @@ bool game::initGraphic()
 			printf("Warning: Linear texture filtering not enabled!");
 		}
 
-		gWindow = SDL_CreateWindow("Flappy Doge", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		context::gWindow = SDL_CreateWindow("Flappy Doge", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
-		if (gWindow == NULL)
+		if (context::gWindow == NULL)
 		{
 			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
 			success = false;
 		}
 		else
 		{
-			gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-			if (gRenderer == NULL)
+			context::gRenderer = SDL_CreateRenderer(context::gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			if (context::gRenderer == NULL)
 			{
 				printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
 				success = false;
 			}
 			else
 			{
-				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+				SDL_SetRenderDrawColor(context::gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
 				int imgFlags = IMG_INIT_PNG;
 				if (!(IMG_Init(imgFlags) & imgFlags))
@@ -124,12 +122,58 @@ void game::initImages()
 		sprintf(path, "FlappyDoge/number/large/%d.png", i);
 		imageNumberLarge[i].Load(std::string(path), scaleNumberS);
 	}
+
+	imageMessage.Load("FlappyDoge/image/message.png", 1);
+	imageBG.Load("FlappyDoge/image/background.png", 1);
+	imageBGNight.Load("FlappyDoge/image/background-night.png", 1);
+	imageLand.Load("FlappyDoge/image/land.png", 1);
+	imageResume.Load("FlappyDoge/image/resume.png", 1);
+	imagePause.Load("FlappyDoge/image/pause.png", 1);
+	imagePauseTab.Load("FlappyDoge/image/pauseTab.png", 1);
+	imageShibaLight.Load("FlappyDoge/image/shiba.png", 0.8);
+	imageShibaDark.Load("FlappyDoge/image/shiba-dark.png", 0.8);
+	imageRight.Load("FlappyDoge/image/nextRight.png", 1);
+	imageLeft.Load("FlappyDoge/image/nextLeft.png", 1);
+	imageGameOver.Load("FlappyDoge/image/gameOver.png", 1);
+	imageReplay.Load("FlappyDoge/image/replay.png", 1);
+
+	imageMedal[0].Load("FlappyDoge/medal/silver.png", scaleNumberS);
+	imageMedal[1].Load("FlappyDoge/medal/gold.png", scaleNumberS);
+	imageMedal[2].Load("FlappyDoge/medal/honor.png", scaleNumberS);
+}
+
+void game::freeImages()
+{
+	for (int i = 0; i < 10; i++)
+	{
+		imageNumberSmall[i].free();
+		imageNumberLarge[i].free();
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		imageMedal[i].free();
+	}
+
+	imageMessage.free();
+	imageBG.free();
+	imageBGNight.free();
+	imageLand.free();
+	imageResume.free();
+	imagePause.free();
+	imagePauseTab.free();
+	imageShibaLight.free();
+	imageShibaDark.free();
+	imageRight.free();
+	imageLeft.free();
+	imageGameOver.free();
+	imageReplay.free();
 }
 
 void game::display()
 {
-	SDL_RenderPresent(gRenderer);
-	SDL_RenderClear(gRenderer);
+	SDL_RenderPresent(context::gRenderer);
+	SDL_RenderClear(context::gRenderer);
 }
 
 void game::renderScoreSmall()
@@ -182,76 +226,53 @@ void game::renderBestScore()
 
 void game::renderMessage()
 {
-	imageMessage.Load("FlappyDoge/image/message.png", 1);
 	imageMessage.Render((SCREEN_WIDTH - imageMessage.getWidth()) / 2, 180);
-	imageMessage.free();
 }
 
 void game::renderBackground()
 {
-	imageBG.Load("FlappyDoge/image/background.png", 1);
 	imageBG.Render(0, 0);
-	imageBG.free();
 }
 
 void game::renderBackgroundNight()
 {
-	imageBGNight.Load("FlappyDoge/image/background-night.png", 1);
 	imageBGNight.Render(0, 0);
-	imageBGNight.free();
 }
 
 void game::renderLand()
 {
-	imageLand.Load("FlappyDoge/image/land.png", 1);
 	imageLand.Render((SCREEN_WIDTH - imageLand.getWidth()) / 2, SCREEN_HEIGHT - imageLand.getHeight());
-	imageLand.free();
 }
 
 void game::resume()
 {
-	imageResume.Load("FlappyDoge/image/resume.png", 1);
 	imageResume.Render(SCREEN_WIDTH - 50, 20);
-	imageResume.free();
 }
 
 void game::pause()
 {
-	imagePause.Load("FlappyDoge/image/pause.png", 1);
 	imagePause.Render(SCREEN_WIDTH - 50, 20);
-	imagePause.free();
 }
 
 void game::renderPauseTab()
 {
-	imagePauseTab.Load("FlappyDoge/image/pauseTab.png", 1);
 	imagePauseTab.Render((SCREEN_WIDTH - imagePauseTab.getWidth()) / 2, 230);
-	imagePauseTab.free();
 }
 
 void game::lightTheme()
 {
-	imageShibaLight.Load("FlappyDoge/image/shiba.png", 0.8);
 	imageShibaLight.Render(105, 315);
-	imageShibaLight.free();
 }
 
 void game::darkTheme()
 {
-	imageShibaDark.Load("FlappyDoge/image/shiba-dark.png", 0.8);
 	imageShibaDark.Render(105, 315);
-	imageShibaDark.free();
 }
 
 void game::nextButton()
 {
-	imageRight.Load("FlappyDoge/image/nextRight.png", 1);
 	imageRight.Render(149, 322);
-	imageRight.free();
-
-	imageLeft.Load("FlappyDoge/image/nextLeft.png", 1);
 	imageLeft.Render(88, 322);
-	imageLeft.free();
 }
 
 bool game::changeTheme()
@@ -267,9 +288,7 @@ bool game::changeTheme()
 
 void game::renderGameOver()
 {
-	imageGameOver.Load("FlappyDoge/image/gameOver.png", 1);
 	imageGameOver.Render((SCREEN_WIDTH - imageGameOver.getWidth()) / 2, 150);
-	imageGameOver.free();
 }
 
 void game::renderMedal()
@@ -277,29 +296,22 @@ void game::renderMedal()
 	int i = 0;
 	if (score > 20 && score <= 50)
 	{
-		imageMedal[0].Load("FlappyDoge/medal/silver.png", scaleNumberS);
 		i = 0;
 	}
 	else if (score > 50)
 	{
-		imageMedal[1].Load("FlappyDoge/medal/gold.png", scaleNumberS);
 		i = 1;
 	}
 	else
 	{
-		imageMedal[2].Load("FlappyDoge/medal/honor.png", scaleNumberS);
 		i = 2;
 	}
-
 	imageMedal[i].Render(82, 275);
-	imageMedal[i].free();
 }
 
 void game::replay()
 {
-	imageReplay.Load("FlappyDoge/image/replay.png", 1);
 	imageReplay.Render((SCREEN_WIDTH - imageReplay.getWidth()) / 2, 380);
-	imageReplay.free();
 }
 
 bool game::checkReplay()
@@ -315,7 +327,7 @@ bool game::checkReplay()
 
 void game::Restart()
 {
-	die = false;
 	score = 0;
+	shiba.restart();
 	shiba.resetTime();
 }

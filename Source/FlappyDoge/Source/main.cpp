@@ -27,6 +27,8 @@ int CALLBACK WinMain(
 	bool isSound = 1;
 	bool isDark = 0;
 
+	context::gGame = &g;
+
 	while (!g.isQuit())
 	{
 		frameStart = SDL_GetTicks();
@@ -143,7 +145,7 @@ int CALLBACK WinMain(
 			g.display();
 		}
 
-		//Limit FPS
+		// Limit FPS
 		frameTime = SDL_GetTicks() - frameStart;
 		if (frameDelay > frameTime)
 		{

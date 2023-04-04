@@ -16,6 +16,26 @@ public:
 	void getPos(const short int x, const short int y);
 };
 
+class game;
+
+class context
+{
+public:
+	static SDL_Window* gWindow;
+	static SDL_Renderer* gRenderer;
+	static short int score;
+	static game* gGame;
+};
+
+static const short int SCREEN_WIDTH = 350;
+static const short int SCREEN_HEIGHT = 625;
+static const short int PIPE_SPACE = 160;
+static const short int TOTAL_PIPE = 4;
+static const short int PIPE_DISTANCE = 220;
+static const short int LAND_HEIGHT = 140;
+static const short int SHIBA_WIDTH = 50;
+static const short int SHIBA_HEIGHT = 35;
+
 class LTexture
 {
 public:
@@ -38,20 +58,4 @@ public:
 	short int tWidth;
 	short int tHeight;
 
-public:
-	static SDL_Window* gWindow;
-	static SDL_Renderer* gRenderer;
-	static SDL_Event event;
-	static bool quit;
-	static bool die;
-	static short int score;
-
-	static const short int SCREEN_WIDTH = 350;
-	static const short int SCREEN_HEIGHT = 625;
-	static const short int PIPE_SPACE = 160;
-	static const short int TOTAL_PIPE = 4;
-	static const short int PIPE_DISTANCE = 220;
-	static const short int LAND_HEIGHT = 140;
-	static const short int SHIBA_WIDTH = 50;
-	static const short int SHIBA_HEIGHT = 35;
 };

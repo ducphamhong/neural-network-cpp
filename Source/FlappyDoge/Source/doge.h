@@ -14,6 +14,16 @@ public:
 
 	void Free();
 
+	bool isDie()
+	{
+		return die;
+	}
+
+	void restart()
+	{
+		die = false;
+	}
+
 	void resetTime()
 	{
 		time = 0;
@@ -22,7 +32,9 @@ public:
 	void fall();
 
 	void update(short int pileWidth, short int pileHeight);
+
 private:
+	bool die;
 	short int angle, time, x0;
 	short int ahead = 0;
 	string saved_path = "";

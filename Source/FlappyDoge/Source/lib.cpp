@@ -1,12 +1,10 @@
 #include "game.h"
 #include <iostream>
 
-bool LTexture::quit = false;
-bool LTexture::die = true;
-short int LTexture::score = 0;
-SDL_Window* LTexture::gWindow = NULL;
-SDL_Renderer* LTexture::gRenderer = NULL;
-SDL_Event LTexture::event;
+short int context::score = 0;
+SDL_Window* context::gWindow = NULL;
+SDL_Renderer* context::gRenderer = NULL;
+game* context::gGame = NULL;
 
 LTexture::LTexture()
 {
@@ -44,7 +42,7 @@ void LTexture::Render(short int x, short int y, short int angle, SDL_Rect* clip,
 		Rec_Render.h = clip->h;
 	}
 
-	SDL_RenderCopyEx(gRenderer, Texture, clip, &Rec_Render, angle, NULL, flip);
+	SDL_RenderCopyEx(context::gRenderer, Texture, clip, &Rec_Render, angle, NULL, flip);
 }
 
 bool LTexture::Load(string path, double scale)
@@ -60,7 +58,7 @@ bool LTexture::Load(string path, double scale)
 	{
 		SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0x00, 0xFF, 0xFF));
 
-		Texture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+		Texture = SDL_CreateTextureFromSurface(context::gRenderer, loadedSurface);
 		if (Texture == NULL)
 		{
 			printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
@@ -73,7 +71,7 @@ bool LTexture::Load(string path, double scale)
 
 		SDL_FreeSurface(loadedSurface);
 	}
-	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	SDL_SetRenderDrawColor(context::gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
 	return Texture != NULL;
 
