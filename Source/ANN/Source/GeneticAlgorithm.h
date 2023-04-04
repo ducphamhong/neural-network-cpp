@@ -27,9 +27,9 @@ namespace ANN
 	{
 	protected:
 		std::vector<int> m_network;
-		int m_maxUnit;
-
 		std::vector<Unit*> m_units;
+
+		int m_maxUnit;
 		int m_topUnit;
 		double m_mutateRate;
 

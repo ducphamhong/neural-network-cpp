@@ -83,6 +83,14 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 			time++;
 		}
 
+		distance += 3;
+
+		SDL_RenderDrawLine(context::gRenderer,
+			posDoge.x + getWidth() / 2,
+			posDoge.y + getHeight() / 2,
+			posPipe[ahead].x + pipeWidth,
+			posPipe[ahead].y + pipeHeight + PIPE_SPACE / 2);
+
 		if ((posDoge.x + getWidth() > posPipe[ahead].x + 5) &&
 			(posDoge.x + 5 < posPipe[ahead].x + pipeWidth) &&
 			(posDoge.y + 5 < posPipe[ahead].y + pipeHeight || posDoge.y + getHeight() > posPipe[ahead].y + pipeHeight + PIPE_SPACE + 5))

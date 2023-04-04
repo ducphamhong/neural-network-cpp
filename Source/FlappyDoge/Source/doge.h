@@ -22,6 +22,7 @@ public:
 	void restart()
 	{
 		die = false;
+		distance = 0.0f;
 	}
 
 	void resetTime()
@@ -34,6 +35,7 @@ public:
 	void update(short int pileWidth, short int pileHeight);
 
 private:
+	int distance;
 	bool die;
 	short int angle, time, x0;
 	short int ahead = 0;

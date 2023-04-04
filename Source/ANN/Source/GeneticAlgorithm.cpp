@@ -2,10 +2,13 @@
 #include "GeneticAlgorithm.h"
 #include <algorithm>
 
+// Reference: https://github.com/ssusnic/Machine-Learning-Flappy-Bird
+
 namespace ANN
 {
 	GeneticAlgorithm::GeneticAlgorithm(int topUnit) :
 		m_topUnit(topUnit),
+		m_maxUnit(0),
 		m_mutateRate(1.0)
 	{
 
@@ -149,8 +152,8 @@ namespace ANN
 				int select = rand() % 2;
 				for (int j = 0; j < layer.Neurals[i].NumWeights; j++)
 				{
-					float a = layerA.Neurals[i].Weights[j];
-					float b = layerB.Neurals[i].Weights[j];
+					double a = layerA.Neurals[i].Weights[j];
+					double b = layerB.Neurals[i].Weights[j];
 
 					layer.Neurals[i].Weights[j] = select == 1 ? a : b;
 				}
