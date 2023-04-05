@@ -10,7 +10,9 @@ namespace ANN
 	CGeneticAlgorithm::CGeneticAlgorithm(int topUnit) :
 		m_topUnit(topUnit),
 		m_maxUnit(0),
-		m_mutateRate(0.2)
+		m_id(),
+		m_mutateRate(0.2),
+		m_maxPertubation(0.3)
 	{
 
 	}
@@ -43,6 +45,7 @@ namespace ANN
 		{
 			SUnit* unit = new SUnit();
 			unit->ANN = new CANN(dim, numLayer);
+			unit->ID = ++m_id;
 			m_units.push_back(unit);
 		}
 	}
@@ -53,7 +56,7 @@ namespace ANN
 
 		for (int i = m_topUnit; i < m_maxUnit; i++)
 		{
-			SUnit* newUnit = NULL;
+			std::vector<SUnit*> newUnit;
 
 			if (i == m_topUnit)
 			{
@@ -64,21 +67,32 @@ namespace ANN
 				int r1 = getRandom() % m_topUnit;
 				int r2 = getRandom() % m_topUnit;
 
-				newUnit = crossOver(m_units[r1], m_units[r2]);
+				newUnit = crossOver(m_units[0], m_units[r2]);
 			}
 			else
 			{
-				newUnit = cloneUnit(m_units[0]);
+				newUnit.push_back(cloneUnit(m_units[0]));
 			}
 
-			mutation(newUnit);
+			for (int j = 0, m = (int)newUnit.size(); j < m; j++)
+			{
+				mutation(newUnit[j]);
 
-			// destroy this bad unit
-			delete m_units[i]->ANN;
-			delete m_units[i];
+				// destroy this old generate unit
+				if (i + j < m_maxUnit)
+				{
+					delete m_units[i + j]->ANN;
+					delete m_units[i + j];
 
-			// replace good gene unit
-			m_units[i] = newUnit;
+					// replace good gene unit
+					m_units[i + j] = cloneUnit(newUnit[j]);
+				}
+
+				delete newUnit[j];
+			}
+
+			// next num child
+			i = i + ((int)newUnit.size() - 1);
 		}
 
 		// reset score and retest
@@ -86,7 +100,12 @@ namespace ANN
 		for (int i = 0; i < numUnit; i++)
 		{
 			m_units[i]->Good = false;
-			m_units[i]->Scored = 0.0;
+			m_units[i]->TopUnit = false;
+
+			if (m_units[i]->ID == 0)
+			{
+				m_units[i]->ID = ++m_id;
+			}
 		}
 	}
 
@@ -102,7 +121,7 @@ namespace ANN
 		int numUnit = (int)m_units.size();
 		for (int i = 0; i < numUnit; i++)
 		{
-			if (i < numUnit)
+			if (i < m_topUnit)
 			{
 				m_units[i]->TopUnit = true;
 			}
@@ -113,44 +132,61 @@ namespace ANN
 		}
 	}
 
-	SUnit* CGeneticAlgorithm::crossOver(SUnit* parentA, SUnit* parentB)
+	std::vector<SUnit*> CGeneticAlgorithm::crossOver(SUnit* parentA, SUnit* parentB)
 	{
-		SUnit* unit = new SUnit();
+		std::vector<SUnit*> ret;
+
+		SUnit* unit1 = new SUnit();
+		SUnit* unit2 = new SUnit();
 
 		int numLayer = (int)m_network.size();
-		unit->ANN = new CANN(m_network.data(), numLayer);
+		unit1->ANN = new CANN(m_network.data(), numLayer);
+		unit2->ANN = new CANN(m_network.data(), numLayer);
 
-		SNetwork* network = unit->ANN->getNetwork();
+		SNetwork* network1 = unit1->ANN->getNetwork();
+		SNetwork* network2 = unit2->ANN->getNetwork();
+
 		SNetwork* networkA = parentA->ANN->getNetwork();
-		SNetwork* networkB = parentA->ANN->getNetwork();
+		SNetwork* networkB = parentB->ANN->getNetwork();
 
-		for (int i = 1; i < numLayer - 1; i++)
+		for (int i = 0; i < numLayer; i++)
 		{
-			SLayer& layer = network->Layers[i];
+			SLayer& layer1 = network1->Layers[i];
+			SLayer& layer2 = network2->Layers[i];
+
 			SLayer& layerA = networkA->Layers[i];
 			SLayer& layerB = networkB->Layers[i];
 
-			int cutPoint = getRandom() % layer.NumNeurals;
+			int cutPoint = getRandom() % layer1.NumNeurals;
 
-			for (int i = 0; i < layer.NumNeurals; i++)
+			for (int i = 0; i < layer1.NumNeurals; i++)
 			{
 				if (i < cutPoint)
-					layer.Neurals[i].Biases = layerA.Neurals[i].Biases;
+				{
+					layer1.Neurals[i].Biases = layerA.Neurals[i].Biases;
+					layer2.Neurals[i].Biases = layerB.Neurals[i].Biases;
+				}
 				else
-					layer.Neurals[i].Biases = layerB.Neurals[i].Biases;
+				{
+					layer1.Neurals[i].Biases = layerB.Neurals[i].Biases;
+					layer2.Neurals[i].Biases = layerA.Neurals[i].Biases;
+				}
 
-				int select = getRandom() % 2;
-				for (int j = 0; j < layer.Neurals[i].NumWeights; j++)
+				for (int j = 0; j < layer1.Neurals[i].NumWeights; j++)
 				{
 					double a = layerA.Neurals[i].Weights[j];
 					double b = layerB.Neurals[i].Weights[j];
 
-					layer.Neurals[i].Weights[j] = select == 1 ? a : b;
+					layer1.Neurals[i].Weights[j] = i < cutPoint ? a : b;
+					layer2.Neurals[i].Weights[j] = i < cutPoint ? b : a;
 				}
 			}
 		}
 
-		return unit;
+		ret.push_back(unit1);
+		ret.push_back(unit2);
+
+		return ret;
 	}
 
 	SUnit* CGeneticAlgorithm::cloneUnit(SUnit* parent)
@@ -163,7 +199,7 @@ namespace ANN
 		SNetwork* network = unit->ANN->getNetwork();
 		SNetwork* networkParent = parent->ANN->getNetwork();
 
-		for (int i = 1; i < numLayer - 1; i++)
+		for (int i = 0; i < numLayer; i++)
 		{
 			SLayer& layer = network->Layers[i];
 			SLayer& layerParent = networkParent->Layers[i];
@@ -181,13 +217,13 @@ namespace ANN
 		return unit;
 	}
 
-	double mutate(double gene, double mutateRate)
+	double mutate(double gene, double mutateRate, double maxPertubation)
 	{
 		double r = getRandom01();
 		if (r < mutateRate)
 		{
-			double mutateFactor = 1.0 + (getRandom01() - 0.5) * 0.001;
-			gene *= mutateFactor;
+			double mutateFactor = getRandom01() * 2.0 - 1.0;
+			gene = gene + mutateFactor * maxPertubation;
 		}
 		return gene;
 	}
@@ -203,11 +239,11 @@ namespace ANN
 
 			for (int i = 0; i < layer.NumNeurals; i++)
 			{
-				layer.Neurals[i].Biases = mutate(layer.Neurals[i].Biases, m_mutateRate);
+				layer.Neurals[i].Biases = mutate(layer.Neurals[i].Biases, m_mutateRate, m_maxPertubation);
 
 				for (int j = 0; j < layer.Neurals[i].NumWeights; j++)
 				{
-					layer.Neurals[i].Weights[j] = mutate(layer.Neurals[i].Weights[j], m_mutateRate);
+					layer.Neurals[i].Weights[j] = mutate(layer.Neurals[i].Weights[j], m_mutateRate, m_maxPertubation);
 				}
 			}
 		}

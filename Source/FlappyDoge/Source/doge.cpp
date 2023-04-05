@@ -179,7 +179,10 @@ void doge::reportDie(double distanceToTarget)
 	if (unit)
 	{
 		// report score
-		unit->Scored = distance - distanceToTarget;
+		double newScore = distance - distanceToTarget;
+		if (newScore > unit->Scored)
+			unit->Scored = newScore;
+
 		if (unit->Scored < 0)
 			unit->Good = false;
 		else

@@ -10,9 +10,11 @@ namespace ANN
 		bool Good;
 		double Scored;
 		bool TopUnit;
+		int ID;
 
 		SUnit()
 		{
+			ID = 0;
 			Scored = 0.0;
 			TopUnit = false;
 			Good = false;
@@ -26,9 +28,11 @@ namespace ANN
 		std::vector<int> m_network;
 		std::vector<SUnit*> m_units;
 
+		int m_id;
 		int m_maxUnit;
 		int m_topUnit;
 		double m_mutateRate;
+		double m_maxPertubation;
 
 	public:
 		CGeneticAlgorithm(int topUnit = 4);
@@ -43,7 +47,7 @@ namespace ANN
 
 		void selection();
 
-		SUnit* crossOver(SUnit* parentA, SUnit* parentB);
+		std::vector<SUnit*> crossOver(SUnit* parentA, SUnit* parentB);
 
 		SUnit* cloneUnit(SUnit* parent);
 
