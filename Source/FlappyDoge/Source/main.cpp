@@ -39,6 +39,40 @@ int CALLBACK WinMain(
 	const int dim[] = { 2, 6, 1 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 3);
 
+	std::vector<double> input;
+	std::vector<double> output;
+
+	// See the function doge::reportDie
+	// Read human play data
+	FILE* f = fopen("FlappyDoge/data/learning.txt", "rt");
+	char lines[512];
+	while (!feof(f))
+	{
+		double i1, i2, o;
+		fgets(lines, 512, f);
+		sscanf(lines, "%lf %lf %lf", &i1, &i2, &o);
+		input.push_back(i1);
+		input.push_back(i2);
+		output.push_back(o);
+	}
+	fclose(f);
+
+	// need learning from human control for Gen 0
+	for (int learnCount = 10; learnCount > 0; learnCount--)
+	{
+		std::vector<ANN::SUnit*>& units = aiGenetic.get();
+		for (int i = 0, n = (int)units.size(); i < n; i++)
+		{
+			units[i]->ANN->LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput)
+			{
+				expectedOutput[0] = trainData[trainId];
+			};
+
+			// train
+			units[i]->ANN->train(input.data(), output.data(), (int)output.size());
+		}
+	}
+
 	int gen = 0;
 #endif
 
@@ -98,6 +132,7 @@ int CALLBACK WinMain(
 					g.shiba[0].init(isDark);
 					g.shiba[0].render();
 #endif
+
 					g.renderMessage();
 
 					if (g.userInput.Type == game::input::PLAY)
@@ -122,13 +157,13 @@ int CALLBACK WinMain(
 
 						isMenu = 1;
 						g.userInput.Type = game::input::NONE;
-					}
+						}
 					g.land.update();
-				}
+					}
 				g.display();
-			}
+					}
 			g.pipe.init();
-		}
+				}
 		else
 		{
 			g.takeInput();
@@ -148,7 +183,7 @@ int CALLBACK WinMain(
 					g.sound.playBreath();
 				g.shiba[0].resetTime();
 				g.userInput.Type = game::input::NONE;
-			}
+		}
 #endif
 
 			if (!isDark)
@@ -212,22 +247,23 @@ int CALLBACK WinMain(
 #else
 						g.shiba[0].init(isDark);
 #endif
-					}
+						}
 					g.userInput.Type = game::input::NONE;
+					}
 				}
-			}
 
 #ifdef AI_LEARNING_INPUT
 			for (int i = 0; i < MAX_AI_UNIT; i++)
 			{
-				g.shiba[i].render();
+				if (!g.shiba[i].isDie())
+					g.shiba[i].render();
 			}
 #else
 			g.shiba[0].render();
 #endif
 
 			g.display();
-		}
+			}
 
 		// Limit FPS
 		frameTime = SDL_GetTicks() - frameStart;
@@ -235,6 +271,6 @@ int CALLBACK WinMain(
 		{
 			SDL_Delay(frameDelay - frameTime);
 		}
-	}
+			}
 	return 0;
-}
+			}

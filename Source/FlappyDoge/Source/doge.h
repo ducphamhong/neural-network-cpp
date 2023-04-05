@@ -39,6 +39,8 @@ public:
 
 	void update(short int pileWidth, short int pileHeight);
 
+	void reportDie(double distanceToTarget);
+
 #ifdef AI_LEARNING_INPUT
 	void setAIUnit(ANN::SUnit* u);
 #endif
@@ -47,6 +49,9 @@ private:
 
 #ifdef AI_LEARNING_INPUT
 	ANN::SUnit* unit;
+#else
+	std::vector<double> dataInput;
+	std::vector<double> dataOutput;
 #endif
 
 	int distance;

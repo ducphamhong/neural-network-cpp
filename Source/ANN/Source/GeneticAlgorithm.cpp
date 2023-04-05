@@ -10,7 +10,7 @@ namespace ANN
 	CGeneticAlgorithm::CGeneticAlgorithm(int topUnit) :
 		m_topUnit(topUnit),
 		m_maxUnit(0),
-		m_mutateRate(1.0)
+		m_mutateRate(0.2)
 	{
 
 	}
@@ -51,23 +51,6 @@ namespace ANN
 	{
 		selection();
 
-		if (m_mutateRate == 1.0)
-		{
-			// first step
-			if (!m_units[0]->Good)
-			{
-				// We can destroy this bad population and try with another one.
-				destroyPopulation();
-
-				std::vector<int> n = m_network;
-				createPopulation(m_maxUnit, n.data(), (int)n.size());
-			}
-		}
-		else
-		{
-			m_mutateRate = 0.2;
-		}
-
 		for (int i = m_topUnit; i < m_maxUnit; i++)
 		{
 			SUnit* newUnit = NULL;
@@ -78,16 +61,14 @@ namespace ANN
 			}
 			else if (i < m_maxUnit - 2)
 			{
-				int r1 = rand() % m_topUnit;
-				int r2 = rand() % m_topUnit;
+				int r1 = getRandom() % m_topUnit;
+				int r2 = getRandom() % m_topUnit;
 
 				newUnit = crossOver(m_units[r1], m_units[r2]);
 			}
 			else
 			{
-				int r = rand() % m_topUnit;
-
-				newUnit = cloneUnit(m_units[r]);
+				newUnit = cloneUnit(m_units[0]);
 			}
 
 			mutation(newUnit);
@@ -98,6 +79,14 @@ namespace ANN
 
 			// replace good gene unit
 			m_units[i] = newUnit;
+		}
+
+		// reset score and retest
+		int numUnit = (int)m_units.size();
+		for (int i = 0; i < numUnit; i++)
+		{
+			m_units[i]->Good = false;
+			m_units[i]->Scored = 0.0;
 		}
 	}
 
@@ -141,7 +130,7 @@ namespace ANN
 			SLayer& layerA = networkA->Layers[i];
 			SLayer& layerB = networkB->Layers[i];
 
-			int cutPoint = rand() % layer.NumNeurals;
+			int cutPoint = getRandom() % layer.NumNeurals;
 
 			for (int i = 0; i < layer.NumNeurals; i++)
 			{
@@ -150,7 +139,7 @@ namespace ANN
 				else
 					layer.Neurals[i].Biases = layerB.Neurals[i].Biases;
 
-				int select = rand() % 2;
+				int select = getRandom() % 2;
 				for (int j = 0; j < layer.Neurals[i].NumWeights; j++)
 				{
 					double a = layerA.Neurals[i].Weights[j];
@@ -197,7 +186,7 @@ namespace ANN
 		double r = getRandom01();
 		if (r < mutateRate)
 		{
-			double mutateFactor = 1 + ((getRandom01() - 0.5) * 3.0 + (getRandom01() - 0.5));
+			double mutateFactor = 1.0 + (getRandom01() - 0.5) * 0.001;
 			gene *= mutateFactor;
 		}
 		return gene;

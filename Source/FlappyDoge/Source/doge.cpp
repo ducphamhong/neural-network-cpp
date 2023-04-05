@@ -1,6 +1,6 @@
 #include "doge.h"
 #include <stdio.h>
-#include <iostream>
+#include <fstream>
 
 bool doge::init(bool isDark)
 {
@@ -105,7 +105,6 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 
 		distance += 3;
 
-#ifdef AI_LEARNING_INPUT		
 		int cx = posDoge.x + getWidth() / 2;
 		int cy = posDoge.y + getHeight() / 2;
 		int tx = posPipe[ahead].x + pipeWidth;
@@ -120,24 +119,35 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 
 		double distanceToTarget = sqrt(dx * dx + dy * dy);
 
+		double input[2];
+		input[0] = dx / (double)SCREEN_WIDTH;
+		input[1] = dy / (double)SCREEN_HEIGHT;
+
+#ifdef AI_LEARNING_INPUT		
 		if (!die && unit != NULL)
 		{
 			if (--jumpTime < 0)
 			{
-				jumpTime = 10;
-
-				double input[2];
-				input[0] = dx / (SCREEN_WIDTH);
-				input[1] = dy / (SCREEN_HEIGHT);
+				jumpTime = 5;
 
 				double output = unit->ANN->predict(input);
 				if (output == 1.0)
 				{
-					// flap
-					resetTime();
+					resetTime(); // flap
 				}
 			}
 		}
+#else
+		double output = 0.0;
+		if (time <= 10)
+		{
+			output = 1.0;
+		}
+
+		// save data for learning from human play
+		dataInput.push_back(input[0]);
+		dataInput.push_back(input[1]);
+		dataOutput.push_back(output);
 #endif
 
 		if ((posDoge.x + getWidth() > posPipe[ahead].x + 5) &&
@@ -145,18 +155,7 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 			(posDoge.y + 5 < posPipe[ahead].y + pipeHeight || posDoge.y + getHeight() > posPipe[ahead].y + pipeHeight + PIPE_SPACE + 5))
 		{
 			die = true;
-
-#ifdef AI_LEARNING_INPUT
-			if (unit)
-			{
-				// report score
-				unit->Scored = distance - distanceToTarget;
-				if (unit->Scored < 0)
-					unit->Good = false;
-				else
-					unit->Good = true;
-			}
-#endif
+			reportDie(distanceToTarget);
 		}
 		else if (posDoge.x > posPipe[ahead].x + pipeWidth)
 		{
@@ -169,18 +168,37 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 		if (posDoge.y > SCREEN_HEIGHT - LAND_HEIGHT - SHIBA_HEIGHT - 5 || posDoge.y < -10)
 		{
 			die = true;
-
-#ifdef AI_LEARNING_INPUT
-			if (unit)
-			{
-				// report score
-				unit->Scored = distance - distanceToTarget;
-				if (unit->Scored < 0)
-					unit->Good = false;
-				else
-					unit->Good = true;
-			}
-#endif
+			reportDie(distanceToTarget);
 		}
 	}
+}
+
+void doge::reportDie(double distanceToTarget)
+{
+#ifdef AI_LEARNING_INPUT
+	if (unit)
+	{
+		// report score
+		unit->Scored = distance - distanceToTarget;
+		if (unit->Scored < 0)
+			unit->Good = false;
+		else
+			unit->Good = true;
+	}
+#else
+	// save data for learning
+	FILE* f = fopen("FlappyDoge/data/learning.txt", "wt");
+
+	int numData = (int)dataOutput.size();
+	for (int i = 0; i < numData; i++)
+	{
+		double i1 = dataInput[i * 2];
+		double i2 = dataInput[i * 2 + 1];
+		double o = dataOutput[i];
+
+		fprintf(f, "%lf %lf %lf\n", i1, i2, o);
+	}
+
+	fclose(f);
+#endif
 }
