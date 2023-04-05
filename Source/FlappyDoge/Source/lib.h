@@ -7,6 +7,9 @@
 #include <vector>
 #include <stdio.h>
 
+#define AI_LEARNING_INPUT
+#define MAX_AI_UNIT 10
+
 using namespace std;
 
 class position

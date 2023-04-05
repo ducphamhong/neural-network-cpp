@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ANN.h"
-#include <ctime>
+#include "Random.h"
 
 namespace ANN
 {
@@ -9,9 +9,6 @@ namespace ANN
 		m_network = new SNetwork();
 		m_network->NumLayers = numLayer;
 		m_network->Layers = new SLayer[numLayer];
-
-		time_t t;
-		srand((unsigned int)time(&t));
 
 		for (int i = 0; i < numLayer; i++)
 		{
@@ -39,11 +36,9 @@ namespace ANN
 
 					for (int j = 0; j < numNeural; j++)
 					{
-						// init random value
-						double randomValue = ((double)rand() / (double)RAND_MAX) * (1.0 / sqrt((double(previousLayer.NumNeurals + numNeural))));
+						double r = getRandom01() * 2.0 - 1.0;
 
-						// add connection from previous to layer
-						previousLayer.Neurals[k].Weights[j] = randomValue;
+						previousLayer.Neurals[k].Weights[j] = r;
 					}
 				}
 			}

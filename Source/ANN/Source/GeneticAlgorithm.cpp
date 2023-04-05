@@ -1,12 +1,13 @@
 #include "pch.h"
 #include "GeneticAlgorithm.h"
+#include "Random.h"
 #include <algorithm>
 
 // Reference: https://github.com/ssusnic/Machine-Learning-Flappy-Bird
 
 namespace ANN
 {
-	GeneticAlgorithm::GeneticAlgorithm(int topUnit) :
+	CGeneticAlgorithm::CGeneticAlgorithm(int topUnit) :
 		m_topUnit(topUnit),
 		m_maxUnit(0),
 		m_mutateRate(1.0)
@@ -14,14 +15,14 @@ namespace ANN
 
 	}
 
-	GeneticAlgorithm::~GeneticAlgorithm()
+	CGeneticAlgorithm::~CGeneticAlgorithm()
 	{
 		destroyPopulation();
 	}
 
-	void GeneticAlgorithm::destroyPopulation()
+	void CGeneticAlgorithm::destroyPopulation()
 	{
-		for (Unit* unit : m_units)
+		for (SUnit* unit : m_units)
 		{
 			delete unit->ANN;
 			unit->ANN = NULL;
@@ -30,7 +31,7 @@ namespace ANN
 		m_units.clear();
 	}
 
-	void GeneticAlgorithm::createPopulation(int numUnit, const int* dim, int numLayer)
+	void CGeneticAlgorithm::createPopulation(int numUnit, const int* dim, int numLayer)
 	{
 		m_maxUnit = numUnit;
 		m_network.clear();
@@ -40,20 +41,20 @@ namespace ANN
 
 		for (int i = 0; i < numUnit; i++)
 		{
-			Unit* unit = new Unit();
+			SUnit* unit = new SUnit();
 			unit->ANN = new CANN(dim, numLayer);
 			m_units.push_back(unit);
 		}
 	}
 
-	void GeneticAlgorithm::evolvePopulation()
+	void CGeneticAlgorithm::evolvePopulation()
 	{
 		selection();
 
 		if (m_mutateRate == 1.0)
 		{
 			// first step
-			if (m_units[0]->Win == false)
+			if (!m_units[0]->Good)
 			{
 				// We can destroy this bad population and try with another one.
 				destroyPopulation();
@@ -69,7 +70,7 @@ namespace ANN
 
 		for (int i = m_topUnit; i < m_maxUnit; i++)
 		{
-			Unit* newUnit = NULL;
+			SUnit* newUnit = NULL;
 
 			if (i == m_topUnit)
 			{
@@ -100,12 +101,12 @@ namespace ANN
 		}
 	}
 
-	bool sort(const Unit* a, const Unit* b)
+	bool sort(const SUnit* a, const SUnit* b)
 	{
-		return a->Scored > a->Scored;
+		return a->Scored > b->Scored;
 	}
 
-	void GeneticAlgorithm::selection()
+	void CGeneticAlgorithm::selection()
 	{
 		std::sort(m_units.begin(), m_units.end(), sort);
 
@@ -123,9 +124,9 @@ namespace ANN
 		}
 	}
 
-	Unit* GeneticAlgorithm::crossOver(Unit* parentA, Unit* parentB)
+	SUnit* CGeneticAlgorithm::crossOver(SUnit* parentA, SUnit* parentB)
 	{
-		Unit* unit = new Unit();
+		SUnit* unit = new SUnit();
 
 		int numLayer = (int)m_network.size();
 		unit->ANN = new CANN(m_network.data(), numLayer);
@@ -163,9 +164,9 @@ namespace ANN
 		return unit;
 	}
 
-	Unit* GeneticAlgorithm::cloneUnit(Unit* parent)
+	SUnit* CGeneticAlgorithm::cloneUnit(SUnit* parent)
 	{
-		Unit* unit = new Unit();
+		SUnit* unit = new SUnit();
 
 		int numLayer = (int)m_network.size();
 		unit->ANN = new CANN(m_network.data(), numLayer);
@@ -191,23 +192,18 @@ namespace ANN
 		return unit;
 	}
 
-	double rand01()
-	{
-		return (rand() % 10000) / 10000.0;
-	}
-
 	double mutate(double gene, double mutateRate)
 	{
-		double r = rand01();
+		double r = getRandom01();
 		if (r < mutateRate)
 		{
-			double mutateFactor = 1 + ((rand01() - 0.5) * 3.0 + (rand01() - 0.5));
+			double mutateFactor = 1 + ((getRandom01() - 0.5) * 3.0 + (getRandom01() - 0.5));
 			gene *= mutateFactor;
 		}
 		return gene;
 	}
 
-	void GeneticAlgorithm::mutation(Unit* unit)
+	void CGeneticAlgorithm::mutation(SUnit* unit)
 	{
 		SNetwork* network = unit->ANN->getNetwork();
 		int numLayer = (int)m_network.size();

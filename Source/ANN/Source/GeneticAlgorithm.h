@@ -4,39 +4,36 @@
 
 namespace ANN
 {
-	struct Unit
+	struct SUnit
 	{
 		CANN* ANN;
-
-		bool Win;
-
-		float Scored;
-
+		bool Good;
+		double Scored;
 		bool TopUnit;
 
-		Unit()
+		SUnit()
 		{
-			Scored = 0.0f;
+			Scored = 0.0;
 			TopUnit = false;
-			Win = false;
+			Good = false;
 			ANN = NULL;
 		}
 	};
 
-	class GeneticAlgorithm
+	class CGeneticAlgorithm
 	{
 	protected:
 		std::vector<int> m_network;
-		std::vector<Unit*> m_units;
+		std::vector<SUnit*> m_units;
 
 		int m_maxUnit;
 		int m_topUnit;
 		double m_mutateRate;
 
 	public:
-		GeneticAlgorithm(int topUnit = 4);
+		CGeneticAlgorithm(int topUnit = 4);
 
-		virtual ~GeneticAlgorithm();
+		virtual ~CGeneticAlgorithm();
 
 		void destroyPopulation();
 
@@ -46,13 +43,13 @@ namespace ANN
 
 		void selection();
 
-		Unit* crossOver(Unit* parentA, Unit* parentB);
+		SUnit* crossOver(SUnit* parentA, SUnit* parentB);
 
-		Unit* cloneUnit(Unit* parent);
+		SUnit* cloneUnit(SUnit* parent);
 
-		void mutation(Unit* unit);
+		void mutation(SUnit* unit);
 
-		std::vector<Unit*>& get()
+		std::vector<SUnit*>& get()
 		{
 			return m_units;
 		}

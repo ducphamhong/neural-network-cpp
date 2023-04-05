@@ -25,7 +25,6 @@ void game::takeInput()
 game::game()
 {
 	quit = false;
-	score = 0;
 
 	initGraphic();
 	initImages();
@@ -37,7 +36,10 @@ game::game()
 game::~game()
 {
 	freeImages();
-	shiba.Free();
+
+	for (int i = 0; i < MAX_AI_UNIT; i++)
+		shiba[i].Free();
+
 	pipe.Free();
 	land.Free();
 	sound.Free();
@@ -177,7 +179,7 @@ void game::display()
 
 void game::renderScoreSmall()
 {
-	string s = to_string(score);
+	string s = to_string(context::score);
 	signed char len = s.length();
 
 	for (signed char i = len - 1; i >= 0; i--)
@@ -189,7 +191,7 @@ void game::renderScoreSmall()
 
 void game::renderScoreLarge()
 {
-	string s = to_string(score);
+	string s = to_string(context::score);
 	signed char len = s.length();
 
 	for (signed char i = 0; i < len; i++)
@@ -205,9 +207,9 @@ void game::renderBestScore()
 	fileIn >> bestScore;
 	ofstream fileOut("FlappyDoge/data/bestScore.txt", ios::trunc);
 
-	if (score > bestScore)
+	if (context::score > bestScore)
 	{
-		bestScore = score;
+		bestScore = context::score;
 	}
 
 	string s = to_string(bestScore);
@@ -286,6 +288,16 @@ bool game::changeTheme()
 	return false;
 }
 
+bool game::isDie()
+{
+	for (int i = 0; i < MAX_AI_UNIT; i++)
+	{
+		if (!shiba[i].isDie())
+			return false;
+	}
+	return true;
+}
+
 void game::renderGameOver()
 {
 	imageGameOver.Render((SCREEN_WIDTH - imageGameOver.getWidth()) / 2, 150);
@@ -294,11 +306,11 @@ void game::renderGameOver()
 void game::renderMedal()
 {
 	int i = 0;
-	if (score > 20 && score <= 50)
+	if (context::score > 20 && context::score <= 50)
 	{
 		i = 0;
 	}
-	else if (score > 50)
+	else if (context::score > 50)
 	{
 		i = 1;
 	}
@@ -323,11 +335,4 @@ bool game::checkReplay()
 		return true;
 	}
 	return false;
-}
-
-void game::Restart()
-{
-	score = 0;
-	shiba.restart();
-	shiba.resetTime();
 }

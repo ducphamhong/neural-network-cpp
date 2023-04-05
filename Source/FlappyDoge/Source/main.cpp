@@ -7,7 +7,10 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 
-// #define AI_LEARNING_INPUT
+#ifdef AI_LEARNING_INPUT
+#include "GeneticAlgorithm.h"
+#endif
+
 
 const short int FPS = 60;
 const short int frameDelay = 1000 / FPS;
@@ -31,6 +34,14 @@ int CALLBACK WinMain(
 
 	context::gGame = &g;
 
+#ifdef AI_LEARNING_INPUT
+	ANN::CGeneticAlgorithm aiGenetic;
+	const int dim[] = { 2, 6, 1 };
+	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 3);
+
+	int gen = 0;
+#endif
+
 	while (!g.isQuit())
 	{
 		frameStart = SDL_GetTicks();
@@ -39,7 +50,7 @@ int CALLBACK WinMain(
 		{
 			if (isMenu) {
 				g.sound.playHit();
-				g.shiba.render();
+				g.shiba[0].render();
 			}
 			g.userInput.Type = game::input::NONE;
 			while (g.isDie() && !g.isQuit())
@@ -53,14 +64,20 @@ int CALLBACK WinMain(
 					}
 					g.userInput.Type = game::input::NONE;
 				}
-				if (!isDark) g.renderBackground();
-				else g.renderBackgroundNight();
+
+				if (!isDark)
+					g.renderBackground();
+				else
+					g.renderBackgroundNight();
+
 				g.pipe.render();
 				g.land.render();
+
 				if (isMenu)
 				{
-					g.shiba.render();
-					g.shiba.fall();
+					g.shiba[0].render();
+					g.shiba[0].fall();
+
 					g.renderGameOver();
 					g.renderMedal();
 					g.renderScoreSmall();
@@ -70,12 +87,39 @@ int CALLBACK WinMain(
 				else
 				{
 					g.pipe.init();
-					g.shiba.init(isDark);
-					g.shiba.render();
+
+#ifdef AI_LEARNING_INPUT					
+					for (int i = 0; i < MAX_AI_UNIT; i++)
+					{
+						g.shiba[i].init(isDark);
+						g.shiba[i].render();
+					}
+#else
+					g.shiba[0].init(isDark);
+					g.shiba[0].render();
+#endif
 					g.renderMessage();
+
 					if (g.userInput.Type == game::input::PLAY)
 					{
-						g.Restart();
+						context::score = 0;
+
+#ifdef AI_LEARNING_INPUT
+						if (gen != 0)
+							aiGenetic.evolvePopulation();
+						gen++;
+
+						for (int i = 0; i < MAX_AI_UNIT; i++)
+						{
+							g.shiba[i].restart();
+							g.shiba[i].setAIUnit(aiGenetic.get()[i]);
+							g.shiba[i].resetTime();
+						}
+#else
+						g.shiba[0].restart();
+						g.shiba[0].resetTime();
+#endif
+
 						isMenu = 1;
 						g.userInput.Type = game::input::NONE;
 					}
@@ -96,26 +140,35 @@ int CALLBACK WinMain(
 			}
 
 #ifdef AI_LEARNING_INPUT
-
+			// let ai controller on shiba.update
 #else
 			if (isPause == 0 && g.userInput.Type == game::input::PLAY)
 			{
-				if (isSound) g.sound.playBreath();
-				g.shiba.resetTime();
+				if (isSound)
+					g.sound.playBreath();
+				g.shiba[0].resetTime();
 				g.userInput.Type = game::input::NONE;
 			}
 #endif
 
-			if (!isDark) g.renderBackground();
-			else g.renderBackgroundNight();
+			if (!isDark)
+				g.renderBackground();
+			else
+				g.renderBackgroundNight();
+
 			g.pipe.render();
 			g.land.render();
-			g.shiba.render();
+
 			g.renderScoreLarge();
 
 			if (!isPause)
 			{
-				g.shiba.update(g.getPipeWidth(), g.getPipeHeight());
+#ifdef AI_LEARNING_INPUT
+				for (int i = 0; i < MAX_AI_UNIT; i++)
+					g.shiba[i].update(g.getPipeWidth(), g.getPipeHeight());
+#else
+				g.shiba[0].update(g.getPipeWidth(), g.getPipeHeight());
+#endif
 				g.pipe.update();
 				g.land.update();
 				g.pause();
@@ -128,8 +181,14 @@ int CALLBACK WinMain(
 				g.renderBestScore();
 				g.replay();
 				g.sound.renderSound();
-				if (!isDark) g.lightTheme(); else g.darkTheme();
+
+				if (!isDark)
+					g.lightTheme();
+				else
+					g.darkTheme();
+
 				g.nextButton();
+
 				if (g.userInput.Type == game::input::PLAY)
 				{
 					if (g.checkReplay())
@@ -143,11 +202,30 @@ int CALLBACK WinMain(
 					else if (g.changeTheme())
 					{
 						isDark = abs(1 - isDark);
-						g.shiba.init(isDark);
+
+#ifdef AI_LEARNING_INPUT
+						for (int i = 0; i < MAX_AI_UNIT; i++)
+						{
+							g.shiba[i].init(isDark);
+							g.shiba[i].setAIUnit(aiGenetic.get()[i]);
+						}
+#else
+						g.shiba[0].init(isDark);
+#endif
 					}
 					g.userInput.Type = game::input::NONE;
 				}
 			}
+
+#ifdef AI_LEARNING_INPUT
+			for (int i = 0; i < MAX_AI_UNIT; i++)
+			{
+				g.shiba[i].render();
+			}
+#else
+			g.shiba[0].render();
+#endif
+
 			g.display();
 		}
 

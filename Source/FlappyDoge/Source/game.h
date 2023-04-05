@@ -20,12 +20,12 @@ public:
 	};
 
 	input userInput;
-	
+
 	SDL_Event event;
 	bool quit;
-	short int score;
 
-	doge shiba;
+	doge shiba[MAX_AI_UNIT];
+
 	pipe pipe;
 	sound sound;
 	land land;
@@ -63,10 +63,7 @@ public:
 		return quit;
 	}
 
-	bool isDie()
-	{
-		return shiba.isDie();
-	}
+	bool isDie();
 
 	int getPipeWidth()
 	{
@@ -119,8 +116,6 @@ public:
 	void replay();
 
 	bool checkReplay();
-
-	void Restart();
 
 private:
 	const double scaleNumberS = 0.75;
