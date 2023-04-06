@@ -11,8 +11,8 @@ namespace ANN
 		m_topUnit(topUnit),
 		m_maxUnit(0),
 		m_id(),
-		m_mutateRate(0.3),
-		m_maxPertubation(0.5)
+		m_mutateRate(0.2),
+		m_maxPertubation(3.0)
 	{
 
 	}
@@ -67,11 +67,12 @@ namespace ANN
 				int r1 = getRandom() % m_topUnit;
 				int r2 = getRandom() % m_topUnit;
 
-				newUnit = crossOver(m_units[0], m_units[r2]);
+				newUnit = crossOver(m_units[r1], m_units[r2]);
 			}
 			else
 			{
-				newUnit.push_back(cloneUnit(m_units[0]));
+				int randomTop = getRandom() % m_topUnit;
+				newUnit.push_back(cloneUnit(m_units[randomTop]));
 			}
 
 			for (int j = 0, m = (int)newUnit.size(); j < m; j++)
@@ -231,8 +232,11 @@ namespace ANN
 		double r = getRandom01();
 		if (r < mutateRate)
 		{
-			double mutateFactor = getRandom01() * 2.0 - 1.0;
-			gene = gene + mutateFactor * maxPertubation;
+			// double mutateFactor = getRandom01() * 2.0 - 1.0;
+			// gene = gene + mutateFactor * maxPertubation;
+
+			double mutateFactor = 1.0 + ((getRandom01() - 0.5) * maxPertubation + (getRandom01() - 0.5));
+			gene = gene * mutateFactor;
 		}
 		return gene;
 	}

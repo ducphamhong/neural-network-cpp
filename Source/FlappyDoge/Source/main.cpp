@@ -15,7 +15,6 @@
 const short int FPS = 60;
 const short int frameDelay = 1000 / FPS;
 
-bool autoLearning = false;
 using namespace std;
 
 int CALLBACK WinMain(
@@ -32,6 +31,9 @@ int CALLBACK WinMain(
 	bool isPause = 0;
 	bool isSound = 1;
 	bool isDark = 0;
+
+	bool autoLearning = false;
+	int killAll = 60 * 5;
 
 	context::gGame = &g;
 
@@ -328,12 +330,16 @@ int CALLBACK WinMain(
 
 				if (!foundNewGene)
 				{
-					for (int i = 0; i < MAX_AI_UNIT; i++)
+					if (--killAll < 0)
 					{
-						if (!g.shiba[i].isDie())
+						for (int i = 0; i < MAX_AI_UNIT; i++)
 						{
-							g.shiba[i].kill();
+							if (!g.shiba[i].isDie())
+							{
+								g.shiba[i].kill();
+							}
 						}
+						killAll = 60 * 5;
 					}
 				}
 			}
