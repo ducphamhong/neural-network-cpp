@@ -78,13 +78,11 @@ int CALLBACK WinMain(
 
 	autoLearning = false;
 
-	/*
 	int topID[MAX_AI_UNIT];
 	for (int i = 0; i < MAX_AI_UNIT; i++)
 	{
-		topID[MAX_AI_UNIT] = -1;
+		topID[i] = -1;
 	}
-	*/
 #endif
 
 	while (!g.isQuit())
@@ -157,12 +155,10 @@ int CALLBACK WinMain(
 						{
 							aiGenetic.evolvePopulation();
 
-							/*
 							for (int i = 0; i < MAX_AI_UNIT; i++)
 							{
 								topID[i] = aiGenetic.get()[i]->ID;
 							}
-							*/
 						}
 						gen++;
 
@@ -289,15 +285,19 @@ int CALLBACK WinMain(
 
 			for (int i = 0; i < MAX_AI_UNIT; i++)
 			{
+				liveID[i] = -1;
+			}
+
+			for (int i = 0; i < MAX_AI_UNIT; i++)
+			{
 				if (!g.shiba[i].isDie())
 				{
 					g.shiba[i].render();
 
-					// liveID[liveCount++] = g.shiba[i].getAIUnit()->ID;
+					liveID[liveCount++] = g.shiba[i].getAIUnit()->ID;
 				}
 			}
 
-			/*
 			if (autoLearning && liveCount > 0)
 			{
 				bool foundNewGene = false;
@@ -326,11 +326,17 @@ int CALLBACK WinMain(
 					}
 				}
 
-				if (foundNewGene)
+				if (!foundNewGene)
 				{
+					for (int i = 0; i < MAX_AI_UNIT; i++)
+					{
+						if (!g.shiba[i].isDie())
+						{
+							g.shiba[i].kill();
+						}
+					}
 				}
 			}
-			*/
 #else
 			g.shiba[0].render();
 #endif

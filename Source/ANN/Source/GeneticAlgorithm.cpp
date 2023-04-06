@@ -11,8 +11,8 @@ namespace ANN
 		m_topUnit(topUnit),
 		m_maxUnit(0),
 		m_id(),
-		m_mutateRate(0.2),
-		m_maxPertubation(0.3)
+		m_mutateRate(0.3),
+		m_maxPertubation(0.5)
 	{
 
 	}

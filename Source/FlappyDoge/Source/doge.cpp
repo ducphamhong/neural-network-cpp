@@ -4,6 +4,7 @@
 
 bool doge::init(bool isDark)
 {
+	willKill = false;
 	die = true;
 	score = 0;
 	jumpTime = 0;
@@ -170,6 +171,13 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 
 		if (posDoge.y > SCREEN_HEIGHT - LAND_HEIGHT - SHIBA_HEIGHT - 5 || posDoge.y < -10)
 		{
+			die = true;
+			reportDie(distanceToTarget);
+		}
+
+		if (!die && willKill)
+		{
+			willKill = false;
 			die = true;
 			reportDie(distanceToTarget);
 		}

@@ -23,6 +23,11 @@ public:
 		return die;
 	}
 
+	void kill()
+	{
+		willKill = true;
+	}
+
 	void restart()
 	{
 		die = false;
@@ -62,6 +67,7 @@ private:
 	int distance;
 	int score;
 	bool die;
+	bool willKill;
 	short int angle, time, x0;
 	short int ahead = 0;
 	int jumpTime;
