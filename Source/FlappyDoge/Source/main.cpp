@@ -78,11 +78,13 @@ int CALLBACK WinMain(
 
 	autoLearning = false;
 
+	/*
 	int topID[MAX_AI_UNIT];
 	for (int i = 0; i < MAX_AI_UNIT; i++)
 	{
 		topID[MAX_AI_UNIT] = -1;
 	}
+	*/
 #endif
 
 	while (!g.isQuit())
@@ -154,10 +156,13 @@ int CALLBACK WinMain(
 						if (gen != 0)
 						{
 							aiGenetic.evolvePopulation();
+
+							/*
 							for (int i = 0; i < MAX_AI_UNIT; i++)
 							{
 								topID[i] = aiGenetic.get()[i]->ID;
 							}
+							*/
 						}
 						gen++;
 
@@ -281,7 +286,6 @@ int CALLBACK WinMain(
 			int liveCount = 0;
 			int topUnit = 4;
 			int liveID[MAX_AI_UNIT];
-			memset(liveID, 0, sizeof(int) * MAX_AI_UNIT);
 
 			for (int i = 0; i < MAX_AI_UNIT; i++)
 			{
@@ -289,7 +293,7 @@ int CALLBACK WinMain(
 				{
 					g.shiba[i].render();
 
-					liveID[liveCount++] = g.shiba[i].getAIUnit()->ID;
+					// liveID[liveCount++] = g.shiba[i].getAIUnit()->ID;
 				}
 			}
 
