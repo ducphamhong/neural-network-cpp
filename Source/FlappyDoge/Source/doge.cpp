@@ -180,8 +180,10 @@ void doge::reportDie(double distanceToTarget)
 	{
 		// report score
 		double newScore = distance - distanceToTarget;
-		if (newScore > unit->Scored)
-			unit->Scored = newScore;
+		unit->Scored = newScore;
+
+		if (newScore > unit->BestScored)
+			unit->BestScored = newScore;
 
 		if (unit->Scored < 0)
 			unit->Good = false;
@@ -204,4 +206,4 @@ void doge::reportDie(double distanceToTarget)
 
 	fclose(f);
 #endif
-}
+	}

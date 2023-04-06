@@ -201,6 +201,35 @@ void game::renderScoreLarge()
 	}
 }
 
+#ifdef AI_LEARNING_INPUT
+void game::renderBestUnitID()
+{
+	int bestScore = 0;
+	int bestId = 0;
+	for (int i = 0; i < MAX_AI_UNIT; i++)
+	{
+		ANN::SUnit* unit = shiba[i].getAIUnit();
+		if (unit->Scored > bestScore)
+		{
+			bestId = unit->ID;
+			bestScore = unit->Scored;
+		}
+	}
+
+	string s = to_string(bestId);
+	signed char len = s.length();
+
+	for (signed char i = 0; i < len; i++)
+	{
+		signed char number = s[i] - '0';
+		imageNumberLarge[number].Render(
+			10 + i * 30,
+			SCREEN_HEIGHT - 60
+		);
+	}
+}
+#endif
+
 void game::renderBestScore()
 {
 	ifstream fileIn("FlappyDoge/data/bestScore.txt");

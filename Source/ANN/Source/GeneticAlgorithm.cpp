@@ -111,7 +111,16 @@ namespace ANN
 
 	bool sort(const SUnit* a, const SUnit* b)
 	{
-		return a->Scored > b->Scored;
+		float scoreA = a->Scored * 0.8;
+		float scoreB = b->Scored * 0.8;
+
+		if (a->BestScored > 0 && b->BestScored > 0)
+		{
+			scoreA = scoreA + a->BestScored * 0.2;
+			scoreB = scoreB + b->BestScored * 0.2;
+		}
+
+		return scoreA > scoreB;
 	}
 
 	void CGeneticAlgorithm::selection()
@@ -233,7 +242,7 @@ namespace ANN
 		SNetwork* network = unit->ANN->getNetwork();
 		int numLayer = (int)m_network.size();
 
-		for (int i = 1; i < numLayer - 1; i++)
+		for (int i = 0; i < numLayer; i++)
 		{
 			SLayer& layer = network->Layers[i];
 

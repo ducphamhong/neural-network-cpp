@@ -85,6 +85,10 @@ public:
 
 	void renderScoreLarge();
 
+#ifdef AI_LEARNING_INPUT
+	void renderBestUnitID();
+#endif
+
 	void renderBestScore();
 
 	void renderMessage();

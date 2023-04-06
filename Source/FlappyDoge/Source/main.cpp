@@ -157,13 +157,13 @@ int CALLBACK WinMain(
 
 						isMenu = 1;
 						g.userInput.Type = game::input::NONE;
-						}
+					}
 					g.land.update();
-					}
-				g.display();
-					}
-			g.pipe.init();
 				}
+				g.display();
+			}
+			g.pipe.init();
+		}
 		else
 		{
 			g.takeInput();
@@ -183,7 +183,7 @@ int CALLBACK WinMain(
 					g.sound.playBreath();
 				g.shiba[0].resetTime();
 				g.userInput.Type = game::input::NONE;
-		}
+			}
 #endif
 
 			if (!isDark)
@@ -195,6 +195,10 @@ int CALLBACK WinMain(
 			g.land.render();
 
 			g.renderScoreLarge();
+
+#ifdef AI_LEARNING_INPUT
+			g.renderBestUnitID();
+#endif
 
 			if (!isPause)
 			{
@@ -247,10 +251,10 @@ int CALLBACK WinMain(
 #else
 						g.shiba[0].init(isDark);
 #endif
-						}
-					g.userInput.Type = game::input::NONE;
 					}
+					g.userInput.Type = game::input::NONE;
 				}
+			}
 
 #ifdef AI_LEARNING_INPUT
 			for (int i = 0; i < MAX_AI_UNIT; i++)
@@ -263,7 +267,7 @@ int CALLBACK WinMain(
 #endif
 
 			g.display();
-			}
+		}
 
 		// Limit FPS
 		frameTime = SDL_GetTicks() - frameStart;
@@ -271,6 +275,6 @@ int CALLBACK WinMain(
 		{
 			SDL_Delay(frameDelay - frameTime);
 		}
-			}
+	}
 	return 0;
-			}
+}

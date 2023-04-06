@@ -43,6 +43,11 @@ public:
 
 #ifdef AI_LEARNING_INPUT
 	void setAIUnit(ANN::SUnit* u);
+
+	ANN::SUnit* getAIUnit()
+	{
+		return unit;
+	}
 #endif
 
 private:

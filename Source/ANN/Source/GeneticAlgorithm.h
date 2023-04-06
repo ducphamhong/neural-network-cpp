@@ -9,6 +9,7 @@ namespace ANN
 		CANN* ANN;
 		bool Good;
 		double Scored;
+		double BestScored;
 		bool TopUnit;
 		int ID;
 
@@ -16,6 +17,7 @@ namespace ANN
 		{
 			ID = 0;
 			Scored = 0.0;
+			BestScored = 0.0f;
 			TopUnit = false;
 			Good = false;
 			ANN = NULL;
