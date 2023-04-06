@@ -86,7 +86,7 @@ public:
 	void renderScoreLarge();
 
 #ifdef AI_LEARNING_INPUT
-	void renderBestUnitID();
+	void renderBestUnitID(int gen);
 #endif
 
 	void renderBestScore();

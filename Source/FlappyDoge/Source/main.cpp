@@ -15,6 +15,7 @@
 const short int FPS = 60;
 const short int frameDelay = 1000 / FPS;
 
+bool autoLearning = false;
 using namespace std;
 
 int CALLBACK WinMain(
@@ -74,6 +75,14 @@ int CALLBACK WinMain(
 	}
 
 	int gen = 0;
+
+	autoLearning = false;
+
+	int topID[MAX_AI_UNIT];
+	for (int i = 0; i < MAX_AI_UNIT; i++)
+	{
+		topID[MAX_AI_UNIT] = -1;
+	}
 #endif
 
 	while (!g.isQuit())
@@ -90,9 +99,9 @@ int CALLBACK WinMain(
 			while (g.isDie() && !g.isQuit())
 			{
 				g.takeInput();
-				if (isMenu == 1 && g.userInput.Type == game::input::PLAY)
+				if ((isMenu == 1 && g.userInput.Type == game::input::PLAY) || autoLearning)
 				{
-					if (g.checkReplay())
+					if (g.checkReplay() || autoLearning)
 					{
 						isMenu = 0;
 					}
@@ -135,13 +144,21 @@ int CALLBACK WinMain(
 
 					g.renderMessage();
 
-					if (g.userInput.Type == game::input::PLAY)
+					if (g.userInput.Type == game::input::PLAY || autoLearning)
 					{
 						context::score = 0;
 
 #ifdef AI_LEARNING_INPUT
+						autoLearning = true;
+
 						if (gen != 0)
+						{
 							aiGenetic.evolvePopulation();
+							for (int i = 0; i < MAX_AI_UNIT; i++)
+							{
+								topID[i] = aiGenetic.get()[i]->ID;
+							}
+						}
 						gen++;
 
 						for (int i = 0; i < MAX_AI_UNIT; i++)
@@ -176,6 +193,10 @@ int CALLBACK WinMain(
 
 #ifdef AI_LEARNING_INPUT
 			// let ai controller on shiba.update
+			if (g.userInput.Type == game::input::PLAY)
+			{
+				autoLearning = false;
+			}
 #else
 			if (isPause == 0 && g.userInput.Type == game::input::PLAY)
 			{
@@ -197,7 +218,7 @@ int CALLBACK WinMain(
 			g.renderScoreLarge();
 
 #ifdef AI_LEARNING_INPUT
-			g.renderBestUnitID();
+			g.renderBestUnitID(gen);
 #endif
 
 			if (!isPause)
@@ -257,11 +278,55 @@ int CALLBACK WinMain(
 			}
 
 #ifdef AI_LEARNING_INPUT
+			int liveCount = 0;
+			int topUnit = 4;
+			int liveID[MAX_AI_UNIT];
+			memset(liveID, 0, sizeof(int) * MAX_AI_UNIT);
+
 			for (int i = 0; i < MAX_AI_UNIT; i++)
 			{
 				if (!g.shiba[i].isDie())
+				{
 					g.shiba[i].render();
+
+					liveID[liveCount++] = g.shiba[i].getAIUnit()->ID;
+				}
 			}
+
+			/*
+			if (autoLearning && liveCount > 0)
+			{
+				bool foundNewGene = false;
+
+				// check to skip alive shiba is in old gene in top Unit
+				if (liveCount > topUnit)
+					foundNewGene = true;
+				else
+				{
+					for (int i = 0; i < liveCount; i++)
+					{
+						bool oldGene = false;
+						for (int j = 0; j < topUnit; j++)
+						{
+							if (liveID[i] == topID[j])
+							{
+								oldGene = true;
+								break;
+							}
+						}
+						if (oldGene == false)
+						{
+							foundNewGene = true;
+							break;
+						}
+					}
+				}
+
+				if (foundNewGene)
+				{
+				}
+			}
+			*/
 #else
 			g.shiba[0].render();
 #endif
@@ -273,7 +338,8 @@ int CALLBACK WinMain(
 		frameTime = SDL_GetTicks() - frameStart;
 		if (frameDelay > frameTime)
 		{
-			SDL_Delay(frameDelay - frameTime);
+			if (frameDelay - frameTime < 1000)
+				SDL_Delay(frameDelay - frameTime);
 		}
 	}
 	return 0;

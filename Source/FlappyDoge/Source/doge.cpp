@@ -136,6 +136,9 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 					resetTime(); // flap
 				}
 			}
+
+			// update current score
+			unit->Scored = distance - distanceToTarget;
 		}
 #else
 		double output = 0.0;
@@ -206,4 +209,4 @@ void doge::reportDie(double distanceToTarget)
 
 	fclose(f);
 #endif
-	}
+}

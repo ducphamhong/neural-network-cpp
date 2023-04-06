@@ -202,7 +202,7 @@ void game::renderScoreLarge()
 }
 
 #ifdef AI_LEARNING_INPUT
-void game::renderBestUnitID()
+void game::renderBestUnitID(int gen)
 {
 	int bestScore = 0;
 	int bestId = 0;
@@ -224,6 +224,17 @@ void game::renderBestUnitID()
 		signed char number = s[i] - '0';
 		imageNumberLarge[number].Render(
 			10 + i * 30,
+			SCREEN_HEIGHT - 60
+		);
+	}
+
+	s = to_string(gen);
+	len = s.length();
+	for (signed char i = 0; i < len; i++)
+	{
+		signed char number = s[i] - '0';
+		imageNumberLarge[number].Render(
+			SCREEN_WIDTH - 100 + 10 + i * 30,
 			SCREEN_HEIGHT - 60
 		);
 	}
