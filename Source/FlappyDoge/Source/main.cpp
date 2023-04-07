@@ -39,7 +39,7 @@ int CALLBACK WinMain(
 
 #ifdef AI_LEARNING_INPUT
 	ANN::CGeneticAlgorithm aiGenetic;
-	const int dim[] = { 2, 6, 1 };
+	const int dim[] = { 4, 8, 1 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 3);
 
 	std::vector<double> input;
@@ -51,17 +51,19 @@ int CALLBACK WinMain(
 	char lines[512];
 	while (!feof(f))
 	{
-		double i1, i2, o;
+		double i1, i2, i3, i4, o;
 		fgets(lines, 512, f);
-		sscanf(lines, "%lf %lf %lf", &i1, &i2, &o);
+		sscanf(lines, "%lf %lf %lf %lf %lf", &i1, &i2, &i3, &i4, &o);
 		input.push_back(i1);
 		input.push_back(i2);
+		input.push_back(i3);
+		input.push_back(i4);
 		output.push_back(o);
 	}
 	fclose(f);
 
 	// need learning from human control for Gen 0
-	for (int learnCount = 10; learnCount > 0; learnCount--)
+	for (int learnCount = 20; learnCount > 0; learnCount--)
 	{
 		std::vector<ANN::SUnit*>& units = aiGenetic.get();
 		for (int i = 0, n = (int)units.size(); i < n; i++)

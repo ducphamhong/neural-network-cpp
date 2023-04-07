@@ -108,21 +108,34 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 
 		int cx = posDoge.x + getWidth() / 2;
 		int cy = posDoge.y + getHeight() / 2;
-		int tx = posPipe[ahead].x + pipeWidth;
-		int ty = posPipe[ahead].y + pipeHeight + PIPE_SPACE / 2;
+		int tx1 = posPipe[ahead].x + pipeWidth * 0.5;
+		int ty1 = posPipe[ahead].y + pipeHeight + PIPE_SPACE / 2;
+
+		int nexthead = (ahead + 1) % TOTAL_PIPE;
+
+		int tx2 = posPipe[nexthead].x + pipeWidth * 0.5;
+		int ty2 = posPipe[nexthead].y + pipeHeight + PIPE_SPACE / 2;
 
 		SDL_RenderDrawLine(context::gRenderer,
 			cx, cy,
-			tx, ty);
+			tx1, ty1);
 
-		int dx = tx - cx;
-		int dy = -(ty - cy);
+		SDL_RenderDrawLine(context::gRenderer,
+			cx, cy,
+			tx2, ty2);
+
+		int dx = tx1 - cx;
+		int dy = -(ty1 - cy);
+		int ddx = tx2 - cx;
+		int ddy = -(ty2 - cy);
 
 		double distanceToTarget = sqrt(dx * dx + dy * dy);
 
-		double input[2];
+		double input[4];
 		input[0] = dx / (double)SCREEN_WIDTH;
 		input[1] = dy / (double)SCREEN_HEIGHT;
+		input[2] = ddx / (double)SCREEN_WIDTH;
+		input[3] = ddy / (double)SCREEN_HEIGHT;
 
 #ifdef AI_LEARNING_INPUT		
 		if (!die && unit != NULL)
@@ -143,7 +156,7 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 		}
 #else
 		double output = 0.0;
-		if (time <= 10)
+		if (time <= 5)
 		{
 			output = 1.0;
 		}
@@ -151,6 +164,8 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 		// save data for learning from human play
 		dataInput.push_back(input[0]);
 		dataInput.push_back(input[1]);
+		dataInput.push_back(input[2]);
+		dataInput.push_back(input[3]);
 		dataOutput.push_back(output);
 #endif
 
@@ -208,11 +223,13 @@ void doge::reportDie(double distanceToTarget)
 	int numData = (int)dataOutput.size();
 	for (int i = 0; i < numData; i++)
 	{
-		double i1 = dataInput[i * 2];
-		double i2 = dataInput[i * 2 + 1];
+		double i1 = dataInput[i * 4];
+		double i2 = dataInput[i * 4 + 1];
+		double i3 = dataInput[i * 4 + 2];
+		double i4 = dataInput[i * 4 + 3];
 		double o = dataOutput[i];
 
-		fprintf(f, "%lf %lf %lf\n", i1, i2, o);
+		fprintf(f, "%lf %lf %lf %lf %lf\n", i1, i2, i3, i4, o);
 	}
 
 	fclose(f);
