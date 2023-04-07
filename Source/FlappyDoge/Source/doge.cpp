@@ -120,6 +120,13 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 		int tx2 = posPipe[nexthead].x + pipeWidth * 0.5;
 		int ty2 = posPipe[nexthead].y + pipeHeight + PIPE_SPACE / 2;
 
+#ifdef AI_LEARNING_INPUT	
+		if (unit->TopUnit)
+			SDL_SetRenderDrawColor(context::gRenderer, 0, 0, 255, 255);
+		else
+			SDL_SetRenderDrawColor(context::gRenderer, 255, 255, 255, 255);
+#endif
+
 		SDL_RenderDrawLine(context::gRenderer,
 			cx, cy,
 			tx1, ty1);
@@ -201,8 +208,8 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 			fallInGround = true;
 			reportDie(distanceToTarget);
 		}
+		}
 	}
-}
 
 void doge::reportDie(double distanceToTarget)
 {
@@ -239,4 +246,4 @@ void doge::reportDie(double distanceToTarget)
 
 	fclose(f);
 #endif
-	}
+}

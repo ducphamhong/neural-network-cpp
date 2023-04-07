@@ -101,7 +101,7 @@ namespace ANN
 		for (int i = 0; i < numUnit; i++)
 		{
 			m_units[i]->Good = false;
-			m_units[i]->TopUnit = false;
+			m_units[i]->TopUnit = i < m_topUnit;
 
 			if (m_units[i]->ID == 0)
 			{
