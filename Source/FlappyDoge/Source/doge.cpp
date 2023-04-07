@@ -5,6 +5,7 @@
 bool doge::init(bool isDark)
 {
 	willKill = false;
+	fallInGround = false;
 	die = true;
 	score = 0;
 	jumpTime = 0;
@@ -49,7 +50,7 @@ void doge::render()
 
 void doge::fall()
 {
-	if (die && posDoge.y < SCREEN_HEIGHT - LAND_HEIGHT - SHIBA_HEIGHT - 5)
+	if (die && !fallInGround && posDoge.y < SCREEN_HEIGHT - LAND_HEIGHT - SHIBA_HEIGHT - 5)
 	{
 		if (time == 0)
 		{
@@ -66,9 +67,12 @@ void doge::fall()
 			posDoge.y = x0 + time * time * 0.18 - 7.3 * time;
 			time++;
 		}
+		fallInGround = false;
 	}
 	else
-		return;
+	{
+		fallInGround = true;
+	}
 }
 
 #ifdef AI_LEARNING_INPUT
@@ -194,6 +198,7 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 		{
 			willKill = false;
 			die = true;
+			fallInGround = true;
 			reportDie(distanceToTarget);
 		}
 	}
@@ -234,4 +239,4 @@ void doge::reportDie(double distanceToTarget)
 
 	fclose(f);
 #endif
-}
+	}

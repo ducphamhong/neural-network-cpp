@@ -33,7 +33,7 @@ int CALLBACK WinMain(
 	bool isDark = 0;
 
 	bool autoLearning = false;
-	int killAll = 60 * 5;
+	int killAll = 60 * 10;
 
 	context::gGame = &g;
 
@@ -63,7 +63,7 @@ int CALLBACK WinMain(
 	fclose(f);
 
 	// need learning from human control for Gen 0
-	for (int learnCount = 20; learnCount > 0; learnCount--)
+	for (int learnCount = 100; learnCount > 0; learnCount--)
 	{
 		std::vector<ANN::SUnit*>& units = aiGenetic.get();
 		for (int i = 0, n = (int)units.size(); i < n; i++)
@@ -103,9 +103,12 @@ int CALLBACK WinMain(
 			while (g.isDie() && !g.isQuit())
 			{
 				g.takeInput();
-				if ((isMenu == 1 && g.userInput.Type == game::input::PLAY) || autoLearning)
+
+				bool autoRestart = isMenu && autoLearning && g.shiba[0].isFallInGround();
+
+				if ((isMenu == 1 && g.userInput.Type == game::input::PLAY) || autoRestart)
 				{
-					if (g.checkReplay() || autoLearning)
+					if (g.checkReplay() || autoRestart)
 					{
 						isMenu = 0;
 					}
@@ -148,7 +151,7 @@ int CALLBACK WinMain(
 
 					g.renderMessage();
 
-					if (g.userInput.Type == game::input::PLAY || autoLearning)
+					if (g.userInput.Type == game::input::PLAY || autoRestart)
 					{
 						context::score = 0;
 
@@ -304,29 +307,30 @@ int CALLBACK WinMain(
 
 			if (autoLearning && liveCount > 0)
 			{
-				bool foundNewGene = false;
+				bool foundNewGene = true;
 
 				// check to skip alive shiba is in old gene in top Unit
 				if (liveCount > topUnit)
 					foundNewGene = true;
 				else
 				{
+					int numOldGeneration = 0;
+
 					for (int i = 0; i < liveCount; i++)
 					{
-						bool oldGene = false;
 						for (int j = 0; j < topUnit; j++)
 						{
 							if (liveID[i] == topID[j])
 							{
-								oldGene = true;
+								numOldGeneration++;
 								break;
 							}
 						}
-						if (oldGene == false)
-						{
-							foundNewGene = true;
-							break;
-						}
+					}
+
+					if (liveCount == numOldGeneration)
+					{
+						foundNewGene = false;
 					}
 				}
 
@@ -336,12 +340,14 @@ int CALLBACK WinMain(
 					{
 						for (int i = 0; i < MAX_AI_UNIT; i++)
 						{
+							g.shiba[i].setFallInGround();
+
 							if (!g.shiba[i].isDie())
 							{
 								g.shiba[i].kill();
 							}
 						}
-						killAll = 60 * 5;
+						killAll = 60 * 10;
 					}
 				}
 			}
@@ -356,7 +362,8 @@ int CALLBACK WinMain(
 		frameTime = SDL_GetTicks() - frameStart;
 		if (frameDelay > frameTime)
 		{
-			if (frameDelay - frameTime < 1000)
+			short d = frameDelay - frameTime;
+			if (d > 0 && d < 1000)
 				SDL_Delay(frameDelay - frameTime);
 		}
 	}

@@ -27,10 +27,16 @@ public:
 	{
 		willKill = true;
 	}
+	
+	void setFallInGround()
+	{
+		fallInGround = true;
+	}
 
 	void restart()
 	{
 		die = false;
+		fallInGround = false;
 		distance = 0.0f;
 		score = 0;
 	}
@@ -45,6 +51,11 @@ public:
 	void update(short int pileWidth, short int pileHeight);
 
 	void reportDie(double distanceToTarget);
+
+	bool isFallInGround()
+	{
+		return fallInGround;
+	}
 
 #ifdef AI_LEARNING_INPUT
 	void setAIUnit(ANN::SUnit* u);
@@ -68,6 +79,7 @@ private:
 	int score;
 	bool die;
 	bool willKill;
+	bool fallInGround;
 	short int angle, time, x0;
 	short int ahead = 0;
 	int jumpTime;
