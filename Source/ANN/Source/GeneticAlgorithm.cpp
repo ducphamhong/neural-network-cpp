@@ -36,7 +36,7 @@ namespace ANN
 		m_maxUnit(0),
 		m_id(),
 		m_mutateRate(0.2),
-		m_maxPertubation(3.0)
+		m_maxPertubation(4.0)
 	{
 
 	}
@@ -259,7 +259,7 @@ namespace ANN
 			// double mutateFactor = getRandom01() * 2.0 - 1.0;
 			// gene = gene + mutateFactor * maxPertubation;
 
-			double mutateFactor = 1.0 + ((getRandom01() - 0.5) * maxPertubation + (getRandom01() - 0.5));
+			double mutateFactor = 1.0 + (getRandom01() - 0.5) * maxPertubation;
 			gene = gene * mutateFactor;
 		}
 		return gene;
