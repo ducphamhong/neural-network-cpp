@@ -3,6 +3,7 @@ This project is the simple Artificial neural networks (ANN), which are computati
 
 ## XOR
 In this example tech the AI learns to compute XOR function.
+
 Code example
 ``` C++
 #include "pch.h"
@@ -69,9 +70,13 @@ int main()
 
 ## Digit Classification
 For this example, the AI learns to recognize a small image file of 28x28 pixels.
+
+You need extract the data resource
+
 <img src="Image/DigitClassificationExtract.png"/>
 
 The size image 28x28 = 784 inputs
+
 <img src="Image/DigitNetwork.png"/>
 
 ```C++
@@ -109,6 +114,7 @@ ann.Predict = [](const double* output, int numOutput)
 ```
 
 And the result test:
+
 <img src="Image/DigitClassification.png"/>
 
 ## Flappy Doge
@@ -132,8 +138,11 @@ I try to use 2 layers with 6 neutrals
 
 ## References:
 [Machine learning](https://zitaoshen.rbind.io/project/machine_learning/how-to-build-your-own-neural-net-from-the-scrach)
+
 [ANN In C](https://github.com/gkrishnan724/ANN-IN-C)
+
 [FlappyDoge project](https://github.com/Ducanger/Flappy-Doge-SDL2)
+
 [Flappy Bird ML](https://github.com/ssusnic/Machine-Learning-Flappy-Bird)
 
 
