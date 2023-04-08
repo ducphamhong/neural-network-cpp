@@ -8,7 +8,7 @@ namespace ANN
 	time_t t;
 	int seed = (int)time(&t);
 
-	const int m = 2147483399;	// a non-Mersenne prime
+	const int m = 2147483399;		// a non-Mersenne prime
 	const int a = 40692;			// another spectral success story
 	const int q = m / a;
 	const int r = m % a;			// again less than q
