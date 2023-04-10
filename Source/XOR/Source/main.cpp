@@ -61,7 +61,7 @@ int main()
 	ann.serialize(&memory);
 	ann.deserialize(&memory);
 
-	// test learning
+	// test learning after load data
 	printf("Test save/load: %d bytes\n", memory.getSize());
 	p = input;
 	for (int i = 0; i < 4; i++)

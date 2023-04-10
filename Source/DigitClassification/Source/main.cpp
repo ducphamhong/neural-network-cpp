@@ -113,7 +113,7 @@ int main()
 		}
 	}
 
-	int totalLearnTime = 3;
+	int totalLearnTime = 2; // try learn 2 times
 	for (int learnTime = 0; learnTime < totalLearnTime; learnTime++)
 	{
 		// learning trainCount (~4000) file/number
@@ -136,11 +136,17 @@ int main()
 					train(&ann, file.c_str(), (double)i);
 					lessionLearned[i]++;
 				}
-			}
+			}			
 		}
+
+		// reset lession and begin retry learn again
+		for (int i = 0; i < 10; i++)
+			lessionLearned[i] = 0;
 	}
 
 	printf("Test classification\n");
+
+	int wrongCount = 0;
 	for (int i = 0; i < 100; i++)
 	{
 		int a = rand() % 10;
@@ -166,9 +172,13 @@ int main()
 					printf("    + %d -> %d%%\n", i, (int)(output[i] * 100));
 				}
 				delete output;
+
+				wrongCount++;
 			}
 		}
 	}
+
+	printf("Wrong: %d%%\n", wrongCount);
 
 	return 1;
 }
