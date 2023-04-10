@@ -6,9 +6,11 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <filesystem>
 
 #ifdef AI_LEARNING_INPUT
 #include "GeneticAlgorithm.h"
+#include "MemoryStream.h"
 #endif
 
 const short int FPS = 60;
@@ -33,6 +35,7 @@ int CALLBACK WinMain(
 
 	bool autoSkipGameOverDialog = false;
 	int killAll = 60 * 10;
+	bool firstTraining = true;
 
 	context::gGame = &g;
 
@@ -41,40 +44,64 @@ int CALLBACK WinMain(
 	const int dim[] = { 4, 6, 6, 1 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 
-	std::vector<double> input;
-	std::vector<double> output;
+	// read last train session
+	const char* lastTrainData = "FlappyDoge/data/last-training.data";
+	const char* humanPlayedData = "FlappyDoge/data/learning.txt";
 
-	// See the function doge::reportDie
-	// Read human play data
-	FILE* f = fopen("FlappyDoge/data/learning.txt", "rt");
-	char lines[512];
-	while (!feof(f))
+	firstTraining = !std::filesystem::exists(lastTrainData);
+
+	if (firstTraining)
 	{
-		double i1, i2, i3, i4, o;
-		fgets(lines, 512, f);
-		sscanf(lines, "%lf %lf %lf %lf %lf", &i1, &i2, &i3, &i4, &o);
-		input.push_back(i1);
-		input.push_back(i2);
-		input.push_back(i3);
-		input.push_back(i4);
-		output.push_back(o);
-	}
-	fclose(f);
+		std::vector<double> input;
+		std::vector<double> output;
 
-	// learn expected function
-	// need learning from human control for Gen 0
-	std::vector<ANN::SUnit*>& units = aiGenetic.get();
-	for (int i = 0, n = (int)units.size(); i < n; i++)
-	{
-		units[i]->ANN->LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput)
+		// See the function doge::reportDie
+		// Read human played data
+		FILE* f = fopen(humanPlayedData, "rt");
+		char lines[512];
+		while (!feof(f))
 		{
-			expectedOutput[0] = trainData[trainId];
-		};
-
-		for (int learnCount = 500; learnCount > 0; learnCount--)
-		{
-			units[i]->ANN->train(input.data(), output.data(), (int)output.size());
+			double i1, i2, i3, i4, o;
+			fgets(lines, 512, f);
+			sscanf(lines, "%lf %lf %lf %lf %lf", &i1, &i2, &i3, &i4, &o);
+			input.push_back(i1);
+			input.push_back(i2);
+			input.push_back(i3);
+			input.push_back(i4);
+			output.push_back(o);
 		}
+		fclose(f);
+
+		// learn expected function
+		// need learning from human control for Gen 0
+		std::vector<ANN::SUnit*>& units = aiGenetic.get();
+		for (int i = 0, n = (int)units.size(); i < n; i++)
+		{
+			units[i]->ANN->LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput)
+			{
+				expectedOutput[0] = trainData[trainId];
+			};
+
+			for (int learnCount = 500; learnCount > 0; learnCount--)
+			{
+				units[i]->ANN->train(input.data(), output.data(), (int)output.size());
+			}
+		}
+	}
+	else
+	{
+		// continue training after close program
+		FILE* f = fopen(lastTrainData, "rb");
+		fseek(f, 0, SEEK_END);
+		long size = ftell(f);
+		unsigned char* data = new unsigned char[size];
+		fseek(f, 0, SEEK_SET);
+		fread(data, size, 1, f);
+		fclose(f);
+
+		ANN::CMemoryStream stream(data, size);
+		aiGenetic.deserialize(&stream);
+		delete[]data;
 	}
 
 	int gen = 0;
@@ -159,6 +186,15 @@ int CALLBACK WinMain(
 						if (gen != 0)
 						{
 							aiGenetic.evolvePopulation();
+
+							// save process to file
+							ANN::CMemoryStream data;
+							aiGenetic.serialize(&data);
+							FILE* f = fopen(lastTrainData, "wb");
+							fwrite(data.getData(), data.getSize(), 1, f);
+							fclose(f);
+
+							// continue train
 							for (int i = 0; i < MAX_AI_UNIT; i++)
 							{
 								currentGenerationID[i] = aiGenetic.get()[i]->ID;

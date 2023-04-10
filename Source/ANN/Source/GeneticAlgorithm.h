@@ -51,7 +51,7 @@ namespace ANN
 	class CGeneticAlgorithm
 	{
 	protected:
-		std::vector<int> m_network;
+		std::vector<int> m_networkDim;
 		std::vector<SUnit*> m_units;
 
 		int m_id;
@@ -83,8 +83,6 @@ namespace ANN
 		{
 			return m_units;
 		}
-
-	protected:
 
 		void serialize(CMemoryStream* io);
 

@@ -60,10 +60,10 @@ namespace ANN
 	void CGeneticAlgorithm::createPopulation(int numUnit, const int* dim, int numLayer)
 	{
 		m_maxUnit = numUnit;
-		m_network.clear();
+		m_networkDim.clear();
 
 		for (int i = 0; i < numLayer; i++)
-			m_network.push_back(dim[i]);
+			m_networkDim.push_back(dim[i]);
 
 		for (int i = 0; i < numUnit; i++)
 		{
@@ -82,7 +82,7 @@ namespace ANN
 		{
 			std::vector<SUnit*> newUnit;
 
-			if (i == m_topUnit)
+			if (i == m_topUnit && m_topUnit > 1)
 			{
 				newUnit = crossOver(m_units[0], m_units[1]);
 			}
@@ -90,7 +90,13 @@ namespace ANN
 			{
 				int r1 = getRandom() % m_topUnit;
 				int r2 = getRandom() % m_topUnit;
-
+				if (m_topUnit > 1)
+				{
+					while (r2 == r1)
+					{
+						r2 = getRandom() % m_topUnit;
+					}
+				}
 				newUnit = crossOver(m_units[r1], m_units[r2]);
 			}
 			else
@@ -174,9 +180,9 @@ namespace ANN
 		SUnit* unit1 = new SUnit();
 		SUnit* unit2 = new SUnit();
 
-		int numLayer = (int)m_network.size();
-		unit1->ANN = new CANN(m_network.data(), numLayer);
-		unit2->ANN = new CANN(m_network.data(), numLayer);
+		int numLayer = (int)m_networkDim.size();
+		unit1->ANN = new CANN(m_networkDim.data(), numLayer);
+		unit2->ANN = new CANN(m_networkDim.data(), numLayer);
 
 		SNetwork* network1 = unit1->ANN->getNetwork();
 		SNetwork* network2 = unit2->ANN->getNetwork();
@@ -228,8 +234,8 @@ namespace ANN
 	{
 		SUnit* unit = new SUnit();
 
-		int numLayer = (int)m_network.size();
-		unit->ANN = new CANN(m_network.data(), numLayer);
+		int numLayer = (int)m_networkDim.size();
+		unit->ANN = new CANN(m_networkDim.data(), numLayer);
 
 		SNetwork* network = unit->ANN->getNetwork();
 		SNetwork* networkParent = parent->ANN->getNetwork();
@@ -269,7 +275,7 @@ namespace ANN
 	void CGeneticAlgorithm::mutation(SUnit* unit)
 	{
 		SNetwork* network = unit->ANN->getNetwork();
-		int numLayer = (int)m_network.size();
+		int numLayer = (int)m_networkDim.size();
 
 		for (int i = 0; i < numLayer; i++)
 		{
@@ -289,11 +295,69 @@ namespace ANN
 
 	void CGeneticAlgorithm::serialize(CMemoryStream* io)
 	{
+		// write info of network
+		io->writeInt((int)m_networkDim.size());
+		for (int i = 0, n = (int)m_networkDim.size(); i < n; i++)
+		{
+			io->writeInt(m_networkDim[i]);
+		}
 
+		// write generic
+		io->writeInt(m_maxUnit);
+		io->writeInt(m_topUnit);
+
+		// write unit info
+		int numUnit = (int)m_units.size();
+		io->writeInt(numUnit);
+		for (int i = 0; i < numUnit; i++)
+		{
+			SUnit* unit = m_units[i];
+			io->writeDouble(unit->BestScored);
+			io->writeInt(unit->ID);
+
+			// write ANN data
+			CMemoryStream m;
+			m_units[i]->ANN->serialize(&m);
+			io->writeInt(m.getSize());
+			io->writeData(m.getData(), m.getSize());
+		}
 	}
 
 	bool CGeneticAlgorithm::deserialize(CMemoryStream* io)
 	{
+		destroyPopulation();
+
+		// read network dimension
+		int n = io->readInt();
+		m_networkDim.clear();
+		for (int i = 0; i < n; i++)
+		{
+			m_networkDim.push_back(io->readInt());
+		}
+
+		// read info
+		m_maxUnit = io->readInt();
+		m_topUnit = io->readInt();
+
+		int numUnit = io->readInt();
+		for (int i = 0; i < numUnit; i++)
+		{
+			SUnit* unit = new SUnit();
+			unit->BestScored = io->readDouble();
+			unit->ID = io->readInt();
+
+			// read ANN data
+			int size = io->readInt();
+			unsigned char* data = new unsigned char[size];
+			io->readData(data, size);
+			CMemoryStream m(data, size);
+			unit->ANN = new CANN(m_networkDim.data(), (int)m_networkDim.size());
+			unit->ANN->deserialize(&m);
+			delete[]data;
+
+			m_units.push_back(unit);
+		}
+
 		return false;
 	}
 }
