@@ -153,7 +153,7 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 		{
 			if (--jumpTime < 0)
 			{
-				jumpTime = 3;
+				jumpTime = 1;
 
 				double output = unit->ANN->predict(input);
 				if (output == 1.0)

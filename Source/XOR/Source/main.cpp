@@ -57,5 +57,19 @@ int main()
 		p += 2;
 	}
 
+	ANN::CMemoryStream memory;
+	ann.serialize(&memory);
+	ann.deserialize(&memory);
+
+	// test learning
+	printf("Test save/load: %d bytes\n", memory.getSize());
+	p = input;
+	for (int i = 0; i < 4; i++)
+	{
+		double ret = ann.predict(p);
+		printf("%d xor %d = %d\n", (int)p[0], (int)p[1], (int)ret);
+		p += 2;
+	}
+
 	return 1;
 }

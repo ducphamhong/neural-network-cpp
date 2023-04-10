@@ -28,8 +28,22 @@ https://github.com/skylicht-lab/skylicht-engine
 
 namespace ANN
 {
-	CANN::CANN(const int* dim, int numLayer)
+	CANN::CANN(const int* dim, int numLayer) :
+		m_network(NULL)
 	{
+		init(dim, numLayer);
+	}
+
+	CANN::~CANN()
+	{
+		delete m_network;
+	}
+
+	void CANN::init(const int* dim, int numLayer)
+	{
+		if (m_network)
+			delete m_network;
+
 		m_network = new SNetwork();
 		m_network->NumLayers = numLayer;
 		m_network->Layers = new SLayer[numLayer];
@@ -67,11 +81,6 @@ namespace ANN
 				}
 			}
 		}
-	}
-
-	CANN::~CANN()
-	{
-		delete m_network;
 	}
 
 	double sigmoid(double x)
@@ -189,5 +198,77 @@ namespace ANN
 		double ret = Predict(output, outputLayer.NumNeurals);
 		delete[]output;
 		return ret;
+	}
+
+	void CANN::predictOutput(double* inputs, double*& outputs)
+	{
+		SLayer& outputLayer = m_network->Layers[m_network->NumLayers - 1];
+		outputs = new double[outputLayer.NumNeurals];
+		for (int i = 0; i < outputLayer.NumNeurals; i++)
+			outputs[i] = outputLayer.Neurals[i].Output;
+	}
+
+	void CANN::serialize(CMemoryStream* io)
+	{
+		// write info of network
+		io->writeInt(m_network->NumLayers);
+		for (int i = 0; i < m_network->NumLayers; i++)
+		{
+			io->writeInt(m_network->Layers[i].NumNeurals);
+		}
+
+		// write neurals info
+		for (int i = 0; i < m_network->NumLayers; i++)
+		{
+			SLayer& layer = m_network->Layers[i];
+
+			int numNeural = layer.NumNeurals;
+			for (int j = 0; j < numNeural; j++)
+			{
+				io->writeDouble(layer.Neurals[j].Biases);
+
+				if (i < m_network->NumLayers - 1)
+				{
+					int numWeight = layer.Neurals[j].NumWeights;
+					for (int k = 0; k < numWeight; k++)
+						io->writeDouble(layer.Neurals[j].Weights[k]);
+				}
+			}
+		}
+	}
+
+	bool CANN::deserialize(CMemoryStream* io)
+	{
+		// read and test network info
+		int numLayer = io->readInt();
+		if (numLayer != m_network->NumLayers)
+			return false;
+
+		int* dim = new int[numLayer];
+		for (int i = 0; i < numLayer; i++)
+		{
+			if (m_network->Layers[i].NumNeurals != io->readInt())
+				return false;
+		}
+
+		// read neurals info
+		for (int i = 0; i < m_network->NumLayers; i++)
+		{
+			SLayer& layer = m_network->Layers[i];
+
+			int numNeural = layer.NumNeurals;
+			for (int j = 0; j < numNeural; j++)
+			{
+				layer.Neurals[j].Biases = io->readDouble();
+				if (i < m_network->NumLayers - 1)
+				{
+					int numWeight = layer.Neurals[j].NumWeights;
+					for (int k = 0; k < numWeight; k++)
+						layer.Neurals[j].Weights[k] = io->readDouble();
+				}
+			}
+		}
+
+		return true;
 	}
 }

@@ -86,5 +86,8 @@ namespace ANN
 
 	protected:
 
+		void serialize(CMemoryStream* io);
+
+		bool deserialize(CMemoryStream* io);
 	};
 }

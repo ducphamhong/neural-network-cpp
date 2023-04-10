@@ -3,6 +3,8 @@
 #include "ImageLoaderPNG.h"
 
 #include <filesystem>
+#include <algorithm>
+
 namespace fs = std::filesystem;
 
 double* getANNInput(SPNGImage* img)
@@ -100,33 +102,61 @@ int main()
 
 	printf("Training...\n");
 
-	int trainCount = 4000;
 	long trainPercent = 0;
 
-	// learning ~4000 file/number
-	for (int j = 0; j < trainCount; j++)
+	int totalLearnTime = 2;
+	for (int learnTime = 0; learnTime < totalLearnTime; learnTime++)
 	{
-		float f = ((float)j / (float)trainCount) * 100.0f;
-		long percent = (int)f;
-		if (trainPercent != percent)
+		// learning ~4000 file/number
+		int trainCount = 4000;
+		for (int j = 0; j < trainCount; j++)
 		{
-			trainPercent = percent;
-			printf("%d %%\n", trainPercent);
-		}
-
-		// parallel learning from 0 - 9
-		for (int i = 0; i < 10; i++)
-		{
-			if (lessionLearned[i] < lession[i].size())
+			float f = ((float)j / (float)trainCount) * 100.0f;
+			long percent = (int)f;
+			if (trainPercent != percent)
 			{
-				std::string& file = lession[i][lessionLearned[i]];
-				train(&ann, file.c_str(), (double)i);
-				lessionLearned[i]++;
+				trainPercent = percent;
+				printf("%d%% - step (%d/%d)\n", trainPercent, learnTime, totalLearnTime);
+			}
+
+			// parallel learning from 0 - 9
+			for (int i = 0; i < 10; i++)
+			{
+				if (lessionLearned[i] < lession[i].size())
+				{
+					std::string& file = lession[i][lessionLearned[i]];
+					train(&ann, file.c_str(), (double)i);
+					lessionLearned[i]++;
+				}
 			}
 		}
 	}
 
 	printf("Test classification\n");
+	for (int i = 0; i < 100; i++)
+	{
+		int a = rand() % 10;
+		int numFile = (int)lession[a].size();
+		int b = rand() % numFile;
+
+		std::string& pngResource = lession[a][b];
+
+		SPNGImage img;
+		if (loadPNG(pngResource.c_str(), &img))
+		{
+			double* input = getANNInput(&img);
+			double value = ann.predict(input);
+			printf("- %s -> %lf\n", pngResource.c_str(), value);
+			delete input;
+		}
+	}
+
+	ANN::CMemoryStream memory;
+	ann.serialize(&memory);
+	ann.deserialize(&memory);
+
+	// test save/load learning
+	printf("Test save/load: %d bytes\n", memory.getSize());
 	for (int i = 0; i < 100; i++)
 	{
 		int a = rand() % 10;

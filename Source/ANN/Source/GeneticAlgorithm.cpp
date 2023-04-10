@@ -286,4 +286,14 @@ namespace ANN
 			}
 		}
 	}
+
+	void CGeneticAlgorithm::serialize(CMemoryStream* io)
+	{
+
+	}
+
+	bool CGeneticAlgorithm::deserialize(CMemoryStream* io)
+	{
+		return false;
+	}
 }

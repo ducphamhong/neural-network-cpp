@@ -27,6 +27,8 @@ https://github.com/skylicht-lab/skylicht-engine
 #include <vector>
 #include <functional>
 
+#include "MemoryStream.h"
+
 namespace ANN
 {
 	struct SNeural
@@ -105,6 +107,8 @@ namespace ANN
 	public:
 		CANN(const int* dim, int numLayer);
 
+		void init(const int* dim, int numLayer);
+
 		virtual ~CANN();
 
 		void train(double* inputs, double* targetOutput, int count, double learningRate = 0.25);
@@ -113,9 +117,15 @@ namespace ANN
 
 		double predict(double* inputs);
 
+		void predictOutput(double* inputs, double*& outputs);
+
 		SNetwork* getNetwork()
 		{
 			return m_network;
 		}
+
+		void serialize(CMemoryStream* io);
+
+		bool deserialize(CMemoryStream* io);
 	};
 }
