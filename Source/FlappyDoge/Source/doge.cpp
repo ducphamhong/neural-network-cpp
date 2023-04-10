@@ -112,28 +112,28 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 
 		int cx = posDoge.x + getWidth() / 2;
 		int cy = posDoge.y + getHeight() / 2;
-		int tx1 = posPipe[ahead].x + pipeWidth * 0.5;
+		int tx1 = posPipe[ahead].x + pipeWidth;
 		int ty1 = posPipe[ahead].y + pipeHeight + PIPE_SPACE / 2;
 
 		int nexthead = (ahead + 1) % TOTAL_PIPE;
 
-		int tx2 = posPipe[nexthead].x + pipeWidth * 0.5;
+		int tx2 = posPipe[nexthead].x;
 		int ty2 = posPipe[nexthead].y + pipeHeight + PIPE_SPACE / 2;
 
-#ifdef AI_LEARNING_INPUT	
-		if (unit->TopUnit)
-			SDL_SetRenderDrawColor(context::gRenderer, 0, 0, 255, 255);
-		else
+#ifdef AI_LEARNING_INPUT
+		if (!unit->TopUnit)
+		{
 			SDL_SetRenderDrawColor(context::gRenderer, 255, 255, 255, 255);
+
+			SDL_RenderDrawLine(context::gRenderer,
+				cx, cy,
+				tx1, ty1);
+
+			SDL_RenderDrawLine(context::gRenderer,
+				cx, cy,
+				tx2, ty2);
+		}
 #endif
-
-		SDL_RenderDrawLine(context::gRenderer,
-			cx, cy,
-			tx1, ty1);
-
-		SDL_RenderDrawLine(context::gRenderer,
-			cx, cy,
-			tx2, ty2);
 
 		int dx = tx1 - cx;
 		int dy = -(ty1 - cy);
