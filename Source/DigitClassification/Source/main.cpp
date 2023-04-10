@@ -103,12 +103,20 @@ int main()
 	printf("Training...\n");
 
 	long trainPercent = 0;
+	int trainCount = 0;
+	for (int i = 0; i < 10; i++)
+	{
+		int n = (int)lession[i].size();
+		if (trainCount < n)
+		{
+			trainCount = n;
+		}
+	}
 
-	int totalLearnTime = 2;
+	int totalLearnTime = 3;
 	for (int learnTime = 0; learnTime < totalLearnTime; learnTime++)
 	{
-		// learning ~4000 file/number
-		int trainCount = 4000;
+		// learning trainCount (~4000) file/number
 		for (int j = 0; j < trainCount; j++)
 		{
 			float f = ((float)j / (float)trainCount) * 100.0f;
@@ -148,30 +156,17 @@ int main()
 			double value = ann.predict(input);
 			printf("- %s -> %lf\n", pngResource.c_str(), value);
 			delete input;
-		}
-	}
 
-	ANN::CMemoryStream memory;
-	ann.serialize(&memory);
-	ann.deserialize(&memory);
-
-	// test save/load learning
-	printf("Test save/load: %d bytes\n", memory.getSize());
-	for (int i = 0; i < 100; i++)
-	{
-		int a = rand() % 10;
-		int numFile = (int)lession[a].size();
-		int b = rand() % numFile;
-
-		std::string& pngResource = lession[a][b];
-
-		SPNGImage img;
-		if (loadPNG(pngResource.c_str(), &img))
-		{
-			double* input = getANNInput(&img);
-			double value = ann.predict(input);
-			printf("- %s -> %lf\n", pngResource.c_str(), value);
-			delete input;
+			if ((int)value != a)
+			{
+				// if it wrong, try debug result
+				double* output = ann.predictOutput(input);
+				for (int i = 0; i < 10; i++)
+				{
+					printf("    + %d -> %d%%\n", i, (int)(output[i] * 100));
+				}
+				delete output;
+			}
 		}
 	}
 

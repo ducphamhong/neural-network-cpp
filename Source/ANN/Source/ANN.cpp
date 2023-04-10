@@ -200,12 +200,13 @@ namespace ANN
 		return ret;
 	}
 
-	void CANN::predictOutput(double* inputs, double*& outputs)
+	double* CANN::predictOutput(double* inputs)
 	{
 		SLayer& outputLayer = m_network->Layers[m_network->NumLayers - 1];
-		outputs = new double[outputLayer.NumNeurals];
+		double* outputs = new double[outputLayer.NumNeurals];
 		for (int i = 0; i < outputLayer.NumNeurals; i++)
 			outputs[i] = outputLayer.Neurals[i].Output;
+		return outputs;
 	}
 
 	void CANN::serialize(CMemoryStream* io)

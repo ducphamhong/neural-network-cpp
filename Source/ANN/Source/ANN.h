@@ -117,7 +117,7 @@ namespace ANN
 
 		double predict(double* inputs);
 
-		void predictOutput(double* inputs, double*& outputs);
+		double* predictOutput(double* inputs);
 
 		SNetwork* getNetwork()
 		{
