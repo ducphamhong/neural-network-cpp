@@ -1,5 +1,5 @@
 # neural-network-cpp
-This project is the simple Artificial neural networks (ANN), which are computational systems that “learn” to perform tasks. This project is a library write in C++ language and it is easy to embed in another project.
+This project is the simple Artificial neural networks (ANN), which are computational systems that “learn” to perform tasks. This project is a library written in C++ language and it is easy to embed in another project.
 
 ## XOR
 In this example tech the AI learns to compute XOR function.
@@ -111,6 +111,34 @@ ann.Predict = [](const double* output, int numOutput)
 	}
 	return ret;
 };
+
+double* getANNInput(SPNGImage* img)
+{
+	int size = img->Width * img->Height;
+
+	double* ret = new double[size];
+	unsigned char* data = img->Data;
+
+	for (int i = 0; i < size; i++)
+	{
+		ret[i] = data[0] / 255.0;
+		data = data + img->BPP;
+	}
+
+	return ret;
+}
+
+void train(ANN::CANN* ann, const char* file, double targetValue)
+{
+	SPNGImage img;
+	if (loadPNG(file, &img))
+	{
+		double* input = getANNInput(&img);
+		double output[] = { targetValue };
+		ann->train(input, output, 1);
+		delete input;
+	}
+}
 ```
 
 And the result test:
@@ -125,12 +153,12 @@ Then they will improve themselves to play better.
 
 And after about 20 generations, it can play good this game.
 
-I try to use 2 layers with 6 neutrals
+I try to use 2 hidden layers with 6 neutrals
 
 ```C++
-	ANN::CGeneticAlgorithm aiGenetic;
-	const int dim[] = { 4, 6, 6, 1 };
-	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
+ANN::CGeneticAlgorithm aiGenetic;
+const int dim[] = { 4, 6, 6, 1 };
+aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 ```
 
 <img src="Image/FlappyDoge.png"/>

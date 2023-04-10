@@ -11,7 +11,6 @@
 #include "GeneticAlgorithm.h"
 #endif
 
-
 const short int FPS = 60;
 const short int frameDelay = 1000 / FPS;
 
@@ -32,7 +31,7 @@ int CALLBACK WinMain(
 	bool isSound = 1;
 	bool isDark = 0;
 
-	bool autoLearning = false;
+	bool autoSkipGameOverDialog = false;
 	int killAll = 60 * 10;
 
 	context::gGame = &g;
@@ -62,30 +61,29 @@ int CALLBACK WinMain(
 	}
 	fclose(f);
 
+	// learn expected function
 	// need learning from human control for Gen 0
-	for (int learnCount = 100; learnCount > 0; learnCount--)
+	std::vector<ANN::SUnit*>& units = aiGenetic.get();
+	for (int i = 0, n = (int)units.size(); i < n; i++)
 	{
-		std::vector<ANN::SUnit*>& units = aiGenetic.get();
-		for (int i = 0, n = (int)units.size(); i < n; i++)
+		units[i]->ANN->LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput)
 		{
-			units[i]->ANN->LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput)
-			{
-				expectedOutput[0] = trainData[trainId];
-			};
+			expectedOutput[0] = trainData[trainId];
+		};
 
-			// train
+		for (int learnCount = 500; learnCount > 0; learnCount--)
+		{
 			units[i]->ANN->train(input.data(), output.data(), (int)output.size());
 		}
 	}
 
 	int gen = 0;
+	autoSkipGameOverDialog = false;
 
-	autoLearning = false;
-
-	int topID[MAX_AI_UNIT];
+	int currentGenerationID[MAX_AI_UNIT];
 	for (int i = 0; i < MAX_AI_UNIT; i++)
 	{
-		topID[i] = -1;
+		currentGenerationID[i] = -1;
 	}
 #endif
 
@@ -104,7 +102,7 @@ int CALLBACK WinMain(
 			{
 				g.takeInput();
 
-				bool autoRestart = isMenu && autoLearning && g.shiba[0].isFallInGround();
+				bool autoRestart = isMenu && autoSkipGameOverDialog && g.shiba[0].isFallInGround();
 
 				if ((isMenu == 1 && g.userInput.Type == game::input::PLAY) || autoRestart)
 				{
@@ -156,15 +154,14 @@ int CALLBACK WinMain(
 						context::score = 0;
 
 #ifdef AI_LEARNING_INPUT
-						autoLearning = true;
+						autoSkipGameOverDialog = true;
 
 						if (gen != 0)
 						{
 							aiGenetic.evolvePopulation();
-
 							for (int i = 0; i < MAX_AI_UNIT; i++)
 							{
-								topID[i] = aiGenetic.get()[i]->ID;
+								currentGenerationID[i] = aiGenetic.get()[i]->ID;
 							}
 						}
 						gen++;
@@ -203,14 +200,16 @@ int CALLBACK WinMain(
 			// let ai controller on shiba.update
 			if (g.userInput.Type == game::input::PLAY)
 			{
-				autoLearning = false;
+				// if player click or press spacebar
+				// we will show GameOver dialog after learning
+				autoSkipGameOverDialog = false;
 			}
 #else
 			if (isPause == 0 && g.userInput.Type == game::input::PLAY)
 			{
 				if (isSound)
 					g.sound.playBreath();
-				g.shiba[0].resetTime();
+				g.shiba[0].resetTime();	// flap
 				g.userInput.Type = game::input::NONE;
 			}
 #endif
@@ -300,12 +299,11 @@ int CALLBACK WinMain(
 				if (!g.shiba[i].isDie())
 				{
 					g.shiba[i].render();
-
 					liveID[liveCount++] = g.shiba[i].getAIUnit()->ID;
 				}
 			}
 
-			if (autoLearning && liveCount > 0)
+			if (autoSkipGameOverDialog && liveCount > 0)
 			{
 				bool foundNewGene = true;
 
@@ -320,7 +318,7 @@ int CALLBACK WinMain(
 					{
 						for (int j = 0; j < topUnit; j++)
 						{
-							if (liveID[i] == topID[j])
+							if (liveID[i] == currentGenerationID[j])
 							{
 								numOldGeneration++;
 								break;
@@ -348,6 +346,8 @@ int CALLBACK WinMain(
 							}
 						}
 						killAll = 60 * 10;
+						// kill all after 600 frames (10s)
+						// we no need spent time to wait old generation
 					}
 				}
 			}

@@ -153,7 +153,7 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 		{
 			if (--jumpTime < 0)
 			{
-				jumpTime = 5;
+				jumpTime = 3;
 
 				double output = unit->ANN->predict(input);
 				if (output == 1.0)
@@ -167,8 +167,9 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 		}
 #else
 		double output = 0.0;
-		if (time <= 5)
+		if (time <= 2)
 		{
+			// when doge is jumping
 			output = 1.0;
 		}
 
@@ -208,8 +209,8 @@ void doge::update(short int pipeWidth, short int pipeHeight)
 			fallInGround = true;
 			reportDie(distanceToTarget);
 		}
-		}
 	}
+}
 
 void doge::reportDie(double distanceToTarget)
 {

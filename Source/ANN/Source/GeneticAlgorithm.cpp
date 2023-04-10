@@ -103,13 +103,13 @@ namespace ANN
 			{
 				mutation(newUnit[j]);
 
-				// destroy this old generate unit
+				// destroy this bad unit
 				if (i + j < m_maxUnit)
 				{
 					delete m_units[i + j]->ANN;
 					delete m_units[i + j];
 
-					// replace good gene unit
+					// replace new gene unit
 					m_units[i + j] = cloneUnit(newUnit[j]);
 				}
 
@@ -126,6 +126,7 @@ namespace ANN
 		{
 			m_units[i]->Good = false;
 			m_units[i]->TopUnit = i < m_topUnit;
+			m_units[i]->Scored = 0.0;
 
 			if (m_units[i]->ID == 0)
 			{
