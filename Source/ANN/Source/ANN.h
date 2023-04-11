@@ -89,12 +89,15 @@ namespace ANN
 			if (Layers)
 				delete[]Layers;
 		}
-	};
+	};	
 
 	class CANN
 	{
 	protected:
-		SNetwork* m_network;
+		SNetwork* m_network;		
+
+		double (*activation)(double);
+		double (*derivative)(double);
 
 	public:
 

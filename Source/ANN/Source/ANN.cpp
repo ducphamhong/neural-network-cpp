@@ -28,9 +28,23 @@ https://github.com/skylicht-lab/skylicht-engine
 
 namespace ANN
 {
+	double activationSigmoid(double x)
+	{
+		// [0 - 1]
+		return 1 / (1 + exp(-x));
+	}
+
+	double derivativeSigmoid(double x)
+	{
+		return x * (1.0 - x);
+	}
+
 	CANN::CANN(const int* dim, int numLayer) :
 		m_network(NULL)
 	{
+		activation = &activationSigmoid;
+		derivative = &derivativeSigmoid;
+
 		init(dim, numLayer);
 	}
 
@@ -83,11 +97,6 @@ namespace ANN
 		}
 	}
 
-	double sigmoid(double x)
-	{
-		return 1 / (1 + exp(-x));
-	}
-
 	void CANN::feedForward(double* inputs)
 	{
 		// input layer
@@ -111,7 +120,7 @@ namespace ANN
 					sum = sum + previousLayer.Neurals[k].Weights[j] * previousLayer.Neurals[k].Output;
 				}
 				sum = sum + layer.Neurals[j].Biases;
-				layer.Neurals[j].Output = sigmoid(sum);
+				layer.Neurals[j].Output = activation(sum);
 			}
 		}
 	}
@@ -140,7 +149,7 @@ namespace ANN
 				double expectedValue = expectedOutput[i];
 				double observedValue = outputLayer.Neurals[i].Output;
 
-				outputLayer.Neurals[i].Delta = observedValue * (1.0 - observedValue) * (observedValue - expectedValue);
+				outputLayer.Neurals[i].Delta = derivative(observedValue) * (expectedValue - observedValue);
 			}
 
 			delete[]expectedOutput;
@@ -151,14 +160,16 @@ namespace ANN
 				SLayer& layer = m_network->Layers[i];
 				SLayer& nextLayer = m_network->Layers[i + 1];
 
+				// https://github.com/huangzehao/SimpleNeuralNetwork/blob/master/src/neural-net.cpp
+				// sumDOW
 				for (int j = 0; j < layer.NumNeurals; j++)
 				{
 					double sum = 0;
 					for (int k = 0; k < nextLayer.NumNeurals; k++)
 					{
-						sum = sum + nextLayer.Neurals[k].Delta * layer.Neurals[j].Weights[k];
+						sum = sum + layer.Neurals[j].Weights[k] * nextLayer.Neurals[k].Delta;
 					}
-					layer.Neurals[j].Delta = layer.Neurals[j].Output * (1.0 - layer.Neurals[j].Output) * sum;
+					layer.Neurals[j].Delta = derivative(layer.Neurals[j].Output) * sum;
 				}
 			}
 
@@ -172,10 +183,10 @@ namespace ANN
 				{
 					for (int k = 0; k < layer.NumNeurals; k++)
 					{
-						layer.Neurals[k].Weights[j] -= learningRate * layer.Neurals[k].Output * nextLayer.Neurals[j].Delta;
+						layer.Neurals[k].Weights[j] += learningRate * layer.Neurals[k].Output * nextLayer.Neurals[j].Delta;
 					}
 
-					nextLayer.Neurals[j].Biases -= learningRate * nextLayer.Neurals[j].Delta;
+					nextLayer.Neurals[j].Biases += learningRate * nextLayer.Neurals[j].Delta;
 				}
 			}
 
@@ -202,6 +213,8 @@ namespace ANN
 
 	double* CANN::predictOutput(double* inputs)
 	{
+		feedForward(inputs);
+
 		SLayer& outputLayer = m_network->Layers[m_network->NumLayers - 1];
 		double* outputs = new double[outputLayer.NumNeurals];
 		for (int i = 0; i < outputLayer.NumNeurals; i++)
