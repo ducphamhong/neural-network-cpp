@@ -59,7 +59,8 @@ namespace ANN
 	{
 		Sigmoid,
 		Tanh,
-		Relu
+		Relu,
+		Softmax
 	};
 
 	struct SLayer

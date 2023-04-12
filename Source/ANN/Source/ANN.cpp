@@ -107,9 +107,18 @@ namespace ANN
 					// output layer
 					// ref: https://github.com/manishdhakal/Backpropagation/blob/master/ANN/main.cpp
 					// ref: https://www.jeremyong.com/cpp/machine-learning/2020/10/23/cpp-neural-network-in-a-weekend
-					layer.Activation = EActivation::Sigmoid;
-					layer.activation = &activationSigmoid;
-					layer.derivative = &derivativeSigmoid;
+					if (dim[i] == 1)
+					{
+						layer.Activation = EActivation::Sigmoid;
+						layer.activation = &activationSigmoid;
+						layer.derivative = &derivativeSigmoid;
+					}
+					else
+					{
+						layer.Activation = EActivation::Softmax;
+						layer.activation = NULL;
+						layer.derivative = NULL;
+					}
 				}
 				else
 				{
@@ -156,14 +165,12 @@ namespace ANN
 						double r = 0.0;
 						if (previousLayer.Activation == EActivation::Relu)
 						{
-							double n = (double)previousLayer.NumNeurals;
-							r = getRandom01() * sqrt(2.0 / n);
+							double n = (double)layer.NumNeurals + (double)previousLayer.NumNeurals;
+							r = (0.1 + getRandom01()) * sqrt(2.0 / n);
 						}
 						else
 						{
-							double n = (double)layer.NumNeurals + (double)previousLayer.NumNeurals;
 							r = getRandom01() * 2.0 - 1.0;
-							r = r / sqrt(n);
 						}
 						previousLayer.Neurals[k].Weights[j] = r;
 					}
@@ -190,14 +197,33 @@ namespace ANN
 			for (int j = 0; j < layer.NumNeurals; j++)
 			{
 				double sum = 0.0;
-
 				for (int k = 0; k < previousLayer.NumNeurals; k++)
 				{
 					sum = sum + previousLayer.Neurals[k].Weights[j] * previousLayer.Neurals[k].Output;
 				}
 
-				sum = sum + layer.Neurals[j].Biases;
-				layer.Neurals[j].Output = layer.activation(sum);
+				if (layer.Activation != EActivation::Relu)
+				{
+					sum = sum + layer.Neurals[j].Biases;
+				}
+
+				if (layer.Activation == ANN::EActivation::Softmax)
+					layer.Neurals[j].Output = exp(sum);
+				else
+					layer.Neurals[j].Output = layer.activation(sum);
+			}
+
+			if (layer.Activation == ANN::EActivation::Softmax)
+			{
+				double sum = 0.0;
+				for (int j = 0; j < layer.NumNeurals; j++)
+				{
+					sum = sum + layer.Neurals[j].Output;
+				}
+				for (int j = 0; j < layer.NumNeurals; j++)
+				{
+					layer.Neurals[j].Output = layer.Neurals[j].Output / sum;
+				}
 			}
 		}
 	}
@@ -225,7 +251,11 @@ namespace ANN
 			{
 				double expectedValue = expectedOutput[i];
 				double observedValue = outputLayer.Neurals[i].Output;
-				outputLayer.Neurals[i].Delta = outputLayer.derivative(observedValue) * (expectedValue - observedValue);
+
+				if (outputLayer.Activation == ANN::EActivation::Softmax)
+					outputLayer.Neurals[i].Delta = (expectedValue - observedValue);
+				else
+					outputLayer.Neurals[i].Delta = outputLayer.derivative(observedValue) * (expectedValue - observedValue);
 			}
 
 			delete[]expectedOutput;
@@ -262,7 +292,10 @@ namespace ANN
 						layer.Neurals[k].Weights[j] += learningRate * layer.Neurals[k].Output * nextLayer.Neurals[j].Delta;
 					}
 
-					nextLayer.Neurals[j].Biases += learningRate * nextLayer.Neurals[j].Delta;
+					if (layer.Activation != EActivation::Relu)
+					{
+						nextLayer.Neurals[j].Biases += learningRate * nextLayer.Neurals[j].Delta;
+					}
 				}
 			}
 
