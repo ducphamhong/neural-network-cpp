@@ -89,12 +89,19 @@ namespace ANN
 			if (Layers)
 				delete[]Layers;
 		}
-	};	
+	};
+
+	enum class EActivation
+	{
+		Sigmoid,
+		Tanh
+	};
 
 	class CANN
 	{
 	protected:
-		SNetwork* m_network;		
+		SNetwork* m_network;
+		EActivation m_activation;
 
 		double (*activation)(double);
 		double (*derivative)(double);
@@ -108,13 +115,13 @@ namespace ANN
 		std::function<double(const double* output, int numOutput)> Predict;
 
 	public:
-		CANN(const int* dim, int numLayer);
+		CANN(const int* dim, int numLayer, EActivation activation = EActivation::Sigmoid);
 
 		void init(const int* dim, int numLayer);
 
 		virtual ~CANN();
 
-		void train(double* inputs, double* targetOutput, int count, double learningRate = 0.25);
+		void train(double* inputs, double* targetOutput, int count, double learningRate = 0.25, double momentum = 0.2);
 
 		void feedForward(double* inputs);
 

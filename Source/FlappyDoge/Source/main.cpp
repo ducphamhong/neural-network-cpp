@@ -40,7 +40,7 @@ int CALLBACK WinMain(
 	context::gGame = &g;
 
 #ifdef AI_LEARNING_INPUT
-	ANN::CGeneticAlgorithm aiGenetic;
+	ANN::CGeneticAlgorithm aiGenetic(ANN::EActivation::Tanh);
 	const int dim[] = { 4, 6, 6, 1 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 

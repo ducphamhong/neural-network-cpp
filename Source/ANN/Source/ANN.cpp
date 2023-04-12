@@ -28,9 +28,12 @@ https://github.com/skylicht-lab/skylicht-engine
 
 namespace ANN
 {
+	// note test
+	// sigmoid: classification better
+	// tanh: think and selection better
+
 	double activationSigmoid(double x)
 	{
-		// [0 - 1]
 		return 1 / (1 + exp(-x));
 	}
 
@@ -39,11 +42,34 @@ namespace ANN
 		return x * (1.0 - x);
 	}
 
-	CANN::CANN(const int* dim, int numLayer) :
-		m_network(NULL)
+	double activationTanh(double x)
 	{
-		activation = &activationSigmoid;
-		derivative = &derivativeSigmoid;
+		return std::tanh(x);
+	}
+
+	double derivativeTanh(double x)
+	{
+		double t = std::tanh(x);
+		return 1.0 - t * t;
+	}
+
+	CANN::CANN(const int* dim, int numLayer, EActivation a) :
+		m_network(NULL),
+		m_activation(a)
+	{
+		switch (m_activation)
+		{
+		case EActivation::Sigmoid:
+			activation = &activationSigmoid;
+			derivative = &derivativeSigmoid;
+			break;
+		case EActivation::Tanh:
+			activation = &activationTanh;
+			derivative = &derivativeTanh;
+			break;
+		default:
+			break;
+		}
 
 		init(dim, numLayer);
 	}
@@ -74,7 +100,7 @@ namespace ANN
 			for (int j = 0; j < numNeural; j++)
 			{
 				// set Biases value
-				layer.Neurals[j].Biases = i == 0 ? 0.0 : 1.0;
+				layer.Neurals[j].Biases = i == 0 ? 0.0 : getRandom01() * 2.0 - 1.0;
 			}
 
 			// set connection weight for previous layer
@@ -88,9 +114,7 @@ namespace ANN
 
 					for (int j = 0; j < numNeural; j++)
 					{
-						double r = getRandom01() * 2.0 - 1.0;
-
-						previousLayer.Neurals[k].Weights[j] = r;
+						previousLayer.Neurals[k].Weights[j] = getRandom01() * 2.0 - 1.0;
 					}
 				}
 			}
@@ -125,7 +149,7 @@ namespace ANN
 		}
 	}
 
-	void CANN::train(double* inputs, double* targetOutput, int count, double learningRate)
+	void CANN::train(double* inputs, double* targetOutput, int count, double learningRate, double momentum)
 	{
 		if (LearnExpected == nullptr)
 			return;

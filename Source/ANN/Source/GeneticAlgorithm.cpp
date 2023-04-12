@@ -31,12 +31,13 @@ https://github.com/skylicht-lab/skylicht-engine
 
 namespace ANN
 {
-	CGeneticAlgorithm::CGeneticAlgorithm(int topUnit) :
+	CGeneticAlgorithm::CGeneticAlgorithm(EActivation activation, int topUnit) :
 		m_topUnit(topUnit),
 		m_maxUnit(0),
 		m_id(),
 		m_mutateRate(0.2),
-		m_maxPertubation(4.0)
+		m_maxPertubation(4.0),
+		m_activation(activation)
 	{
 
 	}
@@ -68,7 +69,7 @@ namespace ANN
 		for (int i = 0; i < numUnit; i++)
 		{
 			SUnit* unit = new SUnit();
-			unit->ANN = new CANN(dim, numLayer);
+			unit->ANN = new CANN(dim, numLayer, m_activation);
 			unit->ID = ++m_id;
 			m_units.push_back(unit);
 		}
@@ -181,8 +182,8 @@ namespace ANN
 		SUnit* unit2 = new SUnit();
 
 		int numLayer = (int)m_networkDim.size();
-		unit1->ANN = new CANN(m_networkDim.data(), numLayer);
-		unit2->ANN = new CANN(m_networkDim.data(), numLayer);
+		unit1->ANN = new CANN(m_networkDim.data(), numLayer, m_activation);
+		unit2->ANN = new CANN(m_networkDim.data(), numLayer, m_activation);
 
 		SNetwork* network1 = unit1->ANN->getNetwork();
 		SNetwork* network2 = unit2->ANN->getNetwork();
@@ -235,7 +236,7 @@ namespace ANN
 		SUnit* unit = new SUnit();
 
 		int numLayer = (int)m_networkDim.size();
-		unit->ANN = new CANN(m_networkDim.data(), numLayer);
+		unit->ANN = new CANN(m_networkDim.data(), numLayer, m_activation);
 
 		SNetwork* network = unit->ANN->getNetwork();
 		SNetwork* networkParent = parent->ANN->getNetwork();
@@ -351,7 +352,7 @@ namespace ANN
 			unsigned char* data = new unsigned char[size];
 			io->readData(data, size);
 			CMemoryStream m(data, size);
-			unit->ANN = new CANN(m_networkDim.data(), (int)m_networkDim.size());
+			unit->ANN = new CANN(m_networkDim.data(), (int)m_networkDim.size(), m_activation);
 			unit->ANN->deserialize(&m);
 			delete[]data;
 

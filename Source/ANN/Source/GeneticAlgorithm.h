@@ -57,11 +57,13 @@ namespace ANN
 		int m_id;
 		int m_maxUnit;
 		int m_topUnit;
+		EActivation m_activation;
+
 		double m_mutateRate;
 		double m_maxPertubation;
 
 	public:
-		CGeneticAlgorithm(int topUnit = 4);
+		CGeneticAlgorithm(EActivation activation = EActivation::Sigmoid, int topUnit = 4);
 
 		virtual ~CGeneticAlgorithm();
 

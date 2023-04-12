@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ANN.h"
+#include "Random.h"
 #include "ImageLoaderPNG.h"
 
 #include <filesystem>
@@ -16,7 +17,7 @@ double* getANNInput(SPNGImage* img)
 
 	for (int i = 0; i < size; i++)
 	{
-		ret[i] = data[0] / 255.0;
+		ret[i] = (data[0] / 255.0);
 		data = data + img->BPP;
 	}
 
@@ -65,7 +66,9 @@ int main()
 		// ex: 3 => [0 0 0 1 0 0 0 0 0 0]
 		int valueExpected = (int)trainData[trainId];
 		for (int i = 0; i < 10; i++)
+		{
 			expectedOutput[i] = (i == valueExpected) ? 1.0 : 0.0;
+		}
 	};
 
 	ann.Predict = [](const double* output, int numOutput)
@@ -113,7 +116,7 @@ int main()
 		}
 	}
 
-	int totalLearnTime = 2; // try learn 2 times
+	int totalLearnTime = 1;
 	for (int learnTime = 0; learnTime < totalLearnTime; learnTime++)
 	{
 		// learning trainCount (~4000) file/number
@@ -130,13 +133,16 @@ int main()
 			// parallel learning from 0 - 9
 			for (int i = 0; i < 10; i++)
 			{
+				int fileId = 0;
+
 				if (lessionLearned[i] < lession[i].size())
-				{
-					std::string& file = lession[i][lessionLearned[i]];
-					train(&ann, file.c_str(), (double)i);
-					lessionLearned[i]++;
-				}
-			}			
+					fileId = lessionLearned[i]++;
+				else
+					fileId = ANN::getRandom() % lession[i].size();
+
+				std::string& file = lession[i][fileId];
+				train(&ann, file.c_str(), (double)i);
+			}
 		}
 
 		// reset lession and begin retry learn again
@@ -161,7 +167,6 @@ int main()
 			double* input = getANNInput(&img);
 			double value = ann.predict(input);
 			printf("- %s -> %lf\n", pngResource.c_str(), value);
-			delete input;
 
 			if ((int)value != a)
 			{
@@ -175,6 +180,8 @@ int main()
 
 				wrongCount++;
 			}
+
+			delete input;
 		}
 	}
 
