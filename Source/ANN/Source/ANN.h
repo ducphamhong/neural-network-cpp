@@ -55,15 +55,28 @@ namespace ANN
 		}
 	};
 
+	enum class EActivation
+	{
+		Sigmoid,
+		Tanh,
+		Relu
+	};
+
 	struct SLayer
 	{
 		int NumNeurals;
 		SNeural* Neurals;
 
+		EActivation Activation;
+		double (*activation)(double);
+		double (*derivative)(double);
+
 		SLayer()
 		{
 			NumNeurals = 0;
 			Neurals = NULL;
+			activation = NULL;
+			derivative = NULL;
 		}
 
 		~SLayer()
@@ -91,20 +104,11 @@ namespace ANN
 		}
 	};
 
-	enum class EActivation
-	{
-		Sigmoid,
-		Tanh
-	};
-
 	class CANN
 	{
 	protected:
 		SNetwork* m_network;
 		EActivation m_activation;
-
-		double (*activation)(double);
-		double (*derivative)(double);
 
 	public:
 
