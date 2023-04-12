@@ -58,16 +58,21 @@ int main()
 
 	printf("Init ANN\n");
 
-	// init 3 layers
-	ANN::CANN ann(dim, 3);
+	ANN::EActivation activation = ANN::EActivation::Sigmoid;
 
-	ann.LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput)
+	// init 3 layers
+	ANN::CANN ann(dim, 3, activation);
+
+	ann.LearnExpected = [activation](double* trainData, int trainId, double* expectedOutput, int numOutput)
 	{
+		float minValue = activation == ANN::EActivation::Tanh ? -1.0 : 0.0;
+		float maxValue = 1.0f;
+
 		// ex: 3 => [0 0 0 1 0 0 0 0 0 0]
 		int valueExpected = (int)trainData[trainId];
 		for (int i = 0; i < 10; i++)
 		{
-			expectedOutput[i] = (i == valueExpected) ? 1.0 : 0.0;
+			expectedOutput[i] = (i == valueExpected) ? maxValue : minValue;
 		}
 	};
 
