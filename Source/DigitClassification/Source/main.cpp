@@ -66,7 +66,7 @@ int main()
 	ann.LearnExpected = [activation](double* trainData, int trainId, double* expectedOutput, int numOutput)
 	{
 		float minValue = activation == ANN::EActivation::Tanh ? -1.0 : 0.0;
-		float maxValue = 1.0f;
+		float maxValue = 1.0;
 
 		// ex: 3 => [0 0 0 1 0 0 0 0 0 0]
 		int valueExpected = (int)trainData[trainId];
