@@ -55,7 +55,7 @@ namespace ANN
 
 	double activationRelu(double x)
 	{
-		return x > 0.0 ? x : 1.0;
+		return x > 0.0 ? x : 0.0;
 	}
 
 	double derivativeRelu(double x)
@@ -102,22 +102,9 @@ namespace ANN
 				break;
 			case EActivation::Relu:
 			{
-				if (i == numLayer - 1)
-				{
-					// output layer
-					// ref: https://github.com/manishdhakal/Backpropagation/blob/master/ANN/main.cpp
-					// ref: https://www.jeremyong.com/cpp/machine-learning/2020/10/23/cpp-neural-network-in-a-weekend
-					layer.Activation = EActivation::Sigmoid;
-					layer.activation = &activationSigmoid;
-					layer.derivative = &derivativeSigmoid;
-				}
-				else
-				{
-					// hidden layer
-					layer.Activation = EActivation::Relu;
-					layer.activation = &activationRelu;
-					layer.derivative = &derivativeRelu;
-				}
+				layer.Activation = EActivation::Relu;
+				layer.activation = &activationRelu;
+				layer.derivative = &derivativeRelu;
 			}
 			break;
 			default:
@@ -203,7 +190,7 @@ namespace ANN
 		}
 	}
 
-	void CANN::train(double* inputs, double* targetOutput, int count, double learningRate, double momentum)
+	void CANN::train(double* inputs, double* targetOutput, int count, double learningRate)
 	{
 		if (LearnExpected == nullptr)
 			return;
@@ -226,7 +213,7 @@ namespace ANN
 			{
 				double expectedValue = expectedOutput[i];
 				double observedValue = outputLayer.Neurals[i].Output;
-				outputLayer.Neurals[i].Delta = outputLayer.derivative(observedValue) * (expectedValue - observedValue);
+				outputLayer.Neurals[i].Delta = outputLayer.derivative(observedValue) * (observedValue - expectedValue);
 			}
 
 			delete[]expectedOutput;
@@ -238,6 +225,7 @@ namespace ANN
 				SLayer& nextLayer = m_network->Layers[i + 1];
 
 				// https://github.com/huangzehao/SimpleNeuralNetwork/blob/master/src/neural-net.cpp
+				// https://github.com/serghov/NeuralNetCpp/blob/master/NeuralNetwork.cpp
 				// sumDOW
 				for (int j = 0; j < layer.NumNeurals; j++)
 				{
@@ -260,12 +248,12 @@ namespace ANN
 				{
 					for (int k = 0; k < layer.NumNeurals; k++)
 					{
-						layer.Neurals[k].Weights[j] += learningRate * layer.Neurals[k].Output * nextLayer.Neurals[j].Delta;
+						layer.Neurals[k].Weights[j] -= learningRate * layer.Neurals[k].Output * nextLayer.Neurals[j].Delta;
 					}
 
 					if (layer.Activation != EActivation::Relu)
 					{
-						nextLayer.Neurals[j].Biases += learningRate * nextLayer.Neurals[j].Delta;
+						nextLayer.Neurals[j].Biases -= learningRate * nextLayer.Neurals[j].Delta;
 					}
 				}
 			}

@@ -125,7 +125,7 @@ namespace ANN
 
 		virtual ~CANN();
 
-		void train(double* inputs, double* targetOutput, int count, double learningRate = 0.25, double momentum = 0.2);
+		void train(double* inputs, double* targetOutput, int count, double learningRate = 0.25);
 
 		void feedForward(double* inputs);
 
