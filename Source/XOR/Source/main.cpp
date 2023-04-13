@@ -24,7 +24,7 @@ int main()
 	};
 
 	// init 3 layers
-	ANN::CANN ann(dim, 3, ANN::EActivation::Relu);
+	ANN::CANN ann(dim, 3, ANN::EActivation::Sigmoid);
 
 	ann.LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput) {
 		// XOR will return 0, 1

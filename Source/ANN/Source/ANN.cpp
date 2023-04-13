@@ -107,18 +107,9 @@ namespace ANN
 					// output layer
 					// ref: https://github.com/manishdhakal/Backpropagation/blob/master/ANN/main.cpp
 					// ref: https://www.jeremyong.com/cpp/machine-learning/2020/10/23/cpp-neural-network-in-a-weekend
-					if (dim[i] == 1)
-					{
-						layer.Activation = EActivation::Sigmoid;
-						layer.activation = &activationSigmoid;
-						layer.derivative = &derivativeSigmoid;
-					}
-					else
-					{
-						layer.Activation = EActivation::Softmax;
-						layer.activation = NULL;
-						layer.derivative = NULL;
-					}
+					layer.Activation = EActivation::Sigmoid;
+					layer.activation = &activationSigmoid;
+					layer.derivative = &derivativeSigmoid;
 				}
 				else
 				{
@@ -207,23 +198,7 @@ namespace ANN
 					sum = sum + layer.Neurals[j].Biases;
 				}
 
-				if (layer.Activation == ANN::EActivation::Softmax)
-					layer.Neurals[j].Output = exp(sum);
-				else
-					layer.Neurals[j].Output = layer.activation(sum);
-			}
-
-			if (layer.Activation == ANN::EActivation::Softmax)
-			{
-				double sum = 0.0;
-				for (int j = 0; j < layer.NumNeurals; j++)
-				{
-					sum = sum + layer.Neurals[j].Output;
-				}
-				for (int j = 0; j < layer.NumNeurals; j++)
-				{
-					layer.Neurals[j].Output = layer.Neurals[j].Output / sum;
-				}
+				layer.Neurals[j].Output = layer.activation(sum);
 			}
 		}
 	}
@@ -251,11 +226,7 @@ namespace ANN
 			{
 				double expectedValue = expectedOutput[i];
 				double observedValue = outputLayer.Neurals[i].Output;
-
-				if (outputLayer.Activation == ANN::EActivation::Softmax)
-					outputLayer.Neurals[i].Delta = (expectedValue - observedValue);
-				else
-					outputLayer.Neurals[i].Delta = outputLayer.derivative(observedValue) * (expectedValue - observedValue);
+				outputLayer.Neurals[i].Delta = outputLayer.derivative(observedValue) * (expectedValue - observedValue);
 			}
 
 			delete[]expectedOutput;
