@@ -17,16 +17,6 @@
 
 using namespace SnakeGame;
 
-bool holdGame(Screen& screen, int millis) {
-	int startTime = SDL_GetTicks();
-	bool quit = false;
-	while (SDL_GetTicks() - startTime < millis && !quit) {
-		if (screen.processEvents() == Screen::Action::QUIT)
-			quit = true;
-	}
-	return quit;
-}
-
 bool pauseGame(Screen& screen, bool& pause) {
 	int startTime = SDL_GetTicks();
 	bool quit = false;
@@ -108,74 +98,86 @@ int CALLBACK WinMain(
 	bool starting = true;
 	bool pause = false;
 
-	while (!quit && snake.m_lives > 0) {
+	while (!quit) {
 		screen.clear();
+
 		snake.draw(screen);
 		food.draw(screen);
 		drawWalls(walls, screen);
-		screen.update(score, snake.m_lives, false);
 
-		if (starting) {
-			quit = holdGame(screen, 1500);
-			starting = false;
-		}
+		int action = screen.processEvents();
 
-		switch (screen.processEvents()) {
+		switch (action) {
 		case Screen::Action::QUIT:
 			quit = true;
 			break;
 		case Screen::Action::PAUSE:
 			pause = true;
 			break;
-		case Screen::Action::MOVE_UP:
-			if (!snake.m_hasUpdated)
-				snake.updateDirection(Snake::Direction::UP);
+		case -1:
 			break;
-		case Screen::Action::MOVE_DOWN:
-			if (!snake.m_hasUpdated)
-				snake.updateDirection(Snake::Direction::DOWN);
+		default:
+			if (snake.isDie())
+			{
+				score = 0;
+				snake.live();
+			}
 			break;
-		case Screen::Action::MOVE_LEFT:
-			if (!snake.m_hasUpdated)
-				snake.updateDirection(Snake::Direction::LEFT);
-			break;
-		case Screen::Action::MOVE_RIGHT:
-			if (!snake.m_hasUpdated)
-				snake.updateDirection(Snake::Direction::RIGHT);
-			break;
-		}
+		};
 
-		if (pause)
-			quit = pauseGame(screen, pause);
+		if (!snake.isDie())
+		{
+			screen.update(score, false);
 
-		int elapsed = SDL_GetTicks();
+			switch (action) {
+			case Screen::Action::MOVE_UP:
+				if (!snake.m_hasUpdated)
+					snake.updateDirection(Snake::Direction::UP);
+				break;
+			case Screen::Action::MOVE_DOWN:
+				if (!snake.m_hasUpdated)
+					snake.updateDirection(Snake::Direction::DOWN);
+				break;
+			case Screen::Action::MOVE_LEFT:
+				if (!snake.m_hasUpdated)
+					snake.updateDirection(Snake::Direction::LEFT);
+				break;
+			case Screen::Action::MOVE_RIGHT:
+				if (!snake.m_hasUpdated)
+					snake.updateDirection(Snake::Direction::RIGHT);
+				break;
+			default:
+				break;
+			}
 
-		if (elapsed / 10 % 6 == 0) {
-			if (!snake.move())
-				resetLevel(snake, food, starting);
-			else {
-				if (snake.collidesWith(food)) {
-					food = Food();
-					score += Food::S_VALUE;
-					snake.addSection();
+			if (pause)
+				quit = pauseGame(screen, pause);
+
+			int elapsed = SDL_GetTicks();
+
+			if (elapsed / 10 % 6 == 0) {
+				if (!snake.move())
+					resetLevel(snake, food, starting);
+				else {
+					if (snake.collidesWith(food)) {
+						food = Food();
+						score += Food::S_VALUE;
+						snake.addSection();
+					}
+
+					for (auto wall : walls)
+						if (snake.collidesWith(*wall))
+							resetLevel(snake, food, starting);
+
+					for (int i = 1; i < snake.m_sections.size(); i++)
+						if (snake.collidesWith(*snake.m_sections[i]))
+							resetLevel(snake, food, starting);
 				}
-
-				for (auto wall : walls)
-					if (snake.collidesWith(*wall))
-						resetLevel(snake, food, starting);
-
-				for (int i = 1; i < snake.m_sections.size(); i++)
-					if (snake.collidesWith(*snake.m_sections[i]))
-						resetLevel(snake, food, starting);
 			}
 		}
-
-		if (snake.m_lives == 0) {
-			screen.clear();
-			// screen.drawGameOver();
-			screen.update(score, snake.m_lives, true);
-
-			holdGame(screen, 3000);
+		else
+		{
+			screen.update(score, true);
 		}
 	}
 

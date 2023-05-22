@@ -15,9 +15,8 @@ namespace SnakeGame {
 	const int Snake::S_INITIAL_SPEED = 1;
 	cint Snake::S_INITIAL_DIRECTION = Snake::Direction::RIGHT;
 	cint Snake::S_N_SECTS = 8;
-	cint Snake::S_INITIAL_LIVES = 3;
 
-	Snake::Snake() : m_speed(Snake::S_INITIAL_SPEED), m_lives(Snake::S_INITIAL_LIVES),
+	Snake::Snake() : m_speed(Snake::S_INITIAL_SPEED), m_die(false),
 		m_direction(S_INITIAL_DIRECTION), m_hasUpdated(false) {
 		Section* newSection = nullptr;
 		for (int i = 0; i < S_N_SECTS; i++) {
@@ -68,7 +67,16 @@ namespace SnakeGame {
 	}
 
 	void Snake::die() {
-		m_lives--;
+		m_die = true;
+	}
+
+	void Snake::live() {
+		m_die = false;
+	}
+
+	bool Snake::isDie()
+	{
+		return m_die;
 	}
 
 	void Snake::reset() {

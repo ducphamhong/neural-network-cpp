@@ -16,10 +16,9 @@ namespace SnakeGame {
 	cint Screen::S_HEIGHT = 600;
 	cint Screen::S_TEXT_X = 400;
 	cint Screen::S_TEXT_Y = 565;
-	cint Screen::S_TEXT_RECT_WIDTH = 320;
+	cint Screen::S_TEXT_RECT_WIDTH = 160;
 	cint Screen::S_TEXT_RECT_HEIGHT = 30;
 	const std::string Screen::S_SCORE_TEXT = "Score: ";
-	const std::string Screen::S_LIVES_TEXT = "Lives: ";
 
 	Screen::Screen() : m_window(NULL), m_renderer(NULL), m_texture(NULL),
 		m_mainBuffer(NULL), m_sansFont(NULL), m_textSurface(NULL),
@@ -116,12 +115,12 @@ namespace SnakeGame {
 		return action;
 	}
 
-	void Screen::update(int score, int lives, bool isGameOver) {
+	void Screen::update(int score, bool isGameOver) {
 		SDL_UpdateTexture(m_texture, NULL, m_mainBuffer, S_WIDTH * sizeof(Uint32));
 		SDL_RenderClear(m_renderer);
 		SDL_RenderCopy(m_renderer, m_texture, NULL, NULL);
 		if (!isGameOver)
-			drawText(score, lives);
+			drawText(score);
 		SDL_RenderPresent(m_renderer);
 	}
 
@@ -181,14 +180,14 @@ namespace SnakeGame {
 			}
 	}
 
-	std::string Screen::createText(int score, int lives) {
+	std::string Screen::createText(int score) {
 		std::stringstream sstr;
-		sstr << S_SCORE_TEXT << score << " - " << S_LIVES_TEXT << (lives - 1);
+		sstr << S_SCORE_TEXT << score;
 		return sstr.str();
 	}
 
-	void Screen::drawText(int score, int lives) {
-		std::string text = createText(score, lives);
+	void Screen::drawText(int score) {
+		std::string text = createText(score);
 
 		SDL_Color whiteColor = { 0xFF, 0xFF, 0xFF };
 		m_textSurface = TTF_RenderText_Solid(m_sansFont, text.c_str(),

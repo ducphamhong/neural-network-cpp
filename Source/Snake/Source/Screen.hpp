@@ -58,10 +58,9 @@ public:
 	 * Updates the Screen's elements according to the information in the buffer,
 	 * as well as the game's score and lives
 	 * @param score The game's score
-	 * @param lives The game's lives
 	 * @param isGameOver Indicates whether there is Game Over
 	 */
-	void update(int lives, int score, bool isGameOver);
+	void update(int lives, bool isGameOver);
 	
 	/**
 	 * Sets a pixel in the buffer with the specified (x,y) position, and colors
@@ -94,7 +93,7 @@ private:
 	 * @param score The score from the game
 	 * @param lives The lives from the game
 	 */
-	std::string createText(int score, int lives);
+	std::string createText(int score);
 
 	/**
 	 * Clears memory from text-related elements
@@ -106,7 +105,7 @@ private:
 	 * @param score The score from the game
 	 * @param lives The lives from the game
 	 */
-	void drawText(int score, int lives);
+	void drawText(int score);
 };
 
 } // namespace SnakeGame
