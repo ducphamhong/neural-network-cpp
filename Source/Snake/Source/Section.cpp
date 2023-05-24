@@ -16,11 +16,19 @@ namespace SnakeGame {
 	Section::Section(int x, int y) :
 		Collideable(x, y) {}
 
-	void Section::draw(Screen& screen) {
+	void Section::draw(Screen& screen)
+	{
+		Uint8 r = ID == 0 ? Snake::S_HEAD_RED : Snake::S_SNK_RED;
+		Uint8 g = ID == 0 ? Snake::S_HEAD_GREEN : Snake::S_SNK_GREEN;
+		Uint8 b = ID == 0 ? Snake::S_HEAD_BLUE : Snake::S_SNK_BLUE;
+
 		for (int i = 0; i < S_SECTION_WIDTH; i++)
+		{
 			for (int j = 0; j < S_SECTION_WIDTH; j++)
-				screen.setPixel((int)m_x + i, (int)m_y + j, Snake::S_SNK_RED,
-					Snake::S_SNK_GREEN, Snake::S_SNK_BLUE);
+			{
+				screen.setPixel((int)m_x + i, (int)m_y + j, r, g, b);
+			}
+		}
 	}
 
 	void Section::move(int direction) {

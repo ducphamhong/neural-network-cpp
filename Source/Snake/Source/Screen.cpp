@@ -115,12 +115,36 @@ namespace SnakeGame {
 		return action;
 	}
 
-	void Screen::update(int score, bool isGameOver) {
+	void Screen::update(int score, bool isGameOver, int agentID) {
 		SDL_UpdateTexture(m_texture, NULL, m_mainBuffer, S_WIDTH * sizeof(Uint32));
-		SDL_RenderClear(m_renderer);
-		SDL_RenderCopy(m_renderer, m_texture, NULL, NULL);
-		if (!isGameOver)
-			drawText(score);
+
+		if (agentID < 0)
+		{
+			SDL_RenderCopy(m_renderer, m_texture, NULL, NULL);
+		}
+		else
+		{
+			int row = agentID / 2;
+			int col = agentID % 2;
+
+			int w = S_WIDTH / 2;
+			int h = S_HEIGHT / 2;
+
+			SDL_Rect target;
+			target.x = col * w;
+			target.y = row * h;
+			target.w = w;
+			target.h = h;
+
+			SDL_RenderCopy(m_renderer, m_texture, NULL, &target);
+		}
+
+		//if (!isGameOver)
+		//	drawText(score);
+	}
+
+	void Screen::present()
+	{
 		SDL_RenderPresent(m_renderer);
 	}
 

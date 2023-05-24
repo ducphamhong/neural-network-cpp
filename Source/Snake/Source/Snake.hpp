@@ -16,6 +16,9 @@ namespace SnakeGame {
 		static const Uint8 S_SNK_RED;
 		static const Uint8 S_SNK_GREEN;
 		static const Uint8 S_SNK_BLUE;
+		static const Uint8 S_HEAD_RED;
+		static const Uint8 S_HEAD_GREEN;
+		static const Uint8 S_HEAD_BLUE;
 		static cint S_N_SECTS;
 		static cint S_INITIAL_LIVES;
 		static cint S_INITIAL_DIRECTION;

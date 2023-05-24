@@ -15,6 +15,9 @@
 #include "SDL.h"
 #include <Windows.h>
 
+#define AI_LEARNING_INPUT
+#define MAX_AI_UNIT 4
+
 using namespace SnakeGame;
 
 bool pauseGame(Screen& screen, bool& pause) {
@@ -44,19 +47,18 @@ void resetLevel(Snake& snake, Food& food, bool& starting) {
 
 void createWalls(std::vector<Wall*>& walls) {
 	const int N_HORIZONTAL = Screen::S_WIDTH / Wall::S_WALL_WIDTH;
-	const int N_VERTICAL = Screen::S_HEIGHT / Wall::S_WALL_WIDTH - 2;
+	const int N_VERTICAL = Screen::S_HEIGHT / Wall::S_WALL_WIDTH;
 
 	for (int i = 0; i < N_HORIZONTAL; i++) {
 		Wall* upperWall = new Wall(i * Wall::S_WALL_WIDTH, 0);
 		Wall* lowerWall = new Wall(i * Wall::S_WALL_WIDTH,
-			Screen::S_HEIGHT - 3 * Wall::S_WALL_WIDTH);
+			Screen::S_HEIGHT - 1 * Wall::S_WALL_WIDTH);
 		walls.push_back(upperWall);
 		walls.push_back(lowerWall);
 	}
-	for (int i = 1; i < N_VERTICAL - 1; i++) {
+	for (int i = 1; i < N_VERTICAL; i++) {
 		Wall* leftmostWall = new Wall(0, i * Wall::S_WALL_WIDTH);
-		Wall* rightmostWall = new Wall(Screen::S_WIDTH - Wall::S_WALL_WIDTH,
-			i * Wall::S_WALL_WIDTH);
+		Wall* rightmostWall = new Wall(Screen::S_WIDTH - Wall::S_WALL_WIDTH, i * Wall::S_WALL_WIDTH);
 		walls.push_back(leftmostWall);
 		walls.push_back(rightmostWall);
 	}
@@ -82,12 +84,18 @@ int CALLBACK WinMain(
 	srand(time(NULL));
 
 	Screen screen;
-	Snake snake;
-	Food food;
-	std::vector<Wall*> walls;
-	createWalls(walls);
 
-	int score = 0;
+	Snake snake[MAX_AI_UNIT];
+	Food food[MAX_AI_UNIT];
+
+	std::vector<Wall*> walls[MAX_AI_UNIT];
+	int score[MAX_AI_UNIT];
+
+	for (int i = 0; i < MAX_AI_UNIT; i++)
+	{
+		createWalls(walls[i]);
+		score[i] = 0;
+	}
 
 	if (!screen.init()) {
 		SDL_Log("Error initializing screen");
@@ -99,89 +107,99 @@ int CALLBACK WinMain(
 	bool pause = false;
 
 	while (!quit) {
-		screen.clear();
-
-		snake.draw(screen);
-		food.draw(screen);
-		drawWalls(walls, screen);
-
 		int action = screen.processEvents();
 
-		switch (action) {
-		case Screen::Action::QUIT:
-			quit = true;
-			break;
-		case Screen::Action::PAUSE:
-			pause = true;
-			break;
-		case -1:
-			break;
-		default:
-			if (snake.isDie())
-			{
-				score = 0;
-				snake.live();
-			}
-			break;
-		};
+		if (pause)
+			quit = pauseGame(screen, pause);
 
-		if (!snake.isDie())
+		int elapsed = SDL_GetTicks();
+
+		for (int agentId = 0; agentId < MAX_AI_UNIT; agentId++)
 		{
-			screen.update(score, false);
+			screen.clear();
+
+			snake[agentId].draw(screen);
+			food[agentId].draw(screen);
+
+			drawWalls(walls[agentId], screen);
 
 			switch (action) {
-			case Screen::Action::MOVE_UP:
-				if (!snake.m_hasUpdated)
-					snake.updateDirection(Snake::Direction::UP);
+			case Screen::Action::QUIT:
+				quit = true;
 				break;
-			case Screen::Action::MOVE_DOWN:
-				if (!snake.m_hasUpdated)
-					snake.updateDirection(Snake::Direction::DOWN);
+			case Screen::Action::PAUSE:
+				pause = true;
 				break;
-			case Screen::Action::MOVE_LEFT:
-				if (!snake.m_hasUpdated)
-					snake.updateDirection(Snake::Direction::LEFT);
-				break;
-			case Screen::Action::MOVE_RIGHT:
-				if (!snake.m_hasUpdated)
-					snake.updateDirection(Snake::Direction::RIGHT);
+			case -1:
 				break;
 			default:
+				if (snake[agentId].isDie())
+				{
+					score[agentId] = 0;
+					snake[agentId].live();
+				}
 				break;
-			}
+			};
 
-			if (pause)
-				quit = pauseGame(screen, pause);
+			if (!snake[agentId].isDie())
+			{
+				screen.update(score[agentId], false, agentId);
 
-			int elapsed = SDL_GetTicks();
+				switch (action) {
+				case Screen::Action::MOVE_UP:
+					if (!snake[agentId].m_hasUpdated)
+						snake[agentId].updateDirection(Snake::Direction::UP);
+					break;
+				case Screen::Action::MOVE_DOWN:
+					if (!snake[agentId].m_hasUpdated)
+						snake[agentId].updateDirection(Snake::Direction::DOWN);
+					break;
+				case Screen::Action::MOVE_LEFT:
+					if (!snake[agentId].m_hasUpdated)
+						snake[agentId].updateDirection(Snake::Direction::LEFT);
+					break;
+				case Screen::Action::MOVE_RIGHT:
+					if (!snake[agentId].m_hasUpdated)
+						snake[agentId].updateDirection(Snake::Direction::RIGHT);
+					break;
+				default:
+					break;
+				}
 
-			if (elapsed / 10 % 6 == 0) {
-				if (!snake.move())
-					resetLevel(snake, food, starting);
-				else {
-					if (snake.collidesWith(food)) {
-						food = Food();
-						score += Food::S_VALUE;
-						snake.addSection();
+				if (elapsed / 10 % 6 == 0) {
+					if (!snake[agentId].move())
+						resetLevel(snake[agentId], food[agentId], starting);
+					else {
+						if (snake[agentId].collidesWith(food[agentId])) {
+							food[agentId] = Food();
+							score[agentId] += Food::S_VALUE;
+							snake[agentId].addSection();
+						}
+
+						for (auto wall : walls[agentId])
+							if (snake[agentId].collidesWith(*wall))
+								resetLevel(snake[agentId], food[agentId], starting);
+
+						for (int i = 1; i < snake[agentId].m_sections.size(); i++)
+							if (snake[agentId].collidesWith(*snake[agentId].m_sections[i]))
+								resetLevel(snake[agentId], food[agentId], starting);
 					}
-
-					for (auto wall : walls)
-						if (snake.collidesWith(*wall))
-							resetLevel(snake, food, starting);
-
-					for (int i = 1; i < snake.m_sections.size(); i++)
-						if (snake.collidesWith(*snake.m_sections[i]))
-							resetLevel(snake, food, starting);
 				}
 			}
+			else
+			{
+				screen.update(score[agentId], true, agentId);
+			}
 		}
-		else
-		{
-			screen.update(score, true);
-		}
+
+		screen.present();
 	}
 
-	freeWalls(walls);
+	for (int i = 0; i < MAX_AI_UNIT; i++)
+	{
+		freeWalls(walls[i]);
+	}
+
 	screen.close();
 
 	return 0;

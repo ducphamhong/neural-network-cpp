@@ -12,6 +12,10 @@ namespace SnakeGame {
 	const Uint8 Snake::S_SNK_RED = 0x01;
 	const Uint8 Snake::S_SNK_GREEN = 0xFF;
 	const Uint8 Snake::S_SNK_BLUE = 0x08;
+	const Uint8 Snake::S_HEAD_RED = 0xAA;
+	const Uint8 Snake::S_HEAD_GREEN = 0xFF;
+	const Uint8 Snake::S_HEAD_BLUE = 0x08;
+
 	const int Snake::S_INITIAL_SPEED = 1;
 	cint Snake::S_INITIAL_DIRECTION = Snake::Direction::RIGHT;
 	cint Snake::S_N_SECTS = 8;
@@ -31,8 +35,12 @@ namespace SnakeGame {
 	}
 
 	void Snake::draw(Screen& screen) {
+		int i = 0;
 		for (auto section : m_sections)
+		{
+			section->ID = i++;
 			section->draw(screen);
+		}
 	}
 
 	void Snake::updateDirection(int direction) {

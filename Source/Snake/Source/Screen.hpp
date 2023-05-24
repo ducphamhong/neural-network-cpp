@@ -60,8 +60,8 @@ public:
 	 * @param score The game's score
 	 * @param isGameOver Indicates whether there is Game Over
 	 */
-	void update(int lives, bool isGameOver);
-	
+	void update(int lives, bool isGameOver, int agentId);
+	void present();
 	/**
 	 * Sets a pixel in the buffer with the specified (x,y) position, and colors
 	 * @param x The x position
