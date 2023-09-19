@@ -9,7 +9,7 @@
 
 namespace SnakeGame {
 
-	const unsigned int Section::S_SECTION_WIDTH = 20;
+	cint Section::S_SECTION_WIDTH = (cint)(20 * S_SCALE);
 
 	Section::Section() : Collideable(0, 0) {}
 

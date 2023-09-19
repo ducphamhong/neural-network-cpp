@@ -11,13 +11,17 @@
 
 typedef const unsigned int cint;
 
+#ifdef AI_LEARNING_INPUT
+float S_SCALE = 0.25f;
+#else
+float S_SCALE = 1.0f;
+#endif
+
 namespace SnakeGame {
-	cint Screen::S_WIDTH = 800;
-	cint Screen::S_HEIGHT = 600;
-	cint Screen::S_TEXT_X = 400;
-	cint Screen::S_TEXT_Y = 565;
-	cint Screen::S_TEXT_RECT_WIDTH = 160;
-	cint Screen::S_TEXT_RECT_HEIGHT = 30;
+	cint Screen::S_WIDTH = (cint)(800 * S_SCALE);
+	cint Screen::S_HEIGHT = (cint)(600 * S_SCALE);
+	cint Screen::S_TEXT_X = (cint)(20 * S_SCALE);
+	cint Screen::S_TEXT_Y = (cint)(0 * S_SCALE);
 	const std::string Screen::S_SCORE_TEXT = "Score: ";
 
 	Screen::Screen() : m_window(NULL), m_renderer(NULL), m_texture(NULL),
@@ -31,13 +35,15 @@ namespace SnakeGame {
 		}
 
 		TTF_Init();
-		m_sansFont = TTF_OpenFont("Snake/Roboto-Regular.ttf", 20);
+		m_sansFont = TTF_OpenFont("Snake/Roboto-Regular.ttf", 18);
 
 		if (!m_sansFont)
 			SDL_Log("Error. Could not load font");
 
 		m_window = SDL_CreateWindow("Snake Game",
-			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, S_WIDTH, S_HEIGHT,
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+			S_WIDTH / S_SCALE,
+			S_HEIGHT / S_SCALE,
 			SDL_WINDOW_SHOWN);
 
 		if (!m_window) {
@@ -124,11 +130,11 @@ namespace SnakeGame {
 		}
 		else
 		{
-			int row = agentID / 2;
-			int col = agentID % 2;
+			int row = agentID / 4;
+			int col = agentID % 4;
 
-			int w = S_WIDTH / 2;
-			int h = S_HEIGHT / 2;
+			int w = S_WIDTH;
+			int h = S_HEIGHT;
 
 			SDL_Rect target;
 			target.x = col * w;
@@ -139,8 +145,15 @@ namespace SnakeGame {
 			SDL_RenderCopy(m_renderer, m_texture, NULL, &target);
 		}
 
-		//if (!isGameOver)
-		//	drawText(score);
+#ifndef AI_LEARNING_INPUT
+		drawText(score);
+
+		if (isGameOver)
+		{
+			// game over
+
+		}
+#endif
 	}
 
 	void Screen::present()
@@ -184,26 +197,6 @@ namespace SnakeGame {
 		SDL_Quit();
 	}
 
-	void Screen::drawGameOver() {
-		cint paintCol = S_WIDTH / 2;
-		cint paintRow = S_HEIGHT / 2;
-
-		for (int i = 0; i < S_HEIGHT; i++)
-			m_mainBuffer[i * S_WIDTH + paintCol] = 0x0FFFF0FF;
-
-		for (int i = 0; i < S_WIDTH; i++)
-			m_mainBuffer[paintRow * S_WIDTH + i] = 0x0FFFF0FF;
-
-		for (int i = 0; i < S_HEIGHT / 2 - 1; i++)
-			for (int j = 0; j < S_WIDTH / 2 - 1; j++) {
-				m_mainBuffer[i * S_WIDTH + j] = 0xFFCC00FF;
-				m_mainBuffer[(i * S_WIDTH + j) + S_WIDTH / 2 + 2] = 0x00CCF0FF;
-				m_mainBuffer[(i + S_HEIGHT / 2 + 1) * S_WIDTH + j] = 0x0FCC0A00;
-				m_mainBuffer[(i + S_HEIGHT / 2 + 1) * S_WIDTH + j + S_WIDTH / 2 + 2] =
-					0xAD0C0A00;
-			}
-	}
-
 	std::string Screen::createText(int score) {
 		std::stringstream sstr;
 		sstr << S_SCORE_TEXT << score;
@@ -214,12 +207,14 @@ namespace SnakeGame {
 		std::string text = createText(score);
 
 		SDL_Color whiteColor = { 0xFF, 0xFF, 0xFF };
-		m_textSurface = TTF_RenderText_Solid(m_sansFont, text.c_str(),
-			whiteColor);
+		m_textSurface = TTF_RenderText_Solid(m_sansFont, text.c_str(), whiteColor);
 		m_textTexture = SDL_CreateTextureFromSurface(m_renderer, m_textSurface);
 
+		int w, h;
+		SDL_QueryTexture(m_textTexture, NULL, NULL, &w, &h);
+
 		SDL_Rect rectangle = {
-			S_TEXT_X, S_TEXT_Y, S_TEXT_RECT_WIDTH, S_TEXT_RECT_HEIGHT
+			S_TEXT_X, S_TEXT_Y, w, h
 		};
 
 		SDL_RenderCopy(m_renderer, m_textTexture, NULL, &rectangle);

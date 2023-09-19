@@ -15,9 +15,6 @@
 #include "SDL.h"
 #include <Windows.h>
 
-#define AI_LEARNING_INPUT
-#define MAX_AI_UNIT 4
-
 using namespace SnakeGame;
 
 bool pauseGame(Screen& screen, bool& pause) {

@@ -13,7 +13,7 @@ namespace SnakeGame {
 	const Uint8 Food::S_FOOD_GREEN = 0xAF;
 	const Uint8 Food::S_FOOD_BLUE = 0x68;
 
-	const unsigned int Food::S_FOOD_WIDTH = 20;
+	const unsigned int Food::S_FOOD_WIDTH = 20 * S_SCALE;
 
 	const int Food::S_VALUE = 50;
 

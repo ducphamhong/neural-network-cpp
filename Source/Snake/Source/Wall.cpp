@@ -13,7 +13,7 @@ namespace SnakeGame {
 	const Uint8 Wall::S_WALL_GREEN = 0x0F;
 	const Uint8 Wall::S_WALL_BLUE = 0x08;
 
-	const unsigned int Wall::S_WALL_WIDTH = 20;
+	cint Wall::S_WALL_WIDTH = (cint)(20 * S_SCALE);
 
 	Wall::Wall(int x, int y) : Collideable(x, y) {}
 
