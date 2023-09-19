@@ -11,10 +11,18 @@ namespace SnakeGame {
 
 	cint Section::S_SECTION_WIDTH = (cint)(20 * S_SCALE);
 
-	Section::Section() : Collideable(0, 0) {}
+	Section::Section() : Collideable(0, 0),
+		m_saveX(m_x),
+		m_saveY(m_y)
+	{
+	}
 
 	Section::Section(int x, int y) :
-		Collideable(x, y) {}
+		Collideable(x, y),
+		m_saveX(m_x),
+		m_saveY(m_y)
+	{
+	}
 
 	void Section::draw(Screen& screen)
 	{
@@ -46,6 +54,18 @@ namespace SnakeGame {
 			m_x += S_SECTION_WIDTH;
 			break;
 		}
+	}
+
+	void Section::savePosition()
+	{
+		m_saveX = m_x;
+		m_saveY = m_y;
+	}
+
+	void Section::loadPosition()
+	{
+		m_x = m_saveX;
+		m_y = m_saveY;
 	}
 
 	int Section::calculateDirection(Section& other) {

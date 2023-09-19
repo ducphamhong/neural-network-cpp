@@ -72,6 +72,93 @@ void freeWalls(std::vector<Wall*>& walls) {
 	walls.clear();
 }
 
+#ifndef AI_LEARNING_INPUT
+double booleanInput(bool b)
+{
+	return b ? 1.0 : 0.0;
+}
+
+
+bool isDanger(int direction, Snake& snake, std::vector<Wall*>& walls)
+{
+	snake.save();
+
+	if (!snake.simulateMove(direction))
+	{
+		snake.load();
+		return true;
+	}
+
+	for (auto wall : walls)
+		if (snake.collidesWith(*wall))
+		{
+			snake.load();
+			return true;
+		}
+
+	for (int i = 1; i < snake.m_sections.size(); i++)
+		if (snake.collidesWith(*snake.m_sections[i]))
+		{
+			snake.load();
+			return true;
+		}
+
+	snake.load();
+	return false;
+}
+
+void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls)
+{
+	std::vector<double>& input = snake.getInput();
+	std::vector<double>& output = snake.getOutput();
+	int inputDirection = snake.getLastDirection();
+	int outputDirection = snake.getDirection();
+
+	input.clear();
+	output.clear();
+
+	int x = snake.getSections()[0]->m_x;
+	int y = snake.getSections()[0]->m_y;
+	int foodX = food.m_x;
+	int foodY = food.m_y;
+
+	// danger left	
+	input.push_back(booleanInput(isDanger(Snake::Direction::LEFT, snake, walls)));
+	// danger right
+	input.push_back(booleanInput(isDanger(Snake::Direction::RIGHT, snake, walls)));
+	// danger up
+	input.push_back(booleanInput(isDanger(Snake::Direction::UP, snake, walls)));
+	// danger down
+	input.push_back(booleanInput(isDanger(Snake::Direction::DOWN, snake, walls)));
+	// is current left	
+	input.push_back(booleanInput(inputDirection == Snake::Direction::LEFT));
+	// is current right
+	input.push_back(booleanInput(inputDirection == Snake::Direction::RIGHT));
+	// is current up
+	input.push_back(booleanInput(inputDirection == Snake::Direction::UP));
+	// is current down
+	input.push_back(booleanInput(inputDirection == Snake::Direction::DOWN));
+	// food is in left
+	input.push_back(booleanInput(foodX < x));
+	// food is in right
+	input.push_back(booleanInput(foodX > x));
+	// food is up
+	input.push_back(booleanInput(foodY > y));
+	// food is down
+	input.push_back(booleanInput(foodY < y));
+	// food is same row
+	input.push_back(booleanInput(foodX == x));
+	// food is same column
+	input.push_back(booleanInput(foodY == y));
+
+	// OUTPUT: 3
+	output.push_back(booleanInput(outputDirection == Snake::Direction::LEFT));
+	output.push_back(booleanInput(outputDirection == Snake::Direction::RIGHT));
+	output.push_back(booleanInput(outputDirection == Snake::Direction::UP));
+	output.push_back(booleanInput(outputDirection == Snake::Direction::DOWN));
+}
+#endif
+
 int CALLBACK WinMain(
 	HINSTANCE   hInstance,
 	HINSTANCE   hPrevInstance,
@@ -102,6 +189,13 @@ int CALLBACK WinMain(
 	bool quit = false;
 	bool starting = true;
 	bool pause = false;
+	int lastElapsed = 0;
+
+#ifndef AI_LEARNING_INPUT
+	int delay = 200;
+#else
+	int delay = 100;
+#endif
 
 	while (!quit) {
 		int action = screen.processEvents();
@@ -110,6 +204,8 @@ int CALLBACK WinMain(
 			quit = pauseGame(screen, pause);
 
 		int elapsed = SDL_GetTicks();
+		if (lastElapsed == 0)
+			lastElapsed = elapsed;
 
 		for (int agentId = 0; agentId < MAX_AI_UNIT; agentId++)
 		{
@@ -163,7 +259,12 @@ int CALLBACK WinMain(
 					break;
 				}
 
-				if (elapsed / 10 % 6 == 0) {
+				if (elapsed - lastElapsed > delay) {
+					lastElapsed = elapsed;
+
+#ifndef AI_LEARNING_INPUT
+					getAIInputOutput(snake[agentId], food[agentId], walls[agentId]);
+#endif
 					if (!snake[agentId].move())
 						resetLevel(snake[agentId], food[agentId], starting);
 					else {

@@ -27,6 +27,7 @@ namespace SnakeGame {
 		enum Direction { UP, DOWN, LEFT, RIGHT };
 
 		int m_speed;
+		int m_lastDirection;
 		int m_direction;
 		bool m_die;
 		bool m_hasUpdated;
@@ -60,6 +61,12 @@ namespace SnakeGame {
 		 */
 		bool move();
 
+		bool simulateMove(int direction);
+
+		void save();
+
+		void load();
+
 		/**
 		 * Removes one life from the snake
 		 */
@@ -89,6 +96,18 @@ namespace SnakeGame {
 		 */
 		void toString();  // TODO Remove . For debugging purposes
 
+#ifndef AI_LEARNING_INPUT
+		int getDirection();
+
+		int getLastDirection();
+
+		std::vector<double>& getInput();
+
+		std::vector<double>& getOutput();
+
+		std::vector<Section*>& getSections();
+#endif
+
 	private:
 		/**
 		 * Frees memory from snake's sections
@@ -105,6 +124,13 @@ namespace SnakeGame {
 		 * Resets the snake's direction to the initial direction
 		 */
 		void resetDirection();
+
+#ifdef AI_LEARNING_INPUT
+		ANN::SUnit* unit;
+#else
+		std::vector<double> m_dataInput;
+		std::vector<double> m_dataOutput;
+#endif
 	};
 
 } // namespace SnakeGame

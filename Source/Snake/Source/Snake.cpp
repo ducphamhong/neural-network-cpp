@@ -21,7 +21,9 @@ namespace SnakeGame {
 	cint Snake::S_N_SECTS = 8;
 
 	Snake::Snake() : m_speed(Snake::S_INITIAL_SPEED), m_die(false),
-		m_direction(S_INITIAL_DIRECTION), m_hasUpdated(false) {
+		m_direction(S_INITIAL_DIRECTION),
+		m_lastDirection(S_INITIAL_DIRECTION),
+		m_hasUpdated(false) {
 		Section* newSection = nullptr;
 		for (int i = 0; i < S_N_SECTS; i++) {
 			newSection = new Section(Screen::S_WIDTH / 2 - i * Section::S_SECTION_WIDTH,
@@ -44,15 +46,11 @@ namespace SnakeGame {
 	}
 
 	void Snake::updateDirection(int direction) {
-		if (
-			(m_direction == Snake::Direction::UP || m_direction ==
-				Snake::Direction::DOWN) && (direction == Snake::Direction::LEFT ||
-					direction == Snake::Direction::RIGHT)
-			||
-			(m_direction == Snake::Direction::LEFT || m_direction ==
-				Snake::Direction::RIGHT) && (direction == Snake::Direction::UP ||
-					direction == Snake::Direction::DOWN)
-			) {
+		if ((m_direction == Snake::Direction::UP || m_direction == Snake::Direction::DOWN) &&
+			(direction == Snake::Direction::LEFT || direction == Snake::Direction::RIGHT) ||
+			(m_direction == Snake::Direction::LEFT || m_direction == Snake::Direction::RIGHT) &&
+			(direction == Snake::Direction::UP || direction == Snake::Direction::DOWN))
+		{
 			m_direction = direction;
 			m_hasUpdated = true;
 		}
@@ -60,11 +58,11 @@ namespace SnakeGame {
 
 	bool Snake::move() {
 		for (int i = m_sections.size() - 1; i > 0; i--)
-			m_sections[i]->move(m_sections[i]->
-				calculateDirection(*m_sections[i - 1]));
+			m_sections[i]->move(m_sections[i]->calculateDirection(*m_sections[i - 1]));
 
 		m_sections[0]->move(m_direction);
 
+		m_lastDirection = m_direction;
 		m_hasUpdated = false;
 
 		if (m_sections[0]->m_x >= Screen::S_WIDTH || m_sections[0]->m_x < 0 ||
@@ -72,6 +70,32 @@ namespace SnakeGame {
 			return false;
 		else
 			return true;
+	}
+
+	bool Snake::simulateMove(int direction)
+	{
+		for (int i = m_sections.size() - 1; i > 0; i--)
+			m_sections[i]->move(m_sections[i]->calculateDirection(*m_sections[i - 1]));
+
+		m_sections[0]->move(direction);
+
+		if (m_sections[0]->m_x >= Screen::S_WIDTH || m_sections[0]->m_x < 0 ||
+			m_sections[0]->m_y >= Screen::S_HEIGHT || m_sections[0]->m_y < 0)
+			return false;
+		else
+			return true;
+	}
+
+	void Snake::save()
+	{
+		for (Section* s : m_sections)
+			s->savePosition();
+	}
+
+	void Snake::load()
+	{
+		for (Section* s : m_sections)
+			s->loadPosition();
 	}
 
 	void Snake::die() {
@@ -111,6 +135,7 @@ namespace SnakeGame {
 
 	void Snake::resetDirection() {
 		m_direction = S_INITIAL_DIRECTION;
+		m_lastDirection = m_direction;
 	}
 
 	bool Snake::collidesWith(Collideable& object) {
@@ -153,5 +178,32 @@ namespace SnakeGame {
 			section->toString();
 		SDL_Log("----------------------------------------");
 	}
+
+#ifndef AI_LEARNING_INPUT
+	int Snake::getDirection()
+	{
+		return m_direction;
+	}
+
+	int Snake::getLastDirection()
+	{
+		return m_lastDirection;
+	}
+
+	std::vector<double>& Snake::getInput()
+	{
+		return m_dataInput;
+	}
+
+	std::vector<double>& Snake::getOutput()
+	{
+		return m_dataOutput;
+	}
+
+	std::vector<Section*>& Snake::getSections()
+	{
+		return m_sections;
+	}
+#endif
 
 } // namespace SnakeGame

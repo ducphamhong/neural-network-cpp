@@ -53,6 +53,15 @@ namespace SnakeGame {
 		 * Show information about this instance on screen
 		 */
 		void toString();  // TODO Remove
+
+		void savePosition();
+
+		void loadPosition();
+
+	private:
+		int m_saveX;
+
+		int m_saveY;
 	};
 
 } // namespace SnakeGame
