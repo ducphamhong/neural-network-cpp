@@ -5,6 +5,10 @@
 #ifndef SNAKE_HPP
 #define SNAKE_HPP
 
+#ifdef AI_LEARNING_INPUT
+#include "GeneticAlgorithm.h"
+#endif
+
 typedef const unsigned int cint;
 
 namespace SnakeGame {
@@ -96,16 +100,20 @@ namespace SnakeGame {
 		 */
 		void toString();  // TODO Remove . For debugging purposes
 
-#ifndef AI_LEARNING_INPUT
 		int getDirection();
 
 		int getLastDirection();
 
+		std::vector<Section*>& getSections();
+
+#ifndef AI_LEARNING_INPUT		
 		std::vector<double>& getInput();
 
-		std::vector<double>& getOutput();
+		std::vector<double>& getOutput();		
+#else
+		void setAIUnit(ANN::SUnit* unit);
 
-		std::vector<Section*>& getSections();
+		ANN::SUnit* getAIUnit();
 #endif
 
 	private:
@@ -126,7 +134,7 @@ namespace SnakeGame {
 		void resetDirection();
 
 #ifdef AI_LEARNING_INPUT
-		ANN::SUnit* unit;
+		ANN::SUnit* m_unit;
 #else
 		std::vector<double> m_dataInput;
 		std::vector<double> m_dataOutput;

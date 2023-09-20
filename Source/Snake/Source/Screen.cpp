@@ -181,8 +181,8 @@ namespace SnakeGame {
 
 	void Screen::freeText() {
 		TTF_CloseFont(m_sansFont);
-		SDL_FreeSurface(m_textSurface);
-		SDL_DestroyTexture(m_textTexture);
+		// SDL_FreeSurface(m_textSurface);
+		// SDL_DestroyTexture(m_textTexture);
 	}
 
 	void Screen::close() {
@@ -207,8 +207,7 @@ namespace SnakeGame {
 		std::string text = createText(score);
 
 		SDL_Color whiteColor = { 0xFF, 0xFF, 0xFF };
-		if (!m_textSurface)
-			m_textSurface = TTF_RenderText_Solid(m_sansFont, text.c_str(), whiteColor);
+		m_textSurface = TTF_RenderText_Solid(m_sansFont, text.c_str(), whiteColor);
 		m_textTexture = SDL_CreateTextureFromSurface(m_renderer, m_textSurface);
 
 		int w, h;
@@ -221,6 +220,7 @@ namespace SnakeGame {
 		SDL_RenderCopy(m_renderer, m_textTexture, NULL, &rectangle);
 
 		SDL_DestroyTexture(m_textTexture);
+		SDL_FreeSurface(m_textSurface);
 	}
 
 } // namespace SnakeGame

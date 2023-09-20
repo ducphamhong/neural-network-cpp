@@ -23,7 +23,11 @@ namespace SnakeGame {
 	Snake::Snake() : m_speed(Snake::S_INITIAL_SPEED), m_die(false),
 		m_direction(S_INITIAL_DIRECTION),
 		m_lastDirection(S_INITIAL_DIRECTION),
-		m_hasUpdated(false) {
+		m_hasUpdated(false)
+#ifdef AI_LEARNING_INPUT
+		, m_unit(NULL)
+#endif
+	{
 		Section* newSection = nullptr;
 		for (int i = 0; i < S_N_SECTS; i++) {
 			newSection = new Section(Screen::S_WIDTH / 2 - i * Section::S_SECTION_WIDTH,
@@ -179,7 +183,6 @@ namespace SnakeGame {
 		SDL_Log("----------------------------------------");
 	}
 
-#ifndef AI_LEARNING_INPUT
 	int Snake::getDirection()
 	{
 		return m_direction;
@@ -190,6 +193,12 @@ namespace SnakeGame {
 		return m_lastDirection;
 	}
 
+	std::vector<Section*>& Snake::getSections()
+	{
+		return m_sections;
+	}
+
+#ifndef AI_LEARNING_INPUT
 	std::vector<double>& Snake::getInput()
 	{
 		return m_dataInput;
@@ -199,10 +208,15 @@ namespace SnakeGame {
 	{
 		return m_dataOutput;
 	}
-
-	std::vector<Section*>& Snake::getSections()
+#else
+	void Snake::setAIUnit(ANN::SUnit* unit)
 	{
-		return m_sections;
+		m_unit = unit;
+	}
+
+	ANN::SUnit* Snake::getAIUnit()
+	{
+		return m_unit;
 	}
 #endif
 
