@@ -40,10 +40,8 @@ bool pauseGame(Screen& screen, bool& pause) {
 	return quit;
 }
 
-void resetLevel(Snake& snake, Food& food, bool& starting) {
+void gameOver(Snake& snake, Food& food, bool& starting) {
 	snake.die();
-	snake.reset();
-	food = Food();
 	starting = true;
 }
 
@@ -218,14 +216,19 @@ int CALLBACK WinMain(
 
 	Snake snake[MAX_AI_UNIT];
 	Food food[MAX_AI_UNIT];
+	int deadTime[MAX_AI_UNIT];
+
+	int autoSaveInputTime = 3000;
+	int autoSaveTime = autoSaveInputTime;
 
 	std::vector<Wall*> walls[MAX_AI_UNIT];
 	int score[MAX_AI_UNIT];
-
+	int maxTime = 1000 * 30;
 	for (int i = 0; i < MAX_AI_UNIT; i++)
 	{
 		createWalls(walls[i]);
 		score[i] = 0;
+		deadTime[i] = maxTime;
 	}
 
 	if (!screen.init()) {
@@ -269,8 +272,8 @@ int CALLBACK WinMain(
 		fgets(lines, 512, f);
 		sscanf(lines, "%d %d %d", &numInput, &numOutput, &numRecord);
 
-		// skip bad last 20
-		int numDataLearning = numRecord - 20;
+		// skip bad last 5
+		int numDataLearning = numRecord - 5;
 
 		for (int j = 0; j < numDataLearning; j++)
 		{
@@ -307,7 +310,7 @@ int CALLBACK WinMain(
 				expectedOutput[3] = trainData[id + 3];
 			};
 
-			for (int learnCount = 50; learnCount > 0; learnCount--)
+			for (int learnCount = 500; learnCount > 0; learnCount--)
 			{
 				units[i]->ANN->train(input.data(), output.data(), numDataLearning);
 			}
@@ -318,6 +321,9 @@ int CALLBACK WinMain(
 	}
 #endif
 
+	int lastFrameElapsed = 0;
+	int frameTime = 0;
+
 	while (!quit) {
 		int action = screen.processEvents();
 
@@ -327,6 +333,10 @@ int CALLBACK WinMain(
 		int elapsed = SDL_GetTicks();
 		if (lastElapsed == 0)
 			lastElapsed = elapsed;
+		if (lastFrameElapsed == 0)
+			lastFrameElapsed = elapsed;
+
+		frameTime = elapsed - lastFrameElapsed;
 
 #ifdef AI_LEARNING_INPUT
 		// check evol
@@ -347,7 +357,11 @@ int CALLBACK WinMain(
 			for (int i = 0, n = (int)units.size(); i < n; i++)
 			{
 				snake[i].setAIUnit(units[i]);
+				snake[i].reset();
+				food[i] = Food();
+				score[i] = 0;
 				snake[i].live();
+				deadTime[i] = maxTime;
 			}
 
 			gen++;
@@ -358,10 +372,9 @@ int CALLBACK WinMain(
 		{
 			screen.clear();
 
-			snake[agentId].draw(screen);
-			food[agentId].draw(screen);
-
 			drawWalls(walls[agentId], screen);
+			food[agentId].draw(screen);
+			snake[agentId].draw(screen);
 
 			switch (action) {
 			case Screen::Action::QUIT:
@@ -376,8 +389,11 @@ int CALLBACK WinMain(
 #ifndef AI_LEARNING_INPUT
 				if (snake[agentId].isDie())
 				{
+					snake[agentId].reset();
+					food[agentId] = Food();
 					score[agentId] = 0;
 					snake[agentId].live();
+					deadTime[agentId] = maxTime;
 				}
 #endif
 				break;
@@ -453,6 +469,18 @@ int CALLBACK WinMain(
 					break;
 				}
 #endif
+				deadTime[agentId] = deadTime[agentId] - frameTime;
+
+#ifndef AI_LEARNING_INPUT
+				bool needSaveInput = false;
+				autoSaveTime = autoSaveTime - frameTime;
+				if (autoSaveTime < 0)
+				{
+					autoSaveTime = autoSaveInputTime;
+					needSaveInput = true;
+				}
+#endif
+
 				if (elapsed - lastElapsed > delay) {
 #ifndef AI_LEARNING_INPUT
 					getAIInputOutput(snake[agentId], food[agentId], walls[agentId]);
@@ -460,21 +488,30 @@ int CALLBACK WinMain(
 					bool changeInput = snake[agentId].getDirection() != snake[agentId].getLastDirection();
 
 					if (!snake[agentId].move())
-						resetLevel(snake[agentId], food[agentId], starting);
+						gameOver(snake[agentId], food[agentId], starting);
 					else {
 						if (snake[agentId].collidesWith(food[agentId])) {
 							food[agentId] = Food();
 							score[agentId] += Food::S_VALUE;
 							snake[agentId].addSection();
+
+							// set limit time to eat food
+							deadTime[agentId] = maxTime;
 						}
 
 						for (auto wall : walls[agentId])
 							if (snake[agentId].collidesWith(*wall))
-								resetLevel(snake[agentId], food[agentId], starting);
+								gameOver(snake[agentId], food[agentId], starting);
 
 						for (int i = 1; i < snake[agentId].m_sections.size(); i++)
 							if (snake[agentId].collidesWith(*snake[agentId].m_sections[i]))
-								resetLevel(snake[agentId], food[agentId], starting);
+								gameOver(snake[agentId], food[agentId], starting);
+					}
+
+					if (deadTime[agentId] < 0)
+					{
+						// stuck
+						gameOver(snake[agentId], food[agentId], starting);
 					}
 
 #ifdef AI_LEARNING_INPUT
@@ -503,7 +540,7 @@ int CALLBACK WinMain(
 					// save for learning
 					if (!snake[agentId].isDie())
 					{
-						if (changeInput)
+						if (changeInput || needSaveInput)
 						{
 							for (int i = 0; i < numInput; i++)
 								allInput.push_back(input[i]);
@@ -554,6 +591,8 @@ int CALLBACK WinMain(
 		{
 			lastElapsed = elapsed;
 		}
+
+		lastFrameElapsed = elapsed;
 
 		screen.present();
 	}

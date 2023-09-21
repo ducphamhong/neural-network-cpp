@@ -23,6 +23,9 @@ namespace SnakeGame {
 		static const Uint8 S_HEAD_RED;
 		static const Uint8 S_HEAD_GREEN;
 		static const Uint8 S_HEAD_BLUE;
+		static const Uint8 S_HEAD_DIE_RED;
+		static const Uint8 S_HEAD_DIE_GREEN;
+		static const Uint8 S_HEAD_DIE_BLUE;
 		static cint S_N_SECTS;
 		static cint S_INITIAL_LIVES;
 		static cint S_INITIAL_DIRECTION;
@@ -109,7 +112,7 @@ namespace SnakeGame {
 #ifndef AI_LEARNING_INPUT		
 		std::vector<double>& getInput();
 
-		std::vector<double>& getOutput();		
+		std::vector<double>& getOutput();
 #else
 		void setAIUnit(ANN::SUnit* unit);
 

@@ -30,6 +30,13 @@ namespace SnakeGame {
 		Uint8 g = ID == 0 ? Snake::S_HEAD_GREEN : Snake::S_SNK_GREEN;
 		Uint8 b = ID == 0 ? Snake::S_HEAD_BLUE : Snake::S_SNK_BLUE;
 
+		if (Die && ID == 0)
+		{
+			r = Snake::S_HEAD_DIE_RED;
+			g = Snake::S_HEAD_DIE_GREEN;
+			b = Snake::S_HEAD_DIE_BLUE;
+		}
+
 		for (int i = 0; i < S_SECTION_WIDTH; i++)
 		{
 			for (int j = 0; j < S_SECTION_WIDTH; j++)

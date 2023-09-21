@@ -21,6 +21,8 @@ namespace SnakeGame {
 
 		int ID;
 
+		bool Die;
+
 		/**
 		 * Default constructor for creating Section instances
 		 */
