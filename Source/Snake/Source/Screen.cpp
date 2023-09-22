@@ -23,6 +23,7 @@ namespace SnakeGame {
 	cint Screen::S_TEXT_X = (cint)(20 * S_SCALE);
 	cint Screen::S_TEXT_Y = (cint)(0 * S_SCALE);
 	const std::string Screen::S_SCORE_TEXT = "Score: ";
+	const std::string Screen::S_GEN_TEXT = "Generation: ";
 
 	Screen::Screen() : m_window(NULL), m_renderer(NULL), m_texture(NULL),
 		m_mainBuffer(NULL), m_sansFont(NULL), m_textSurface(NULL),
@@ -121,8 +122,11 @@ namespace SnakeGame {
 		return action;
 	}
 
-	void Screen::update(int score, bool isGameOver, int agentID) {
+	void Screen::update(int score, int gen, bool isGameOver, int agentID, bool isTop) {
 		SDL_UpdateTexture(m_texture, NULL, m_mainBuffer, S_WIDTH * sizeof(Uint32));
+
+		int tx = 0;
+		int ty = 0;
 
 		if (agentID < 0)
 		{
@@ -137,21 +141,41 @@ namespace SnakeGame {
 			int h = S_HEIGHT;
 
 			SDL_Rect target;
-			target.x = col * w;
-			target.y = row * h;
+			target.x = tx = col * w;
+			target.y = ty = row * h;
 			target.w = w;
 			target.h = h;
 
 			SDL_RenderCopy(m_renderer, m_texture, NULL, &target);
 		}
 
-#ifndef AI_LEARNING_INPUT
-		drawText(score);
+		SDL_Color whiteColor = { 0xFF, 0xFF, 0xFF };
+		SDL_Color cyanColor = { 0xFF, 0x00, 0xFF };
+
+#ifndef AI_LEARNING_INPUT		
+
+		std::stringstream sstr;
+		sstr << S_SCORE_TEXT << score;
+		drawText(sstr.str(), S_TEXT_X, S_TEXT_Y, whiteColor);
 
 		if (isGameOver)
 		{
 			// game over
+		}
+#else
+		/*
+		if (agentID == 0)
+		{
+			std::stringstream sstr;
+			sstr << S_GEN_TEXT << score;
+			drawText(sstr.str(), S_TEXT_X, S_TEXT_Y);
+		}
+		*/
 
+		{
+			std::stringstream sstr;
+			sstr << S_SCORE_TEXT << score;
+			drawText(sstr.str(), tx + 5, ty + 5, isTop ? cyanColor : whiteColor);
 		}
 #endif
 	}
@@ -197,24 +221,15 @@ namespace SnakeGame {
 		SDL_Quit();
 	}
 
-	std::string Screen::createText(int score) {
-		std::stringstream sstr;
-		sstr << S_SCORE_TEXT << score;
-		return sstr.str();
-	}
-
-	void Screen::drawText(int score) {
-		std::string text = createText(score);
-
-		SDL_Color whiteColor = { 0xFF, 0xFF, 0xFF };
-		m_textSurface = TTF_RenderText_Solid(m_sansFont, text.c_str(), whiteColor);
+	void Screen::drawText(const std::string& text, int x, int y, const SDL_Color& color) {
+		m_textSurface = TTF_RenderText_Solid(m_sansFont, text.c_str(), color);
 		m_textTexture = SDL_CreateTextureFromSurface(m_renderer, m_textSurface);
 
 		int w, h;
 		SDL_QueryTexture(m_textTexture, NULL, NULL, &w, &h);
 
 		SDL_Rect rectangle = {
-			S_TEXT_X, S_TEXT_Y, w, h
+			x, y, w, h
 		};
 
 		SDL_RenderCopy(m_renderer, m_textTexture, NULL, &rectangle);

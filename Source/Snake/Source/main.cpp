@@ -77,7 +77,7 @@ void freeWalls(std::vector<Wall*>& walls) {
 
 double booleanInput(bool b)
 {
-	return b ? 1.0 : 0.0;
+	return b ? 1.0 : -1.0;
 }
 
 
@@ -133,7 +133,7 @@ void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls)
 	input.push_back(booleanInput(isDanger(Snake::Direction::UP, snake, walls)));
 	// danger down
 	input.push_back(booleanInput(isDanger(Snake::Direction::DOWN, snake, walls)));
-	// is current left	
+	// is current left
 	input.push_back(booleanInput(inputDirection == Snake::Direction::LEFT));
 	// is current right
 	input.push_back(booleanInput(inputDirection == Snake::Direction::RIGHT));
@@ -246,16 +246,24 @@ int CALLBACK WinMain(
 	std::vector<double> allInput;
 	std::vector<double> allOutput;
 
+	int gen = 0;
+
 #ifndef AI_LEARNING_INPUT
 	int delay = 300;
 #else
+	int killAll = 60 * 10;
+	bool autoSkipOldGeneration = true;
+	int currentGenerationID[MAX_AI_UNIT];
+	for (int i = 0; i < MAX_AI_UNIT; i++)
+	{
+		currentGenerationID[i] = -1;
+	}
+
 	ANN::CGeneticAlgorithm aiGenetic(ANN::EActivation::Tanh);
 	const int dim[] = { 14, 256, 4 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 3);
 
 	int delay = 100;
-	int gen = 0;
-
 	{
 		std::vector<double> input;
 		std::vector<double> output;
@@ -364,6 +372,11 @@ int CALLBACK WinMain(
 				deadTime[i] = maxTime;
 			}
 
+			for (int i = 0; i < MAX_AI_UNIT; i++)
+			{
+				currentGenerationID[i] = aiGenetic.get()[i]->ID;
+			}
+
 			gen++;
 		}
 #endif
@@ -373,8 +386,8 @@ int CALLBACK WinMain(
 			screen.clear();
 
 			drawWalls(walls[agentId], screen);
-			food[agentId].draw(screen);
 			snake[agentId].draw(screen);
+			food[agentId].draw(screen);
 
 			switch (action) {
 			case Screen::Action::QUIT:
@@ -399,9 +412,15 @@ int CALLBACK WinMain(
 				break;
 			};
 
+			bool topUnit = false;
+
+#ifdef AI_LEARNING_INPUT
+			topUnit = snake[agentId].getAIUnit()->TopUnit;
+#endif
+
 			if (!snake[agentId].isDie())
 			{
-				screen.update(score[agentId], false, agentId);
+				screen.update(score[agentId], gen, false, agentId, topUnit);
 
 #ifdef AI_LEARNING_INPUT
 				std::vector<double> input;
@@ -582,10 +601,76 @@ int CALLBACK WinMain(
 			}
 			else
 			{
-				screen.update(score[agentId], true, agentId);
+				// is die
+				screen.update(score[agentId], gen, true, agentId, topUnit);
 			}
 		}
 
+#ifdef AI_LEARNING_INPUT
+		int liveCount = 0;
+		int topUnit = 4;
+		int liveID[MAX_AI_UNIT];
+
+		for (int i = 0; i < MAX_AI_UNIT; i++)
+		{
+			liveID[i] = -1;
+		}
+
+		for (int i = 0; i < MAX_AI_UNIT; i++)
+		{
+			if (!snake[i].isDie())
+			{
+				liveID[liveCount++] = snake[i].getAIUnit()->ID;
+			}
+		}
+
+		if (autoSkipOldGeneration && liveCount > 0)
+		{
+			bool foundNewGene = true;
+
+			// check to skip alive shiba is in old gene in top Unit
+			if (liveCount > topUnit)
+				foundNewGene = true;
+			else
+			{
+				int numOldGeneration = 0;
+
+				for (int i = 0; i < liveCount; i++)
+				{
+					for (int j = 0; j < topUnit; j++)
+					{
+						if (liveID[i] == currentGenerationID[j])
+						{
+							numOldGeneration++;
+							break;
+						}
+					}
+				}
+
+				if (liveCount == numOldGeneration)
+				{
+					foundNewGene = false;
+				}
+			}
+
+			if (!foundNewGene)
+			{
+				if (--killAll < 0)
+				{
+					for (int i = 0; i < MAX_AI_UNIT; i++)
+					{
+						if (!snake[i].isDie())
+						{
+							snake[i].die();
+						}
+					}
+					killAll = 60 * 10;
+					// kill all after 600 frames (10s)
+					// we no need spent time to wait old generation
+				}
+			}
+		}
+#endif
 
 		if (elapsed - lastElapsed > delay)
 		{

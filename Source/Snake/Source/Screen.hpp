@@ -12,7 +12,7 @@
 
 typedef const unsigned int cint;
 
-// #define AI_LEARNING_INPUT
+#define AI_LEARNING_INPUT
 
 #ifdef AI_LEARNING_INPUT
 #define MAX_AI_UNIT 16
@@ -38,6 +38,7 @@ namespace SnakeGame {
 		static cint S_TEXT_RECT_HEIGHT;
 		static const std::string S_SCORE_TEXT;
 		static const std::string S_LIVES_TEXT;
+		static const std::string S_GEN_TEXT;
 	private:
 		SDL_Window* m_window;
 		SDL_Renderer* m_renderer;
@@ -70,7 +71,7 @@ namespace SnakeGame {
 		 * @param score The game's score
 		 * @param isGameOver Indicates whether there is Game Over
 		 */
-		void update(int lives, bool isGameOver, int agentId);
+		void update(int lives, int gen, bool isGameOver, int agentId, bool isTop);
 		void present();
 		/**
 		 * Sets a pixel in the buffer with the specified (x,y) position, and colors
@@ -98,12 +99,6 @@ namespace SnakeGame {
 		void drawGameOver();
 
 	private:
-		/**
-		 * Creates and returns display text
-		 * @param score The score from the game
-		 * @param lives The lives from the game
-		 */
-		std::string createText(int score);
 
 		/**
 		 * Clears memory from text-related elements
@@ -115,7 +110,7 @@ namespace SnakeGame {
 		 * @param score The score from the game
 		 * @param lives The lives from the game
 		 */
-		void drawText(int score);
+		void drawText(const std::string& text, int x, int y, const SDL_Color& color);
 	};
 
 } // namespace SnakeGame
