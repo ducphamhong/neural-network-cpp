@@ -13,5 +13,10 @@ namespace SnakeGame {
 		return m_x == other.m_x && m_y == other.m_y;
 	}
 
+	bool Collideable::collidesWith(int x, int y)
+	{
+		return m_x == x && m_y == y;
+	}
+
 
 } // namespace SnakeGame

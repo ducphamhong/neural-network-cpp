@@ -31,6 +31,8 @@ struct Collideable: Drawable {
 	 * @return boolean indicating whether collision occurs
 	 */
 	bool collidesWith(Collideable & other);
+
+	bool collidesWith(int x, int y);
 };
 
 } // namespace SnakeGame

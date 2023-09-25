@@ -1,3 +1,5 @@
+Thanks **jcalvarezj** for [snake game source](https://github.com/jcalvarezj/snake)
+
 # Snake Game
 
 Small prototype of the snake game made in C++ with the SDL 2 library (dev and ttf-dev, from SDL2).

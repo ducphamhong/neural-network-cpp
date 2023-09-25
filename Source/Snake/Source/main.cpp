@@ -12,6 +12,7 @@
 #include "Food.hpp"
 #include "Wall.hpp"
 #include "Screen.hpp"
+#include "Section.hpp"
 #include "SDL.h"
 #include <Windows.h>
 
@@ -80,7 +81,7 @@ double booleanInput(bool b)
 	return b ? 1.0 : -1.0;
 }
 
-
+/*
 bool isDanger(int direction, Snake& snake, std::vector<Wall*>& walls)
 {
 	snake.save();
@@ -108,13 +109,88 @@ bool isDanger(int direction, Snake& snake, std::vector<Wall*>& walls)
 	snake.load();
 	return false;
 }
+*/
+
+bool checkCollide(int x, int y, Snake& snake, std::vector<Wall*>& walls)
+{
+	for (auto wall : walls)
+	{
+		if (wall->collidesWith(x, y))
+		{
+			return true;
+		}
+	}
+
+	for (int i = 1; i < snake.m_sections.size(); i++)
+	{
+		if (snake.m_sections[i]->collidesWith(x, y))
+			return true;
+	}
+
+	return false;
+}
+
+void getSafeRange(Snake& snake, std::vector<Wall*>& walls, int& top, int& down, int& left, int& right)
+{
+	int x = snake.getSections()[0]->m_x;
+	int y = snake.getSections()[0]->m_y;
+
+	top = down = left = right = 0;
+
+	// safe top
+	{
+		int testX = x;
+		int testY = y - Section::S_SECTION_WIDTH;
+
+		while (!checkCollide(testX, testY, snake, walls))
+		{
+			top++;
+			testY -= Section::S_SECTION_WIDTH;
+		}
+	}
+
+	// safe down
+	{
+		int testX = x;
+		int testY = y + Section::S_SECTION_WIDTH;
+
+		while (!checkCollide(testX, testY, snake, walls))
+		{
+			down++;
+			testY += Section::S_SECTION_WIDTH;
+		}
+	}
+
+	// safe left
+	{
+		int testX = x - Section::S_SECTION_WIDTH;
+		int testY = y;
+
+		while (!checkCollide(testX, testY, snake, walls))
+		{
+			left++;
+			testX -= Section::S_SECTION_WIDTH;
+		}
+	}
+
+	// safe right
+	{
+		int testX = x + Section::S_SECTION_WIDTH;
+		int testY = y;
+
+		while (!checkCollide(testX, testY, snake, walls))
+		{
+			right++;
+			testX += Section::S_SECTION_WIDTH;
+		}
+	}
+}
 
 #ifndef AI_LEARNING_INPUT
 void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls)
 {
 	std::vector<double>& input = snake.getInput();
 	std::vector<double>& output = snake.getOutput();
-	int inputDirection = snake.getLastDirection();
 	int outputDirection = snake.getDirection();
 
 	input.clear();
@@ -125,22 +201,18 @@ void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls)
 	int foodX = food.m_x;
 	int foodY = food.m_y;
 
-	// danger left	
-	input.push_back(booleanInput(isDanger(Snake::Direction::LEFT, snake, walls)));
-	// danger right
-	input.push_back(booleanInput(isDanger(Snake::Direction::RIGHT, snake, walls)));
-	// danger up
-	input.push_back(booleanInput(isDanger(Snake::Direction::UP, snake, walls)));
-	// danger down
-	input.push_back(booleanInput(isDanger(Snake::Direction::DOWN, snake, walls)));
-	// is current left
-	input.push_back(booleanInput(inputDirection == Snake::Direction::LEFT));
-	// is current right
-	input.push_back(booleanInput(inputDirection == Snake::Direction::RIGHT));
-	// is current up
-	input.push_back(booleanInput(inputDirection == Snake::Direction::UP));
-	// is current down
-	input.push_back(booleanInput(inputDirection == Snake::Direction::DOWN));
+	int t, d, l, r;
+	getSafeRange(snake, walls, t, d, l, r);
+	float maxRange = 100.0f;
+
+	// safe left
+	input.push_back(l / maxRange);
+	// safe right
+	input.push_back(r / maxRange);
+	// safe up
+	input.push_back(t / maxRange);
+	// safe down
+	input.push_back(d / maxRange);
 	// food is in left
 	input.push_back(booleanInput(foodX < x));
 	// food is in right
@@ -173,22 +245,18 @@ void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls, std::
 	int foodX = food.m_x;
 	int foodY = food.m_y;
 
-	// danger left	
-	input.push_back(booleanInput(isDanger(Snake::Direction::LEFT, snake, walls)));
-	// danger right
-	input.push_back(booleanInput(isDanger(Snake::Direction::RIGHT, snake, walls)));
-	// danger up
-	input.push_back(booleanInput(isDanger(Snake::Direction::UP, snake, walls)));
-	// danger down
-	input.push_back(booleanInput(isDanger(Snake::Direction::DOWN, snake, walls)));
-	// is current left	
-	input.push_back(booleanInput(inputDirection == Snake::Direction::LEFT));
-	// is current right
-	input.push_back(booleanInput(inputDirection == Snake::Direction::RIGHT));
-	// is current up
-	input.push_back(booleanInput(inputDirection == Snake::Direction::UP));
-	// is current down
-	input.push_back(booleanInput(inputDirection == Snake::Direction::DOWN));
+	int t, d, l, r;
+	getSafeRange(snake, walls, t, d, l, r);
+	float maxRange = 100.0f;
+
+	// safe left
+	input.push_back(l / maxRange);
+	// safe right
+	input.push_back(r / maxRange);
+	// safe up
+	input.push_back(t / maxRange);
+	// safe down
+	input.push_back(d / maxRange);
 	// food is in left
 	input.push_back(booleanInput(foodX < x));
 	// food is in right
@@ -251,6 +319,7 @@ int CALLBACK WinMain(
 #ifndef AI_LEARNING_INPUT
 	int delay = 300;
 #else
+	int dieTime = 60 * 5;
 	int killAll = 60 * 10;
 	bool autoSkipOldGeneration = true;
 	int currentGenerationID[MAX_AI_UNIT];
@@ -260,7 +329,7 @@ int CALLBACK WinMain(
 	}
 
 	ANN::CGeneticAlgorithm aiGenetic(ANN::EActivation::Tanh);
-	const int dim[] = { 14, 256, 4 };
+	const int dim[] = { 10, 256, 4 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 3);
 
 	int delay = 100;
@@ -280,8 +349,8 @@ int CALLBACK WinMain(
 		fgets(lines, 512, f);
 		sscanf(lines, "%d %d %d", &numInput, &numOutput, &numRecord);
 
-		// skip bad last 5
-		int numDataLearning = numRecord - 5;
+		// skip bad last 2 move
+		int numDataLearning = numRecord - 2;
 
 		for (int j = 0; j < numDataLearning; j++)
 		{
@@ -359,25 +428,31 @@ int CALLBACK WinMain(
 
 		if (numSnakeDie == MAX_AI_UNIT)
 		{
-			aiGenetic.evolvePopulation();
-
-			std::vector<ANN::SUnit*>& units = aiGenetic.get();
-			for (int i = 0, n = (int)units.size(); i < n; i++)
+			dieTime = dieTime - frameTime;
+			if (dieTime < 0)
 			{
-				snake[i].setAIUnit(units[i]);
-				snake[i].reset();
-				food[i] = Food();
-				score[i] = 0;
-				snake[i].live();
-				deadTime[i] = maxTime;
-			}
+				dieTime = 60 * 5;
 
-			for (int i = 0; i < MAX_AI_UNIT; i++)
-			{
-				currentGenerationID[i] = aiGenetic.get()[i]->ID;
-			}
+				aiGenetic.evolvePopulation();
 
-			gen++;
+				std::vector<ANN::SUnit*>& units = aiGenetic.get();
+				for (int i = 0, n = (int)units.size(); i < n; i++)
+				{
+					snake[i].setAIUnit(units[i]);
+					snake[i].reset();
+					food[i] = Food();
+					score[i] = 0;
+					snake[i].live();
+					deadTime[i] = maxTime;
+				}
+
+				for (int i = 0; i < MAX_AI_UNIT; i++)
+				{
+					currentGenerationID[i] = aiGenetic.get()[i]->ID;
+				}
+
+				gen++;
+			}
 		}
 #endif
 
