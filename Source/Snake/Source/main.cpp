@@ -186,6 +186,16 @@ void getSafeRange(Snake& snake, std::vector<Wall*>& walls, int& top, int& down, 
 	}
 }
 
+float getInput(float value)
+{
+	float maxRange = 40.0f;
+	if (value > maxRange)
+		value = maxRange;
+	return value / maxRange;
+}
+
+const char* dataInput = "Snake/learning.txt";
+
 #ifndef AI_LEARNING_INPUT
 void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls)
 {
@@ -203,28 +213,21 @@ void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls)
 
 	int t, d, l, r;
 	getSafeRange(snake, walls, t, d, l, r);
-	float maxRange = 100.0f;
 
 	// safe left
-	input.push_back(l / maxRange);
+	input.push_back(getInput(l));
 	// safe right
-	input.push_back(r / maxRange);
+	input.push_back(getInput(r));
 	// safe up
-	input.push_back(t / maxRange);
+	input.push_back(getInput(t));
 	// safe down
-	input.push_back(d / maxRange);
-	// food is in left
-	input.push_back(booleanInput(foodX < x));
-	// food is in right
-	input.push_back(booleanInput(foodX > x));
-	// food is up
-	input.push_back(booleanInput(foodY > y));
-	// food is down
-	input.push_back(booleanInput(foodY < y));
-	// food is same row
-	input.push_back(booleanInput(foodX == x));
-	// food is same column
-	input.push_back(booleanInput(foodY == y));
+	input.push_back(getInput(d));
+	// food is left/right
+	float f = (foodX - x) / (float)Section::S_SECTION_WIDTH;
+	input.push_back(getInput(f));
+	// food is up/down
+	f = (foodY - y) / (float)Section::S_SECTION_WIDTH;
+	input.push_back(getInput(f));
 
 	// OUTPUT: 3
 	output.push_back(booleanInput(outputDirection == Snake::Direction::LEFT));
@@ -250,25 +253,82 @@ void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls, std::
 	float maxRange = 100.0f;
 
 	// safe left
-	input.push_back(l / maxRange);
+	input.push_back(getInput(l));
 	// safe right
-	input.push_back(r / maxRange);
+	input.push_back(getInput(r));
 	// safe up
-	input.push_back(t / maxRange);
+	input.push_back(getInput(t));
 	// safe down
-	input.push_back(d / maxRange);
-	// food is in left
-	input.push_back(booleanInput(foodX < x));
-	// food is in right
-	input.push_back(booleanInput(foodX > x));
-	// food is up
-	input.push_back(booleanInput(foodY > y));
-	// food is down
-	input.push_back(booleanInput(foodY < y));
-	// food is same row
-	input.push_back(booleanInput(foodX == x));
-	// food is same column
-	input.push_back(booleanInput(foodY == y));
+	input.push_back(getInput(d));
+	// food is left/right
+	float f = (foodX - x) / (float)Section::S_SECTION_WIDTH;
+	input.push_back(getInput(f));
+	// food is up/down
+	f = (foodY - y) / (float)Section::S_SECTION_WIDTH;
+	input.push_back(getInput(f));
+}
+
+void train(ANN::CGeneticAlgorithm& aiGenetic)
+{
+	std::vector<double> input;
+	std::vector<double> output;
+
+	// See the function doge::reportDie
+	// Read human played data
+	FILE* f = fopen(dataInput, "rt");
+	char lines[512];
+
+	int numInput = 0;
+	int numOutput = 0;
+	int numRecord = 0;
+
+	fgets(lines, 512, f);
+	sscanf(lines, "%d %d %d", &numInput, &numOutput, &numRecord);
+
+	// skip bad last 2 move
+	int numDataLearning = numRecord - 2;
+
+	for (int j = 0; j < numDataLearning; j++)
+	{
+		for (int i = 0; i < numInput; i++)
+		{
+			double d;
+			fgets(lines, 512, f);
+			sscanf(lines, "%lf", &d);
+			input.push_back(d);
+		}
+
+		for (int i = 0; i < numOutput; i++)
+		{
+			double d;
+			fgets(lines, 512, f);
+			sscanf(lines, "%lf", &d);
+			output.push_back(d);
+		}
+	}
+
+	fclose(f);
+
+	// learn expected function
+	// need learning from human control for Gen 0
+	std::vector<ANN::SUnit*>& units = aiGenetic.get();
+	for (int i = 0, n = (int)units.size(); i < n; i++)
+	{
+		units[i]->ANN->LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput)
+		{
+			int id = trainId * numOutput;
+			expectedOutput[0] = trainData[id];
+			expectedOutput[1] = trainData[id + 1];
+			expectedOutput[2] = trainData[id + 2];
+			expectedOutput[3] = trainData[id + 3];
+		};
+
+		for (int learnCount = 100; learnCount > 0; learnCount--)
+		{
+			if (units[i]->BestScored < 150 && units[i]->Scored < 150)
+				units[i]->ANN->train(input.data(), output.data(), numDataLearning);
+		}
+	}
 }
 #endif
 
@@ -291,7 +351,7 @@ int CALLBACK WinMain(
 
 	std::vector<Wall*> walls[MAX_AI_UNIT];
 	int score[MAX_AI_UNIT];
-	int maxTime = 1000 * 30;
+	int maxTime = 1000 * 20;
 	for (int i = 0; i < MAX_AI_UNIT; i++)
 	{
 		createWalls(walls[i]);
@@ -309,8 +369,6 @@ int CALLBACK WinMain(
 	bool pause = false;
 	int lastElapsed = 0;
 
-	const char* dataInput = "Snake/learning.txt";
-
 	std::vector<double> allInput;
 	std::vector<double> allOutput;
 
@@ -319,7 +377,7 @@ int CALLBACK WinMain(
 #ifndef AI_LEARNING_INPUT
 	int delay = 300;
 #else
-	int dieTime = 60 * 5;
+	int dieTime = 1000 * 2;
 	int killAll = 60 * 10;
 	bool autoSkipOldGeneration = true;
 	int currentGenerationID[MAX_AI_UNIT];
@@ -329,77 +387,17 @@ int CALLBACK WinMain(
 	}
 
 	ANN::CGeneticAlgorithm aiGenetic(ANN::EActivation::Tanh);
-	const int dim[] = { 10, 256, 4 };
+	const int dim[] = { 6, 256, 4 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 3);
 
-	int delay = 100;
-	{
-		std::vector<double> input;
-		std::vector<double> output;
+	int delay = 60;
 
-		// See the function doge::reportDie
-		// Read human played data
-		FILE* f = fopen(dataInput, "rt");
-		char lines[512];
-
-		int numInput = 0;
-		int numOutput = 0;
-		int numRecord = 0;
-
-		fgets(lines, 512, f);
-		sscanf(lines, "%d %d %d", &numInput, &numOutput, &numRecord);
-
-		// skip bad last 2 move
-		int numDataLearning = numRecord - 2;
-
-		for (int j = 0; j < numDataLearning; j++)
-		{
-			for (int i = 0; i < numInput; i++)
-			{
-				double d;
-				fgets(lines, 512, f);
-				sscanf(lines, "%lf", &d);
-				input.push_back(d);
-			}
-
-			for (int i = 0; i < numOutput; i++)
-			{
-				double d;
-				fgets(lines, 512, f);
-				sscanf(lines, "%lf", &d);
-				output.push_back(d);
-			}
-		}
-
-		fclose(f);
-
-		// learn expected function
-		// need learning from human control for Gen 0
-		std::vector<ANN::SUnit*>& units = aiGenetic.get();
-		for (int i = 0, n = (int)units.size(); i < n; i++)
-		{
-			units[i]->ANN->LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput)
-			{
-				int id = trainId * numOutput;
-				expectedOutput[0] = trainData[id];
-				expectedOutput[1] = trainData[id + 1];
-				expectedOutput[2] = trainData[id + 2];
-				expectedOutput[3] = trainData[id + 3];
-			};
-
-			for (int learnCount = 500; learnCount > 0; learnCount--)
-			{
-				units[i]->ANN->train(input.data(), output.data(), numDataLearning);
-			}
-
-			snake[i].setAIUnit(units[i]);
-			snake[i].live();
-		}
-	}
+	train(aiGenetic);
 #endif
 
 	int lastFrameElapsed = 0;
 	int frameTime = 0;
+	bool firstGame = true;
 
 	while (!quit) {
 		int action = screen.processEvents();
@@ -414,45 +412,66 @@ int CALLBACK WinMain(
 			lastFrameElapsed = elapsed;
 
 		frameTime = elapsed - lastFrameElapsed;
+		if (frameTime > 100)
+			frameTime = 100;
 
 #ifdef AI_LEARNING_INPUT
 		// check evol
 		int numSnakeDie = 0;
+		int numBadUnit = 0;
 		for (int agentId = 0; agentId < MAX_AI_UNIT; agentId++)
 		{
 			if (snake[agentId].isDie())
 			{
 				numSnakeDie++;
+
+				if (snake[agentId].getAIUnit()->Scored == 0)
+					numBadUnit++;
 			}
 		}
 
-		if (numSnakeDie == MAX_AI_UNIT)
+		bool resetAll = false;
+
+		if (numBadUnit >= MAX_AI_UNIT - 2)
 		{
 			dieTime = dieTime - frameTime;
-			if (dieTime < 0)
+			if (dieTime < 0 || firstGame)
 			{
-				dieTime = 60 * 5;
-
+				// train bad snake again
+				train(aiGenetic);
+				resetAll = true;
+			}
+		}
+		else if (numSnakeDie == MAX_AI_UNIT || firstGame)
+		{
+			dieTime = dieTime - frameTime;
+			if (dieTime < 0 || firstGame)
+			{
 				aiGenetic.evolvePopulation();
 
-				std::vector<ANN::SUnit*>& units = aiGenetic.get();
-				for (int i = 0, n = (int)units.size(); i < n; i++)
-				{
-					snake[i].setAIUnit(units[i]);
-					snake[i].reset();
-					food[i] = Food();
-					score[i] = 0;
-					snake[i].live();
-					deadTime[i] = maxTime;
-				}
-
-				for (int i = 0; i < MAX_AI_UNIT; i++)
-				{
-					currentGenerationID[i] = aiGenetic.get()[i]->ID;
-				}
-
-				gen++;
+				firstGame = false;
+				resetAll = true;
 			}
+		}
+
+		if (resetAll)
+		{
+			dieTime = 1000 * 2;
+			lastFrameElapsed = elapsed;
+
+			std::vector<ANN::SUnit*>& units = aiGenetic.get();
+			for (int i = 0, n = (int)units.size(); i < n; i++)
+			{
+				units[i]->Scored = 0;
+				snake[i].setAIUnit(units[i]);
+				snake[i].reset();
+				food[i] = Food();
+				score[i] = 0;
+				snake[i].live();
+				deadTime[i] = maxTime;
+				currentGenerationID[i] = aiGenetic.get()[i]->ID;
+			}
+			gen++;
 		}
 #endif
 
@@ -578,6 +597,11 @@ int CALLBACK WinMain(
 				if (elapsed - lastElapsed > delay) {
 #ifndef AI_LEARNING_INPUT
 					getAIInputOutput(snake[agentId], food[agentId], walls[agentId]);
+
+					std::vector<double>& input = snake[agentId].getInput();
+					std::vector<double>& output = snake[agentId].getOutput();
+					int numInput = (int)input.size();
+					int numOutput = (int)output.size();
 #endif
 					bool changeInput = snake[agentId].getDirection() != snake[agentId].getLastDirection();
 
@@ -585,6 +609,19 @@ int CALLBACK WinMain(
 						gameOver(snake[agentId], food[agentId], starting);
 					else {
 						if (snake[agentId].collidesWith(food[agentId])) {
+
+#ifndef AI_LEARNING_INPUT
+							// save current input
+							for (int i = 0; i < numInput; i++)
+								allInput.push_back(input[i]);
+							for (int i = 0; i < numOutput; i++)
+								allOutput.push_back(output[i]);
+
+							// get eat food input && save eat food data
+							getAIInputOutput(snake[agentId], food[agentId], walls[agentId]);
+							needSaveInput = true;
+#endif
+
 							food[agentId] = Food();
 							score[agentId] += Food::S_VALUE;
 							snake[agentId].addSection();
@@ -626,10 +663,7 @@ int CALLBACK WinMain(
 					}
 #else
 
-					std::vector<double>& input = snake[agentId].getInput();
-					std::vector<double>& output = snake[agentId].getOutput();
-					int numInput = (int)input.size();
-					int numOutput = (int)output.size();
+
 
 					// save for learning
 					if (!snake[agentId].isDie())
