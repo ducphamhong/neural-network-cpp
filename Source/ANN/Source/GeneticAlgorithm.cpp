@@ -58,6 +58,21 @@ namespace ANN
 		m_units.clear();
 	}
 
+	void CGeneticAlgorithm::reset()
+	{
+		destroyPopulation();
+
+		int numLayer = (int)m_networkDim.size();
+
+		for (int i = 0; i < m_maxUnit; i++)
+		{
+			SUnit* unit = new SUnit();
+			unit->ANN = new CANN(m_networkDim.data(), numLayer, m_activation);
+			unit->ID = ++m_id;
+			m_units.push_back(unit);
+		}
+	}
+
 	void CGeneticAlgorithm::createPopulation(int numUnit, const int* dim, int numLayer)
 	{
 		m_maxUnit = numUnit;

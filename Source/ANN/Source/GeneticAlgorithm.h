@@ -69,6 +69,8 @@ namespace ANN
 
 		void destroyPopulation();
 
+		void reset();
+
 		void createPopulation(int numUnit, const int* dim, int numLayer);
 
 		void evolvePopulation();
