@@ -98,6 +98,11 @@ namespace SnakeGame {
 		 */
 		void drawGameOver();
 
+		/**
+		 * Set string on window title
+		 */
+		void log(const char* string);
+
 	private:
 
 		/**

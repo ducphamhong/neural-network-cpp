@@ -69,6 +69,8 @@ namespace ANN
 
 		void destroyPopulation();
 
+		void reset();
+
 		void createPopulation(int numUnit, const int* dim, int numLayer);
 
 		void evolvePopulation();
@@ -89,5 +91,10 @@ namespace ANN
 		void serialize(CMemoryStream* io);
 
 		bool deserialize(CMemoryStream* io);
+
+		int getNumTopUnit()
+		{
+			return m_topUnit;
+		}
 	};
 }

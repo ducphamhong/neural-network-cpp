@@ -17,6 +17,8 @@ float S_SCALE = 0.25f;
 float S_SCALE = 1.0f;
 #endif
 
+const char* GameName = "Snake Game";
+
 namespace SnakeGame {
 	cint Screen::S_WIDTH = (cint)(800 * S_SCALE);
 	cint Screen::S_HEIGHT = (cint)(600 * S_SCALE);
@@ -41,7 +43,7 @@ namespace SnakeGame {
 		if (!m_sansFont)
 			SDL_Log("Error. Could not load font");
 
-		m_window = SDL_CreateWindow("Snake Game",
+		m_window = SDL_CreateWindow(GameName,
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			S_WIDTH / S_SCALE,
 			S_HEIGHT / S_SCALE,
@@ -236,6 +238,14 @@ namespace SnakeGame {
 
 		SDL_DestroyTexture(m_textTexture);
 		SDL_FreeSurface(m_textSurface);
+	}
+
+	void Screen::log(const char* string)
+	{
+		std::string title = GameName;
+		title += " - ";
+		title += string;
+		SDL_SetWindowTitle(m_window, title.c_str());
 	}
 
 } // namespace SnakeGame
