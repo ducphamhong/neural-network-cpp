@@ -91,5 +91,10 @@ namespace ANN
 		void serialize(CMemoryStream* io);
 
 		bool deserialize(CMemoryStream* io);
+
+		int getNumTopUnit()
+		{
+			return m_topUnit;
+		}
 	};
 }
