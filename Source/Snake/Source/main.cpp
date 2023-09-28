@@ -15,6 +15,7 @@
 #include "Section.hpp"
 #include "SDL.h"
 #include <Windows.h>
+#include <filesystem>
 
  // declare AI_LEARNING_INPUT in Screen.hpp
 #ifdef AI_LEARNING_INPUT
@@ -197,6 +198,7 @@ int intAbs(int x)
 }
 
 const char* dataInput = "Snake/learning.txt";
+const char* lastTrainData = "Snake/last-training.data";
 
 void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls, std::vector<double>& input, std::vector<double>* output)
 {
@@ -403,7 +405,7 @@ int CALLBACK WinMain(
 #else
 	int waitResetTime = 1000;
 	int killAll = 60 * 10;
-	bool autoSkipOldGeneration = true;
+	bool autoSkipOldGeneration = false;
 	int currentGenerationID[MAX_AI_UNIT];
 	for (int i = 0; i < MAX_AI_UNIT; i++)
 	{
@@ -417,11 +419,34 @@ int CALLBACK WinMain(
 	int moveSpeed = 60;
 
 	bool trainState = true;
+
 	int trainProgress = 0;
 	int trainStep = 10;
-	int fullTrainProgress = 3000 / trainStep;
+	int fullTrainProgress = 1000 / trainStep;
 
-	readDataInputOutput();
+	if (std::filesystem::exists(lastTrainData))
+	{
+		// continue training after close program
+		FILE* f = fopen(lastTrainData, "rb");
+		fseek(f, 0, SEEK_END);
+		long size = ftell(f);
+		unsigned char* data = new unsigned char[size];
+		fseek(f, 0, SEEK_SET);
+		fread(data, size, 1, f);
+		fclose(f);
+
+		ANN::CMemoryStream stream(data, size);
+		aiGenetic.deserialize(&stream);
+		delete[]data;
+
+		// force finish train
+		trainProgress = fullTrainProgress;
+	}
+	else
+	{
+		readDataInputOutput();
+	}
+
 
 	int maxTest = 2;
 	int testTime = maxTest;
@@ -551,6 +576,13 @@ int CALLBACK WinMain(
 						testTime = maxTest;
 						sprintf(title, "Generation: %d - test: %d/%d - skipOldGen: %d", gen, maxTest - testTime + 1, maxTest, autoSkipOldGeneration);
 						screen.log(title);
+
+						// save process to file
+						ANN::CMemoryStream data;
+						aiGenetic.serialize(&data);
+						FILE* f = fopen(lastTrainData, "wb");
+						fwrite(data.getData(), data.getSize(), 1, f);
+						fclose(f);
 					}
 				}
 
@@ -723,7 +755,7 @@ int CALLBACK WinMain(
 				{
 					autoSaveTime = autoSaveInputTime;
 					needSaveInput = true;
-				}
+			}
 #endif
 
 				if (elapsed - lastElapsed > moveSpeed) {
@@ -767,8 +799,9 @@ int CALLBACK WinMain(
 					if (waitStuckTime[agentId] < 0)
 					{
 #ifdef AI_LEARNING_INPUT
-						// note: ai stuck,
+						// note: ai stuck
 						snake[agentId].getAIUnit()->Scored /= 2;
+						score[agentId] /= 2;
 #endif
 						gameOver(snake[agentId], food[agentId], starting);
 					}
@@ -820,7 +853,7 @@ int CALLBACK WinMain(
 							for (int i = 0; i < numInput; i++)
 							{
 								fprintf(f, "%lf\n", allInput[i1 + i]);
-							}
+				}
 
 							for (int i = 0; i < numOutput; i++)
 							{
@@ -829,12 +862,12 @@ int CALLBACK WinMain(
 
 							i1 += numInput;
 							i2 += numOutput;
-						}
+		}
 
 						fclose(f);
-					}
+	}
 #endif
-				}
+}
 			}
 			else
 			{
