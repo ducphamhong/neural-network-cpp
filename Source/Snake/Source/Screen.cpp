@@ -174,6 +174,7 @@ namespace SnakeGame {
 		}
 		*/
 
+		if (score >= 0)
 		{
 			std::stringstream sstr;
 			sstr << S_SCORE_TEXT << score;

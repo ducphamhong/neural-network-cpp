@@ -68,8 +68,8 @@ int main()
 
 	fclose(f);
 
-	const int dim1[] = { 6, 512, 128, 4 };
-	const int dim2[] = { 6, 512, 256, 4 };
+	const int dim1[] = { 14, 128, 64, 4 };
+	const int dim2[] = { 14, 256, 128, 4 };
 
 	// init 3 layers
 	std::vector<ANN::CANN*> anns;
@@ -87,7 +87,7 @@ int main()
 
 	// train
 	printf("Begin learning\n");
-	int learnCount = 3000;
+	int learnCount = 1000;
 	int percent = 0;
 
 	for (int i = 0, n = anns.size(); i < n; i++)

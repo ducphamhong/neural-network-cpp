@@ -76,12 +76,6 @@ void freeWalls(std::vector<Wall*>& walls) {
 	walls.clear();
 }
 
-double booleanInput(bool b)
-{
-	return b ? 1.0 : -1.0;
-}
-
-/*
 bool isDanger(int direction, Snake& snake, std::vector<Wall*>& walls)
 {
 	snake.save();
@@ -109,7 +103,6 @@ bool isDanger(int direction, Snake& snake, std::vector<Wall*>& walls)
 	snake.load();
 	return false;
 }
-*/
 
 bool checkCollide(int x, int y, Snake& snake, std::vector<Wall*>& walls)
 {
@@ -193,57 +186,19 @@ float getInput(float value, float maxRange = 20.0f)
 	return value / maxRange;
 }
 
+double getBoolInput(bool b)
+{
+	return b ? 1.0 : -1.0;
+}
+
+int intAbs(int x)
+{
+	return x < 0 ? -x : x;
+}
+
 const char* dataInput = "Snake/learning.txt";
 
-#ifndef AI_LEARNING_INPUT
-bool getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls)
-{
-	std::vector<double>& input = snake.getInput();
-	std::vector<double>& output = snake.getOutput();
-
-	int inputDirection = snake.getLastDirection();
-	int outputDirection = snake.getDirection();
-
-	input.clear();
-	output.clear();
-
-	int x = snake.getSections()[0]->m_x;
-	int y = snake.getSections()[0]->m_y;
-	int foodX = food.m_x;
-	int foodY = food.m_y;
-
-	int t, d, l, r;
-	getSafeRange(snake, walls, t, d, l, r);
-
-	// safe left
-	input.push_back(getInput(l));
-	// safe right
-	input.push_back(getInput(r));
-	// safe up
-	input.push_back(getInput(t));
-	// safe down
-	input.push_back(getInput(d));
-
-	bool ret = false;
-
-	// food is left/right
-	float f = (foodX - x) / (float)Section::S_SECTION_WIDTH;
-	input.push_back(getInput(f, 10.0f));
-
-	// food is up/down
-	f = (foodY - y) / (float)Section::S_SECTION_WIDTH;
-	input.push_back(getInput(f, 10.0f));
-
-	// OUTPUT: 3
-	output.push_back(booleanInput(outputDirection == Snake::Direction::LEFT));
-	output.push_back(booleanInput(outputDirection == Snake::Direction::RIGHT));
-	output.push_back(booleanInput(outputDirection == Snake::Direction::UP));
-	output.push_back(booleanInput(outputDirection == Snake::Direction::DOWN));
-
-	return true;
-}
-#else
-void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls, std::vector<double>& input)
+void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls, std::vector<double>& input, std::vector<double>* output)
 {
 	int inputDirection = snake.getLastDirection();
 	int outputDirection = snake.getDirection();
@@ -259,23 +214,72 @@ void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls, std::
 	getSafeRange(snake, walls, t, d, l, r);
 	float maxRange = 100.0f;
 
-	// safe left
-	input.push_back(getInput(l));
-	// safe right
-	input.push_back(getInput(r));
-	// safe up
-	input.push_back(getInput(t));
-	// safe down
-	input.push_back(getInput(d));
+	bool dangerLeft = isDanger(Snake::Direction::LEFT, snake, walls);
+	bool dangerRight = isDanger(Snake::Direction::RIGHT, snake, walls);
+	bool dangerUp = isDanger(Snake::Direction::UP, snake, walls);
+	bool dangerDown = isDanger(Snake::Direction::DOWN, snake, walls);
 
-	// food is left/right
-	float f = (foodX - x) / (float)Section::S_SECTION_WIDTH;
-	input.push_back(getInput(f, 10.0f));
-	// food is up/down
-	f = (foodY - y) / (float)Section::S_SECTION_WIDTH;
-	input.push_back(getInput(f, 10.0f));
+	// 1. danger left	
+	input.push_back(getBoolInput(dangerLeft));
+	// 2. danger right
+	input.push_back(getBoolInput(dangerRight));
+	// 3. danger up
+	input.push_back(getBoolInput(dangerUp));
+	// 4. danger down
+	input.push_back(getBoolInput(dangerDown));
+
+	// 5. food is in left
+	input.push_back(getBoolInput(foodX < x));
+	// 6. food is in right
+	input.push_back(getBoolInput(foodX > x));
+	// 7. food is up
+	input.push_back(getBoolInput(foodY > y));
+	// 8. food is down
+	input.push_back(getBoolInput(foodY < y));
+	// 8. food is same row
+	input.push_back(getBoolInput(foodX == x));
+	// 10. food is same column
+	input.push_back(getBoolInput(foodY == y));
+
+	// 11. this way can eat food?
+	{
+		// distance to food
+		int f = (int)((foodY - y) / (int)Section::S_SECTION_WIDTH);
+		f = intAbs(f);
+		if (foodY < y)
+			input.push_back(getBoolInput(f < t));
+		else
+			input.push_back(getBoolInput(f < d));
+	}
+
+	// 12. this way can eat food?
+	{
+		// distance to food
+		int f = (int)((foodX - x) / (int)Section::S_SECTION_WIDTH);
+		f = intAbs(f);
+		if (foodX > x)
+			input.push_back(getBoolInput(f < r));
+		else
+			input.push_back(getBoolInput(f < l));
+	}
+
+	// 13. safe left/right
+	input.push_back(getBoolInput(l > r));
+	// 14. safe up/down
+	input.push_back(getBoolInput(t > d));
+
+	// OUTPUT
+	if (output)
+	{
+		output->clear();
+		output->push_back(getBoolInput(outputDirection == Snake::Direction::LEFT));
+		output->push_back(getBoolInput(outputDirection == Snake::Direction::RIGHT));
+		output->push_back(getBoolInput(outputDirection == Snake::Direction::UP));
+		output->push_back(getBoolInput(outputDirection == Snake::Direction::DOWN));
+	}
 }
 
+#ifdef AI_LEARNING_INPUT
 std::vector<double> humanInput;
 std::vector<double> humanOutput;
 int numDataLearning = 0;
@@ -321,30 +325,34 @@ void readDataInputOutput()
 	fclose(f);
 }
 
+void learnExpected(double* trainData, int trainId, double* expectedOutput, int numOutput)
+{
+	int id = trainId * numOutput;
+	expectedOutput[0] = trainData[id];
+	expectedOutput[1] = trainData[id + 1];
+	expectedOutput[2] = trainData[id + 2];
+	expectedOutput[3] = trainData[id + 3];
+}
+
 void train(ANN::CGeneticAlgorithm& aiGenetic, int learnCount)
 {
 	std::vector<ANN::SUnit*>& units = aiGenetic.get();
 	int numTop = aiGenetic.getNumTopUnit();
 
+	for (int i = 0, n = (int)units.size(); i < n; i++)
+	{
+		units[i]->ANN->LearnExpected = learnExpected;
+		units[i]->Scored = 0;
+	}
+
 	for (int i = 0; i < numTop; i++)
 	{
-		units[i]->ANN->LearnExpected = [](double* trainData, int trainId, double* expectedOutput, int numOutput)
-		{
-			int id = trainId * numOutput;
-			expectedOutput[0] = trainData[id];
-			expectedOutput[1] = trainData[id + 1];
-			expectedOutput[2] = trainData[id + 2];
-			expectedOutput[3] = trainData[id + 3];
-		};
-
+		units[i]->Scored = 100;
 		for (; learnCount > 0; learnCount--)
 		{
 			units[i]->ANN->train(humanInput.data(), humanOutput.data(), numDataLearning);
 		}
 	}
-
-	// begin at Gen 1
-	aiGenetic.evolvePopulation();
 }
 #endif
 
@@ -403,7 +411,7 @@ int CALLBACK WinMain(
 	}
 
 	ANN::CGeneticAlgorithm aiGenetic(ANN::EActivation::Tanh);
-	const int dim[] = { 6, 512, 256, 4 };
+	const int dim[] = { 14, 128, 64, 4 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 
 	int moveSpeed = 60;
@@ -415,12 +423,12 @@ int CALLBACK WinMain(
 
 	readDataInputOutput();
 
-	int testTime = 2;
+	int maxTest = 2;
+	int testTime = maxTest;
 #endif
 
 	int lastFrameElapsed = 0;
 	int frameTime = 0;
-	bool firstGame = true;
 	int numberTimeTestBadUnit = 2;
 
 	int trainTime = 3000 / 100;
@@ -454,15 +462,32 @@ int CALLBACK WinMain(
 			}
 			else
 			{
+				// begin at Gen 1
+				aiGenetic.evolvePopulation();
 				gen = 1;
+
+				std::vector<ANN::SUnit*>& units = aiGenetic.get();
+				for (int i = 0, n = (int)units.size(); i < n; i++)
+				{
+					units[i]->Scored = 0;
+					snake[i].setAIUnit(units[i]);
+					snake[i].reset();
+					food[i] = Food();
+					score[i] = 0;
+					snake[i].live();
+					waitStuckTime[i] = maxTime;
+					currentGenerationID[i] = aiGenetic.get()[i]->ID;
+				}
+
 				char title[512];
-				sprintf(title, "Generation: %d", gen);
+				testTime = maxTest;
+				sprintf(title, "Generation: %d - test: %d/%d - skipOldGen: %d", gen, maxTest - testTime + 1, maxTest, autoSkipOldGeneration);
 				screen.log(title);
 				trainState = false;
 			}
 
 			screen.clear();
-			screen.update(0, 0, false, -1, false);
+			screen.update(-1, 0, false, -1, false);
 			screen.present();
 			lastFrameElapsed = elapsed;
 			continue;
@@ -484,16 +509,17 @@ int CALLBACK WinMain(
 			}
 		}
 
-		if (numSnakeDie == MAX_AI_UNIT || firstGame)
+		if (numSnakeDie == MAX_AI_UNIT)
 		{
 			// all die
-			bool resetAll = false;
-			if (--testTime == 0)
+			if (--testTime <= 0)
 			{
+				testTime = 0;
+				bool resetAll = false;
 				if (numBadUnit > MAX_AI_UNIT - 1)
 				{
 					waitResetTime = waitResetTime - frameTime;
-					if (waitResetTime < 0 || firstGame)
+					if (waitResetTime < 0)
 					{
 						resetAll = true;
 
@@ -508,57 +534,63 @@ int CALLBACK WinMain(
 							trainProgress = 0;
 
 							numberTimeTestBadUnit = 2;
-							testTime = 2;
+							testTime = maxTest;
 						}
 					}
 				}
 				else
 				{
 					waitResetTime = waitResetTime - frameTime;
-					if (waitResetTime < 0 || firstGame)
+					if (waitResetTime < 0)
 					{
 						aiGenetic.evolvePopulation();
-						firstGame = false;
 						resetAll = true;
 
 						gen++;
 						char title[512];
-						sprintf(title, "Generation: %d", gen);
+						testTime = maxTest;
+						sprintf(title, "Generation: %d - test: %d/%d - skipOldGen: %d", gen, maxTest - testTime + 1, maxTest, autoSkipOldGeneration);
 						screen.log(title);
 					}
 				}
-			}
 
-			if (resetAll)
-			{
-				waitResetTime = 1000;
-				lastFrameElapsed = elapsed;
-
-				std::vector<ANN::SUnit*>& units = aiGenetic.get();
-				for (int i = 0, n = (int)units.size(); i < n; i++)
+				if (resetAll)
 				{
-					units[i]->Scored = 0;
-					snake[i].setAIUnit(units[i]);
-					snake[i].reset();
-					food[i] = Food();
-					score[i] = 0;
-					snake[i].live();
-					waitStuckTime[i] = maxTime;
-					currentGenerationID[i] = aiGenetic.get()[i]->ID;
+					waitResetTime = 1000;
+					lastFrameElapsed = elapsed;
 
-					testTime = 2;
+					std::vector<ANN::SUnit*>& units = aiGenetic.get();
+					for (int i = 0, n = (int)units.size(); i < n; i++)
+					{
+						units[i]->Scored = 0;
+						snake[i].setAIUnit(units[i]);
+						snake[i].reset();
+						food[i] = Food();
+						score[i] = 0;
+						snake[i].live();
+						waitStuckTime[i] = maxTime;
+						currentGenerationID[i] = aiGenetic.get()[i]->ID;
+					}
 				}
 			}
 			else
 			{
-				// continue test score
-				std::vector<ANN::SUnit*>& units = aiGenetic.get();
-				for (int i = 0, n = (int)units.size(); i < n; i++)
 				{
-					snake[i].reset();
-					food[i] = Food();
-					snake[i].live();
-					waitStuckTime[i] = maxTime;
+					// continue test score
+					std::vector<ANN::SUnit*>& units = aiGenetic.get();
+					for (int i = 0, n = (int)units.size(); i < n; i++)
+					{
+						snake[i].reset();
+						food[i] = Food();
+						snake[i].live();
+						waitStuckTime[i] = maxTime;
+					}
+
+					char title[512];
+					sprintf(title, "Generation: %d - test: %d/%d - skipOldGen: %d", gen, maxTest - testTime + 1, maxTest, autoSkipOldGeneration);
+					screen.log(title);
+
+					waitResetTime = 1000;
 				}
 			}
 		}
@@ -577,6 +609,17 @@ int CALLBACK WinMain(
 				quit = true;
 				break;
 			case Screen::Action::PAUSE:
+#ifdef AI_LEARNING_INPUT
+				if (!pause)
+				{
+					autoSkipOldGeneration = !autoSkipOldGeneration;
+
+					char title[512];
+					testTime = maxTest;
+					sprintf(title, "Generation: %d - test: %d/%d - skipOldGen: %d", gen, maxTest - testTime + 1, maxTest, autoSkipOldGeneration);
+					screen.log(title);
+				}
+#endif
 				pause = true;
 				break;
 			case -1:
@@ -607,7 +650,7 @@ int CALLBACK WinMain(
 
 #ifdef AI_LEARNING_INPUT
 				std::vector<double> input;
-				getAIInputOutput(snake[agentId], food[agentId], walls[agentId], input);
+				getAIInputOutput(snake[agentId], food[agentId], walls[agentId], input, NULL);
 
 				ANN::SUnit* aiUnit = snake[agentId].getAIUnit();
 				aiUnit->ANN->Predict = [](const double* output, int numOutput)
@@ -685,10 +728,11 @@ int CALLBACK WinMain(
 
 				if (elapsed - lastElapsed > moveSpeed) {
 #ifndef AI_LEARNING_INPUT
-					getAIInputOutput(snake[agentId], food[agentId], walls[agentId]);
-
 					std::vector<double>& input = snake[agentId].getInput();
 					std::vector<double>& output = snake[agentId].getOutput();
+
+					getAIInputOutput(snake[agentId], food[agentId], walls[agentId], input, &output);
+
 					int numInput = (int)input.size();
 					int numOutput = (int)output.size();
 #endif
