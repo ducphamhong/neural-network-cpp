@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-bool sound::init()
+bool Sound::init()
 {
 	string breath_path = "FlappyDoge/sound/sfx_breath.wav";
 	string hit_path = "FlappyDoge/sound/sfx_bonk.wav";
@@ -50,7 +50,7 @@ bool sound::init()
 	return success;
 }
 
-void sound::Free()
+void Sound::Free()
 {
 	free();
 
@@ -62,7 +62,7 @@ void sound::Free()
 	Mix_Quit();
 }
 
-void sound::playBreath()
+void Sound::playBreath()
 {
 	if (isPlay)
 	{
@@ -70,7 +70,7 @@ void sound::playBreath()
 	}
 }
 
-void sound::playHit()
+void Sound::playHit()
 {
 	if (isPlay)
 	{
@@ -78,7 +78,7 @@ void sound::playHit()
 	}
 }
 
-void sound::renderSound()
+void Sound::renderSound()
 {
 	if (isPlay)
 	{
@@ -90,7 +90,7 @@ void sound::renderSound()
 	}
 }
 
-bool sound::checkSound()
+bool Sound::checkSound()
 {
 	int x, y;
 	SDL_GetMouseState(&x, &y);

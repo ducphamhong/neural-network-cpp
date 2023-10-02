@@ -8,7 +8,7 @@ using namespace std;
 
 extern vector<position> posPipe;
 
-class pipe :LTexture
+class Pipe :LTexture
 {
 private:
 	const short int randMin = -373 + 30;

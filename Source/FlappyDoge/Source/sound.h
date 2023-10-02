@@ -6,7 +6,7 @@
 
 using namespace std;
 
-class sound :LTexture
+class Sound :LTexture
 {
 public:
 	bool init();

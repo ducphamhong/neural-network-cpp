@@ -27,7 +27,7 @@ int CALLBACK WinMain(
 {
 	Uint32 frameStart;
 	short int frameTime;
-	game g;
+	Game g;
 	bool isMenu = 0;
 	bool isPause = 0;
 	bool isSound = 1;
@@ -124,20 +124,20 @@ int CALLBACK WinMain(
 				g.sound.playHit();
 				g.shiba[0].render();
 			}
-			g.userInput.Type = game::input::NONE;
+			g.userInput.Type = Game::input::NONE;
 			while (g.isDie() && !g.isQuit())
 			{
 				g.takeInput();
 
 				bool autoRestart = isMenu && autoSkipGameOverDialog && g.shiba[0].isFallInGround();
 
-				if ((isMenu == 1 && g.userInput.Type == game::input::PLAY) || autoRestart)
+				if ((isMenu == 1 && g.userInput.Type == Game::input::PLAY) || autoRestart)
 				{
 					if (g.checkReplay() || autoRestart)
 					{
 						isMenu = 0;
 					}
-					g.userInput.Type = game::input::NONE;
+					g.userInput.Type = Game::input::NONE;
 				}
 
 				if (!isDark)
@@ -176,7 +176,7 @@ int CALLBACK WinMain(
 
 					g.renderMessage();
 
-					if (g.userInput.Type == game::input::PLAY || autoRestart)
+					if (g.userInput.Type == Game::input::PLAY || autoRestart)
 					{
 						context::score = 0;
 
@@ -214,7 +214,7 @@ int CALLBACK WinMain(
 #endif
 
 						isMenu = 1;
-						g.userInput.Type = game::input::NONE;
+						g.userInput.Type = Game::input::NONE;
 					}
 					g.land.update();
 				}
@@ -226,27 +226,27 @@ int CALLBACK WinMain(
 		{
 			g.takeInput();
 
-			if (g.userInput.Type == game::input::PAUSE)
+			if (g.userInput.Type == Game::input::PAUSE)
 			{
 				isPause = abs(1 - isPause);
-				g.userInput.Type = game::input::NONE;
+				g.userInput.Type = Game::input::NONE;
 			}
 
 #ifdef AI_LEARNING_INPUT
 			// let ai controller on shiba.update
-			if (g.userInput.Type == game::input::PLAY)
+			if (g.userInput.Type == Game::input::PLAY)
 			{
 				// if player click or press spacebar
 				// we will show GameOver dialog after learning
 				autoSkipGameOverDialog = false;
 			}
 #else
-			if (isPause == 0 && g.userInput.Type == game::input::PLAY)
+			if (isPause == 0 && g.userInput.Type == Game::input::PLAY)
 			{
 				if (isSound)
 					g.sound.playBreath();
 				g.shiba[0].resetTime();	// flap
-				g.userInput.Type = game::input::NONE;
+				g.userInput.Type = Game::input::NONE;
 			}
 #endif
 
@@ -292,7 +292,7 @@ int CALLBACK WinMain(
 
 				g.nextButton();
 
-				if (g.userInput.Type == game::input::PLAY)
+				if (g.userInput.Type == Game::input::PLAY)
 				{
 					if (g.checkReplay())
 					{
@@ -316,7 +316,7 @@ int CALLBACK WinMain(
 						g.shiba[0].init(isDark);
 #endif
 					}
-					g.userInput.Type = game::input::NONE;
+					g.userInput.Type = Game::input::NONE;
 				}
 			}
 

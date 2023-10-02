@@ -2,7 +2,7 @@
 #include "lib.h"
 #include <iostream>
 
-void game::takeInput()
+void Game::takeInput()
 {
 	while (SDL_PollEvent(&event) != 0)
 	{
@@ -22,7 +22,7 @@ void game::takeInput()
 	}
 }
 
-game::game()
+Game::Game()
 {
 	quit = false;
 
@@ -33,7 +33,7 @@ game::game()
 	sound.init();
 }
 
-game::~game()
+Game::~Game()
 {
 	freeImages();
 
@@ -47,7 +47,7 @@ game::~game()
 	releaseGraphic();
 }
 
-void game::releaseGraphic()
+void Game::releaseGraphic()
 {
 	SDL_DestroyWindow(context::gWindow);
 	SDL_DestroyRenderer(context::gRenderer);
@@ -58,7 +58,7 @@ void game::releaseGraphic()
 	SDL_Quit();
 }
 
-bool game::initGraphic()
+bool Game::initGraphic()
 {
 	bool success = true;
 
@@ -112,7 +112,7 @@ bool game::initGraphic()
 	return success;
 }
 
-void game::initImages()
+void Game::initImages()
 {
 	char path[512];
 	for (int i = 0; i < 10; i++)
@@ -143,7 +143,7 @@ void game::initImages()
 	imageMedal[2].Load("FlappyDoge/medal/honor.png", scaleNumberS);
 }
 
-void game::freeImages()
+void Game::freeImages()
 {
 	for (int i = 0; i < 10; i++)
 	{
@@ -171,13 +171,13 @@ void game::freeImages()
 	imageReplay.free();
 }
 
-void game::display()
+void Game::display()
 {
 	SDL_RenderPresent(context::gRenderer);
 	SDL_RenderClear(context::gRenderer);
 }
 
-void game::renderScoreSmall()
+void Game::renderScoreSmall()
 {
 	string s = to_string(context::score);
 	signed char len = s.length();
@@ -189,7 +189,7 @@ void game::renderScoreSmall()
 	}
 }
 
-void game::renderScoreLarge()
+void Game::renderScoreLarge()
 {
 	string s = to_string(context::score);
 	signed char len = s.length();
@@ -202,7 +202,7 @@ void game::renderScoreLarge()
 }
 
 #ifdef AI_LEARNING_INPUT
-void game::renderBestUnitID(int gen)
+void Game::renderBestUnitID(int gen)
 {
 	int bestScore = 0;
 	int bestId = 0;
@@ -241,7 +241,7 @@ void game::renderBestUnitID(int gen)
 }
 #endif
 
-void game::renderBestScore()
+void Game::renderBestScore()
 {
 	ifstream fileIn("FlappyDoge/data/bestScore.txt");
 	fileIn >> bestScore;
@@ -266,58 +266,58 @@ void game::renderBestScore()
 	fileOut.close();
 }
 
-void game::renderMessage()
+void Game::renderMessage()
 {
 	imageMessage.Render((SCREEN_WIDTH - imageMessage.getWidth()) / 2, 180);
 }
 
-void game::renderBackground()
+void Game::renderBackground()
 {
 	imageBG.Render(0, 0);
 }
 
-void game::renderBackgroundNight()
+void Game::renderBackgroundNight()
 {
 	imageBGNight.Render(0, 0);
 }
 
-void game::renderLand()
+void Game::renderLand()
 {
 	imageLand.Render((SCREEN_WIDTH - imageLand.getWidth()) / 2, SCREEN_HEIGHT - imageLand.getHeight());
 }
 
-void game::resume()
+void Game::resume()
 {
 	imageResume.Render(SCREEN_WIDTH - 50, 20);
 }
 
-void game::pause()
+void Game::pause()
 {
 	imagePause.Render(SCREEN_WIDTH - 50, 20);
 }
 
-void game::renderPauseTab()
+void Game::renderPauseTab()
 {
 	imagePauseTab.Render((SCREEN_WIDTH - imagePauseTab.getWidth()) / 2, 230);
 }
 
-void game::lightTheme()
+void Game::lightTheme()
 {
 	imageShibaLight.Render(105, 315);
 }
 
-void game::darkTheme()
+void Game::darkTheme()
 {
 	imageShibaDark.Render(105, 315);
 }
 
-void game::nextButton()
+void Game::nextButton()
 {
 	imageRight.Render(149, 322);
 	imageLeft.Render(88, 322);
 }
 
-bool game::changeTheme()
+bool Game::changeTheme()
 {
 	int x, y;
 	SDL_GetMouseState(&x, &y);
@@ -328,7 +328,7 @@ bool game::changeTheme()
 	return false;
 }
 
-bool game::isDie()
+bool Game::isDie()
 {
 	for (int i = 0; i < MAX_AI_UNIT; i++)
 	{
@@ -338,12 +338,12 @@ bool game::isDie()
 	return true;
 }
 
-void game::renderGameOver()
+void Game::renderGameOver()
 {
 	imageGameOver.Render((SCREEN_WIDTH - imageGameOver.getWidth()) / 2, 150);
 }
 
-void game::renderMedal()
+void Game::renderMedal()
 {
 	int i = 0;
 	if (context::score > 20 && context::score <= 50)
@@ -361,12 +361,12 @@ void game::renderMedal()
 	imageMedal[i].Render(82, 275);
 }
 
-void game::replay()
+void Game::replay()
 {
 	imageReplay.Render((SCREEN_WIDTH - imageReplay.getWidth()) / 2, 380);
 }
 
-bool game::checkReplay()
+bool Game::checkReplay()
 {
 	int x, y;
 	SDL_GetMouseState(&x, &y);

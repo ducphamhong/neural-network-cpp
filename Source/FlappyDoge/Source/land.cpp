@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-bool land::init()
+bool Land::init()
 {
 	posLand.getPos(0, SCREEN_HEIGHT - LAND_HEIGHT);
 	string back_path = "FlappyDoge/image/land.png";
@@ -21,12 +21,12 @@ bool land::init()
 	return false;
 }
 
-void land::Free()
+void Land::Free()
 {
 	free();
 }
 
-void land::render()
+void Land::render()
 {
 	if (posLand.x > 0)
 	{
@@ -44,7 +44,7 @@ void land::render()
 	}
 }
 
-void land::update()
+void Land::update()
 {
 	posLand.x -= 3;
 }

@@ -4,7 +4,7 @@
 short int context::score = 0;
 SDL_Window* context::gWindow = NULL;
 SDL_Renderer* context::gRenderer = NULL;
-game* context::gGame = NULL;
+Game* context::gGame = NULL;
 
 LTexture::LTexture()
 {

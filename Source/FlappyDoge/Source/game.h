@@ -10,7 +10,7 @@
 
 using namespace std;
 
-class game :LTexture
+class Game :LTexture
 {
 public:
 	struct input
@@ -26,9 +26,9 @@ public:
 
 	doge shiba[MAX_AI_UNIT];
 
-	pipe pipe;
-	sound sound;
-	land land;
+	Pipe pipe;
+	Sound sound;
+	Land land;
 
 	LTexture imageNumberSmall[10];
 	LTexture imageNumberLarge[10];
@@ -48,9 +48,9 @@ public:
 	LTexture imageReplay;
 
 public:
-	game();
+	Game();
 
-	~game();
+	~Game();
 
 	bool initGraphic();
 

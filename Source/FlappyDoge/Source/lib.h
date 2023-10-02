@@ -19,7 +19,7 @@ public:
 	void getPos(const short int x, const short int y);
 };
 
-class game;
+class Game;
 
 class context
 {
@@ -27,7 +27,7 @@ public:
 	static SDL_Window* gWindow;
 	static SDL_Renderer* gRenderer;
 	static short int score;
-	static game* gGame;
+	static Game* gGame;
 };
 
 static const short int SCREEN_WIDTH = 350;

@@ -5,7 +5,7 @@
 
 using namespace std;
 
-class land : LTexture
+class Land : LTexture
 {
 public:
 	bool init();

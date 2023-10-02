@@ -5,7 +5,7 @@
 
 vector<position> posPipe;
 
-bool pipe::init()
+bool Pipe::init()
 {
 	posPipe.clear();
 	for (signed char i = 0; i < TOTAL_PIPE; i++)
@@ -24,12 +24,12 @@ bool pipe::init()
 	return false;
 }
 
-void pipe::Free()
+void Pipe::Free()
 {
 	free();
 }
 
-void pipe::render()
+void Pipe::render()
 {
 	for (signed char i = 0; i < TOTAL_PIPE; i++)
 	{
@@ -41,7 +41,7 @@ void pipe::render()
 	}
 }
 
-void pipe::update()
+void Pipe::update()
 {
 	if (!context::gGame->isDie())
 	{
