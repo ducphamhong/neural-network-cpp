@@ -10,9 +10,7 @@ file(GLOB_RECURSE application_source
 
 setup_project_group("${application_source}" ${CMAKE_CURRENT_SOURCE_DIR})
 
-if (MSVC OR CYGWIN OR MINGW)
-	add_executable(CompareANN ${application_source})
-endif()
+add_executable(CompareANN ${application_source})
 
 target_precompiled_header(CompareANN ${ANN_SOURCE_DIR}/Source/CompareANN/Source/pch.cpp ${application_source})
 

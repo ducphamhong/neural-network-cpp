@@ -443,6 +443,7 @@ int CALLBACK WinMain(
 	ANN::CGeneticAlgorithm aiGenetic(ANN::EActivation::Tanh);
 	const int dim[] = { 14, 128, 64, 4 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
+	aiGenetic.setMutate(0.25, 2.0);
 
 	int moveSpeed = 60;
 
@@ -705,10 +706,10 @@ int CALLBACK WinMain(
 					score[agentId] = 0;
 					snake[agentId].live();
 					waitStuckTime[agentId] = maxTime;
-				}
+			}
 #endif
 				break;
-			};
+		};
 
 			bool topUnit = false;
 
@@ -796,7 +797,7 @@ int CALLBACK WinMain(
 				{
 					autoSaveTime = autoSaveInputTime;
 					needSaveInput = true;
-				}
+			}
 #endif
 
 				if (elapsed - lastElapsed > moveSpeed) {
@@ -912,8 +913,8 @@ int CALLBACK WinMain(
 						fclose(f);
 					}
 #endif
-				}
-			}
+	}
+}
 			else
 			{
 				// is die

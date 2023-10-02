@@ -9,11 +9,9 @@ file(GLOB_RECURSE application_source
 
 setup_project_group("${application_source}" ${CMAKE_CURRENT_SOURCE_DIR})
 
-if (MSVC OR CYGWIN OR MINGW)
-	add_library(ANN STATIC
-		${application_source}
-	)
-endif()
+add_library(ANN STATIC
+	${application_source}
+)
 
 target_precompiled_header(ANN ${ANN_SOURCE_DIR}/Source/ANN/Source/pch.cpp ${application_source})
 

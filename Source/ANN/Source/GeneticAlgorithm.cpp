@@ -34,7 +34,7 @@ namespace ANN
 	CGeneticAlgorithm::CGeneticAlgorithm(EActivation activation, int topUnit) :
 		m_topUnit(topUnit),
 		m_maxUnit(0),
-		m_id(),
+		m_id(0),
 		m_mutateRate(0.2),
 		m_maxPertubation(4.0),
 		m_activation(activation)
@@ -187,6 +187,12 @@ namespace ANN
 				m_units[i]->TopUnit = false;
 			}
 		}
+	}
+
+	void CGeneticAlgorithm::setMutate(double mutateRate, double maxPertubation)
+	{
+		m_mutateRate = mutateRate;
+		m_maxPertubation = maxPertubation;
 	}
 
 	std::vector<SUnit*> CGeneticAlgorithm::crossOver(SUnit* parentA, SUnit* parentB)
@@ -361,6 +367,10 @@ namespace ANN
 			SUnit* unit = new SUnit();
 			unit->BestScored = io->readDouble();
 			unit->ID = io->readInt();
+
+			// update global id
+			if (m_id < unit->ID)
+				m_id = unit->ID;
 
 			// read ANN data
 			int size = io->readInt();

@@ -11,9 +11,7 @@ file(GLOB_RECURSE application_source
 
 setup_project_group("${application_source}" ${CMAKE_CURRENT_SOURCE_DIR})
 
-if (MSVC OR CYGWIN OR MINGW)
-	add_executable(DigitClassification ${application_source})
-endif()
+add_executable(DigitClassification ${application_source})
 
 target_precompiled_header(DigitClassification ${ANN_SOURCE_DIR}/Source/DigitClassification/Source/pch.cpp ${application_source})
 

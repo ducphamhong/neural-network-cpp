@@ -15,67 +15,72 @@ file(GLOB_RECURSE application_source
 
 setup_project_group("${application_source}" ${CMAKE_CURRENT_SOURCE_DIR})
 
-#SDL
-if (CMAKE_CL_64)
-	set(sdl_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2/lib/x64")
-	set(sdl_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2/lib/x64/*.dll")
-	
-	set(sdl_ttf_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_ttf/lib/x64")
-	set(sdl_ttf_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_ttf/lib/x64/*.dll")
-	
-	set(sdl_image_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_image/lib/x64")
-	set(sdl_image_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_image/lib/x64/*.dll")
-	
-	set(sdl_mixer_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_mixer/lib/x64")
-	set(sdl_mixer_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_mixer/lib/x64/*.dll")
-	
-else()
-	set(sdl_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2/lib/x86")
-	set(sdl_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2/lib/x86/*.dll")
-	
-	set(sdl_ttf_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_ttf/lib/x86")
-	set(sdl_ttf_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_ttf/lib/x86/*.dll")
-	
-	set(sdl_image_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_image/lib/x64")
-	set(sdl_image_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_image/lib/x64/*.dll")
-	
-	set(sdl_mixer_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_mixer/lib/x64")
-	set(sdl_mixer_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_mixer/lib/x64/*.dll")
-endif()
-
 if (MSVC OR CYGWIN OR MINGW)
-	add_executable(FlappyDoge WIN32 ${application_source})
+	#SDL
+	if (CMAKE_CL_64)
+		set(sdl_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2/lib/x64")
+		set(sdl_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2/lib/x64/*.dll")
+		
+		set(sdl_ttf_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_ttf/lib/x64")
+		set(sdl_ttf_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_ttf/lib/x64/*.dll")
+		
+		set(sdl_image_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_image/lib/x64")
+		set(sdl_image_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_image/lib/x64/*.dll")
+		
+		set(sdl_mixer_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_mixer/lib/x64")
+		set(sdl_mixer_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_mixer/lib/x64/*.dll")
+		
+	else()
+		set(sdl_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2/lib/x86")
+		set(sdl_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2/lib/x86/*.dll")
+		
+		set(sdl_ttf_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_ttf/lib/x86")
+		set(sdl_ttf_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_ttf/lib/x86/*.dll")
+		
+		set(sdl_image_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_image/lib/x64")
+		set(sdl_image_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_image/lib/x64/*.dll")
+		
+		set(sdl_mixer_lib_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_mixer/lib/x64")
+		set(sdl_mixer_dll_path "${ANN_SOURCE_DIR}/Source/SDK/SDL2_mixer/lib/x64/*.dll")
+	endif()
+else()
+	find_package(SDL2 REQUIRED)
+	include_directories(${SDL2_INCLUDE_DIRS})
 endif()
 
-# target_precompiled_header(FlappyDoge ${ANN_SOURCE_DIR}/Source/FlappyDoge/Source/pch.cpp ${application_source})
-
-# Linker
-target_link_libraries(FlappyDoge ANN ThirdParty)
-
-target_link_libraries(FlappyDoge ${sdl_lib_path}/SDL2.lib)
-target_link_libraries(FlappyDoge ${sdl_ttf_lib_path}/SDL2_ttf.lib)
-target_link_libraries(FlappyDoge ${sdl_image_lib_path}/SDL2_image.lib)
-target_link_libraries(FlappyDoge ${sdl_mixer_lib_path}/SDL2_mixer.lib)
+add_executable(FlappyDoge WIN32 ${application_source})
 
 set_target_properties(FlappyDoge PROPERTIES VERSION ${ANN_VERSION})
 set_target_properties(FlappyDoge PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
-file(GLOB_RECURSE sdl_dll_files ${sdl_dll_path})
-foreach(dll ${sdl_dll_files})
-	add_custom_command(TARGET FlappyDoge POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll} $<TARGET_FILE_DIR:FlappyDoge>)
-endforeach()
+if (MSVC OR CYGWIN OR MINGW)
+	# Linker
+	target_link_libraries(FlappyDoge ANN ThirdParty)
 
-file(GLOB_RECURSE sdl_dll_files ${sdl_ttf_dll_path})
-foreach(dll ${sdl_dll_files})
-	add_custom_command(TARGET FlappyDoge POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll} $<TARGET_FILE_DIR:FlappyDoge>)
-endforeach()
+	target_link_libraries(FlappyDoge ${sdl_lib_path}/SDL2.lib)
+	target_link_libraries(FlappyDoge ${sdl_ttf_lib_path}/SDL2_ttf.lib)
+	target_link_libraries(FlappyDoge ${sdl_image_lib_path}/SDL2_image.lib)
+	target_link_libraries(FlappyDoge ${sdl_mixer_lib_path}/SDL2_mixer.lib)
 
-file(GLOB_RECURSE sdl_dll_files ${sdl_image_dll_path})
-foreach(dll ${sdl_dll_files})
-	add_custom_command(TARGET FlappyDoge POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll} $<TARGET_FILE_DIR:FlappyDoge>)
-endforeach()
+	file(GLOB_RECURSE sdl_dll_files ${sdl_dll_path})
+	foreach(dll ${sdl_dll_files})
+		add_custom_command(TARGET FlappyDoge POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll} $<TARGET_FILE_DIR:FlappyDoge>)
+	endforeach()
 
-file(GLOB_RECURSE sdl_dll_files ${sdl_mixer_dll_path})
-foreach(dll ${sdl_dll_files})
-	add_custom_command(TARGET FlappyDoge POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll} $<TARGET_FILE_DIR:FlappyDoge>)
-endforeach()
+	file(GLOB_RECURSE sdl_dll_files ${sdl_ttf_dll_path})
+	foreach(dll ${sdl_dll_files})
+		add_custom_command(TARGET FlappyDoge POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll} $<TARGET_FILE_DIR:FlappyDoge>)
+	endforeach()
+
+	file(GLOB_RECURSE sdl_dll_files ${sdl_image_dll_path})
+	foreach(dll ${sdl_dll_files})
+		add_custom_command(TARGET FlappyDoge POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll} $<TARGET_FILE_DIR:FlappyDoge>)
+	endforeach()
+
+	file(GLOB_RECURSE sdl_dll_files ${sdl_mixer_dll_path})
+	foreach(dll ${sdl_dll_files})
+		add_custom_command(TARGET FlappyDoge POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll} $<TARGET_FILE_DIR:FlappyDoge>)
+	endforeach()
+else()
+	target_link_libraries(Snake ${SDL2_LIBRARIES})
+endif()

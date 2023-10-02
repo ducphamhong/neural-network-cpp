@@ -77,6 +77,8 @@ namespace ANN
 
 		void selection();
 
+		void setMutate(double mutateRate, double maxPertubation);
+
 		std::vector<SUnit*> crossOver(SUnit* parentA, SUnit* parentB);
 
 		SUnit* cloneUnit(SUnit* parent);
