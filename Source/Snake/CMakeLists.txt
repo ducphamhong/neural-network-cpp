@@ -45,6 +45,9 @@ if (MSVC OR CYGWIN OR MINGW)
 	endif()
 else()
 	find_package(SDL2 REQUIRED)
+	find_package(SDL2_image REQUIRED)
+	find_package(SDL2_ttf REQUIRED)
+	find_package(SDL2_mixer REQUIRED)
 	include_directories(${SDL2_INCLUDE_DIRS})
 endif()
 
@@ -53,11 +56,11 @@ add_executable(Snake WIN32 ${application_source})
 
 # target_precompiled_header(Snake ${ANN_SOURCE_DIR}/Source/Snake/Source/pch.cpp ${application_source})
 
-# Linker
-target_link_libraries(Snake ANN ThirdParty)
-
 set_target_properties(Snake PROPERTIES VERSION ${ANN_VERSION})
 set_target_properties(Snake PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+
+# Linker
+target_link_libraries(Snake ANN ThirdParty)
 
 if (MSVC OR CYGWIN OR MINGW)
 	target_link_libraries(Snake ${sdl_lib_path}/SDL2.lib)
@@ -85,5 +88,5 @@ if (MSVC OR CYGWIN OR MINGW)
 		add_custom_command(TARGET Snake POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll} $<TARGET_FILE_DIR:Snake>)
 	endforeach()
 else()
-	target_link_libraries(Snake ${SDL2_LIBRARIES})
+	target_link_libraries(FlappyDoge ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_MIXER_LIBRARIES})
 endif()
