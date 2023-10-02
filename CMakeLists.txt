@@ -7,6 +7,12 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 include(CMake/CMakeVisualStudioSourceGroup.cmake)
 include(CMake/CMakeVisualStudioPCH.cmake)
 
+# for SDL2
+if (MSVC OR CYGWIN OR MINGW)
+else()
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2)
+endif()
+
 # this line has to appear before 'PROJECT' in order to be able to disable incremental linking
 set(MSVC_INCREMENTAL_DEFAULT ON)
 
