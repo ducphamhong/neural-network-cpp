@@ -27,6 +27,9 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
         sudo apt install libsdl2-dev
+        sudo apt install libsdl2-image-dev
+        sudo apt install libsdl2-ttf-dev
+        sudo apt install libsdl2-mixer-dev
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
