@@ -6,6 +6,7 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # cmake library
 include(CMake/CMakeVisualStudioSourceGroup.cmake)
 include(CMake/CMakeVisualStudioPCH.cmake)
+list(APPEND CMAKE_MODULE_PATH CMake/sdl2)
 
 # this line has to appear before 'PROJECT' in order to be able to disable incremental linking
 set(MSVC_INCREMENTAL_DEFAULT ON)
@@ -14,13 +15,6 @@ set(MSVC_INCREMENTAL_DEFAULT ON)
 project(ANN)
 file(STRINGS "Version.txt" ANN_VERSION)
 message(STATUS "- App version ${ANN_VERSION}")
-
-# for SDL2
-if (MSVC OR CYGWIN OR MINGW)
-else()
-message(STATUS "- Include SDL2 libraries")
-list(APPEND CMAKE_MODULE_PATH ${ANN_SOURCE_DIR}/cmake/sdl2)
-endif()
 
 # output
 set(LIBRARY_OUTPUT_PATH ${ANN_SOURCE_DIR}/Bin/${CMAKE_SYSTEM_NAME}/Libs CACHE PATH "Single output directory for building all libraries.")
