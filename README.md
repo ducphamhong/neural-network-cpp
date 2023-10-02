@@ -163,6 +163,140 @@ aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 
 <img src="Image/FlappyDoge.png"/>
 
+## Snake Game
+
+For this example, the AI ​​will learn how to control the game Snake.
+
+```C++
+ANN::CGeneticAlgorithm aiGenetic(ANN::EActivation::Tanh);
+const int dim[] = { 14, 128, 64, 4 };
+aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
+
+// And we use 14 inout and 4 output
+// See the function getAIInputOutput in main.cpp
+
+///////////////////////////////////
+// INPUT
+///////////////////////////////////
+
+// 1. danger left
+input.push_back(getBoolInput(dangerLeft));
+// 2. danger right
+input.push_back(getBoolInput(dangerRight));
+// 3. danger up
+input.push_back(getBoolInput(dangerUp));
+// 4. danger down
+input.push_back(getBoolInput(dangerDown));
+
+// 5. food is in left
+input.push_back(getBoolInput(foodX < x));
+// 6. food is in right
+input.push_back(getBoolInput(foodX > x));
+// 7. food is up
+input.push_back(getBoolInput(foodY > y));
+// 8. food is down
+input.push_back(getBoolInput(foodY < y));
+// 8. food is same row
+input.push_back(getBoolInput(foodX == x));
+// 10. food is same column
+input.push_back(getBoolInput(foodY == y));
+
+bool canEatFoodY = true;
+bool canEatFoodX = true;
+
+// 11. this way can eat food?
+{
+	// distance to food
+	int f = (int)((foodY - y) / (int)Section::S_SECTION_WIDTH);
+	f = intAbs(f);
+	if (foodY < y)
+	{
+		canEatFoodY = f < t;
+		input.push_back(getBoolInput(canEatFoodY));
+	}
+	else
+	{
+		canEatFoodY = f < d;
+		input.push_back(getBoolInput(canEatFoodY));
+	}
+}
+
+// 12. this way can eat food?
+{
+	// distance to food
+	int f = (int)((foodX - x) / (int)Section::S_SECTION_WIDTH);
+	f = intAbs(f);
+	if (foodX > x)
+	{
+		canEatFoodX = f < r;
+		input.push_back(getBoolInput(canEatFoodX));
+	}
+	else
+	{
+		canEatFoodX = f < l;
+		input.push_back(getBoolInput(canEatFoodX));
+	}
+}
+
+// 13. safe left/right
+if (canEatFoodX)
+	input.push_back(0.0);
+else
+	input.push_back(getBoolInput(l > r));
+
+// 14. safe up/down
+if (canEatFoodY)
+	input.push_back(0.0);
+else
+	input.push_back(getBoolInput(t > d));
+
+///////////////////////////////////
+// OUTPUT
+///////////////////////////////////
+
+ANN::SUnit* aiUnit = snake[agentId].getAIUnit();
+aiUnit->ANN->Predict = [](const double* output, int numOutput)
+{
+	double max = output[0];
+	int result = 0;
+
+	for (int i = 1; i < numOutput; i++)
+	{
+		if (max < output[i])
+		{
+			max = output[i];
+			result = i;
+		}
+	}
+	return (double)result;
+};
+
+// let AI control
+int output = (int)aiUnit->ANN->predict(input.data());
+switch (output)
+{
+case 0:
+	if (!snake[agentId].m_hasUpdated)
+		snake[agentId].updateDirection(Snake::Direction::LEFT);
+	break;
+case 1:
+	if (!snake[agentId].m_hasUpdated)
+		snake[agentId].updateDirection(Snake::Direction::RIGHT);
+	break;
+case 2:
+	if (!snake[agentId].m_hasUpdated)
+		snake[agentId].updateDirection(Snake::Direction::UP);
+	break;
+case 3:
+	if (!snake[agentId].m_hasUpdated)
+		snake[agentId].updateDirection(Snake::Direction::DOWN);
+	break;
+default:
+	break;
+}
+```
+
+<img src="Image/Snake.png"/>
 
 ## References:
 [Machine learning](https://zitaoshen.rbind.io/project/machine_learning/how-to-build-your-own-neural-net-from-the-scrach)

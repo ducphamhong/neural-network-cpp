@@ -38,8 +38,12 @@ namespace SnakeGame {
 		}
 
 		TTF_Init();
-		m_sansFont = TTF_OpenFont("Snake/Roboto-Regular.ttf", 18);
 
+#ifdef AI_LEARNING_INPUT
+		m_sansFont = TTF_OpenFont("Snake/Roboto-Regular.ttf", 12);
+#else
+		m_sansFont = TTF_OpenFont("Snake/Roboto-Regular.ttf", 18);
+#endif
 		if (!m_sansFont)
 			SDL_Log("Error. Could not load font");
 
@@ -124,7 +128,7 @@ namespace SnakeGame {
 		return action;
 	}
 
-	void Screen::update(int score, int gen, bool isGameOver, int agentID, bool isTop) {
+	void Screen::update(int score, int gen, bool isGameOver, int agentID, bool isTop, int id) {
 		SDL_UpdateTexture(m_texture, NULL, m_mainBuffer, S_WIDTH * sizeof(Uint32));
 
 		int tx = 0;
@@ -178,6 +182,10 @@ namespace SnakeGame {
 		{
 			std::stringstream sstr;
 			sstr << S_SCORE_TEXT << score;
+			if (id > 0)
+			{
+				sstr << "; id: " << id;
+			}
 			drawText(sstr.str(), tx + 5, ty + 5, isTop ? cyanColor : whiteColor);
 		}
 #endif
