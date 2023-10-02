@@ -1,4 +1,7 @@
+#ifdef _MSC_VER
 #include <Windows.h>
+#endif
+
 #include "game.h"
 #include "lib.h"
 #include <time.h>
@@ -18,12 +21,16 @@ const short int frameDelay = 1000 / FPS;
 
 using namespace std;
 
+#ifdef _MSC_VER
 int CALLBACK WinMain(
 	HINSTANCE   hInstance,
 	HINSTANCE   hPrevInstance,
 	LPSTR       lpCmdLine,
 	int         nCmdShow
 )
+#else
+int main()
+#endif
 {
 	Uint32 frameStart;
 	short int frameTime;

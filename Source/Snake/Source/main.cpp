@@ -14,7 +14,9 @@
 #include "Screen.hpp"
 #include "Section.hpp"
 #include "SDL.h"
+#ifdef _MSC_VER
 #include <Windows.h>
+#endif
 #include <filesystem>
 
  // declare AI_LEARNING_INPUT in Screen.hpp
@@ -380,11 +382,15 @@ void train(ANN::CGeneticAlgorithm& aiGenetic, int learnCount)
 }
 #endif
 
+#ifdef _MSC_VER
 int CALLBACK WinMain(
 	HINSTANCE   hInstance,
 	HINSTANCE   hPrevInstance,
 	LPSTR       lpCmdLine,
 	int         nCmdShow)
+#else
+int main()
+#endif
 {
 	srand(time(NULL));
 
@@ -706,10 +712,10 @@ int CALLBACK WinMain(
 					score[agentId] = 0;
 					snake[agentId].live();
 					waitStuckTime[agentId] = maxTime;
-			}
+				}
 #endif
 				break;
-		};
+			};
 
 			bool topUnit = false;
 
@@ -797,7 +803,7 @@ int CALLBACK WinMain(
 				{
 					autoSaveTime = autoSaveInputTime;
 					needSaveInput = true;
-			}
+				}
 #endif
 
 				if (elapsed - lastElapsed > moveSpeed) {
@@ -913,8 +919,8 @@ int CALLBACK WinMain(
 						fclose(f);
 					}
 #endif
-	}
-}
+				}
+			}
 			else
 			{
 				// is die
