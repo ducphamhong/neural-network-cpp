@@ -31,7 +31,7 @@ void indexImageInFolder(std::vector<std::string>& lession, const char* folder)
 
 	for (const auto& entry : fs::directory_iterator(p))
 	{
-		std::wstring path = entry.path().c_str();
+		std::string path = entry.path().generic_string();
 		std::string filePng(path.begin(), path.end());
 		lession.push_back(filePng);
 	}
