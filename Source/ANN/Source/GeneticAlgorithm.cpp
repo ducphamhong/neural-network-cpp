@@ -104,20 +104,19 @@ namespace ANN
 			}
 			else if (i < m_maxUnit - 2)
 			{
-				int r1 = getRandom() % m_topUnit;
-				int r2 = getRandom() % m_topUnit;
+				int r = getRandom() % m_topUnit;
 				if (m_topUnit > 1)
 				{
-					while (r2 == r1)
+					while (r == 0)
 					{
-						r2 = getRandom() % m_topUnit;
+						r = getRandom() % m_topUnit;
 					}
 				}
-				newUnit = crossOver(m_units[r1], m_units[r2]);
+				newUnit = crossOver(m_units[0], m_units[r]);
 			}
 			else
 			{
-				int randomTop = getRandom() % m_topUnit;
+				int randomTop = getRandom() % 2;
 				newUnit.push_back(cloneUnit(m_units[randomTop]));
 			}
 

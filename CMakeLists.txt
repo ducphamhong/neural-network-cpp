@@ -6,7 +6,6 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # cmake library
 include(CMake/CMakeVisualStudioSourceGroup.cmake)
 include(CMake/CMakeVisualStudioPCH.cmake)
-list(APPEND CMAKE_MODULE_PATH CMake/sdl2)
 
 # this line has to appear before 'PROJECT' in order to be able to disable incremental linking
 set(MSVC_INCREMENTAL_DEFAULT ON)
