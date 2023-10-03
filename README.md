@@ -167,9 +167,11 @@ aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 
 For this example, the AI ​​will learn how to control the game Snake.
 
+<img src="Image/Snake.png"/>
+
 ```C++
 ANN::CGeneticAlgorithm aiGenetic(ANN::EActivation::Tanh);
-const int dim[] = { 14, 128, 64, 4 };
+const int dim[] = { 14, 128, 128, 4 };
 aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 
 // And we use 14 inout and 4 output
@@ -203,6 +205,9 @@ input.push_back(getBoolInput(foodY == y));
 
 bool canEatFoodY = true;
 bool canEatFoodX = true;
+
+int t, d, l, r;
+getSafeRange(snake, walls, t, d, l, r);
 
 // 11. this way can eat food?
 {
@@ -295,8 +300,6 @@ default:
 	break;
 }
 ```
-
-<img src="Image/Snake.png"/>
 
 ## References:
 [Machine learning](https://zitaoshen.rbind.io/project/machine_learning/how-to-build-your-own-neural-net-from-the-scrach)

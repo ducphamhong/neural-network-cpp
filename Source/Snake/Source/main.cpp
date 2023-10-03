@@ -447,7 +447,7 @@ int main()
 	}
 
 	ANN::CGeneticAlgorithm aiGenetic(ANN::EActivation::Tanh);
-	const int dim[] = { 14, 128, 64, 4 };
+	const int dim[] = { 14, 128, 128, 4 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 	aiGenetic.setMutate(0.25, 2.0);
 
