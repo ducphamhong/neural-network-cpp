@@ -6,7 +6,7 @@
 bool Land::init()
 {
 	posLand.getPos(0, SCREEN_HEIGHT - LAND_HEIGHT);
-	string back_path = "FlappyDoge/image/land.png";
+	string back_path = "Data/FlappyDoge/image/land.png";
 	if (isNULL())
 	{
 		if (Load(back_path.c_str(), 1))

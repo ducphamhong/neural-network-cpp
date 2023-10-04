@@ -16,7 +16,7 @@ bool Pipe::init()
 	}
 	if (isNULL())
 	{
-		if (Load("FlappyDoge/image/pipe.png", 1))
+		if (Load("Data/FlappyDoge/image/pipe.png", 1))
 		{
 			return true;
 		}

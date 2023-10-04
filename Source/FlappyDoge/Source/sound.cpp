@@ -8,9 +8,9 @@
 
 bool Sound::init()
 {
-	string breath_path = "FlappyDoge/sound/sfx_breath.wav";
-	string hit_path = "FlappyDoge/sound/sfx_bonk.wav";
-	string sound_path = "FlappyDoge/image/sound.png";
+	string breath_path = "Data/FlappyDoge/sound/sfx_breath.wav";
+	string hit_path = "Data/FlappyDoge/sound/sfx_bonk.wav";
+	string sound_path = "Data/FlappyDoge/image/sound.png";
 
 	bool success = true;
 

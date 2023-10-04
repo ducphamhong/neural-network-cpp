@@ -199,8 +199,8 @@ int intAbs(int x)
 	return x < 0 ? -x : x;
 }
 
-const char* dataInput = "Snake/learning.txt";
-const char* lastTrainData = "Snake/last-training.data";
+const char* dataInput = "Data/Snake/learning.txt";
+const char* lastTrainData = "Data/Snake/last-training.data";
 
 void getAIInputOutput(Snake& snake, Food& food, std::vector<Wall*>& walls, std::vector<double>& input, std::vector<double>* output)
 {

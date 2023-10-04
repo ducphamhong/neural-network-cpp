@@ -52,8 +52,8 @@ int main()
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 
 	// read last train session
-	const char* lastTrainData = "FlappyDoge/data/last-training.data";
-	const char* humanPlayedData = "FlappyDoge/data/learning.txt";
+	const char* lastTrainData = "Data/FlappyDoge/data/last-training.data";
+	const char* humanPlayedData = "Data/FlappyDoge/data/learning.txt";
 
 	firstTraining = !std::filesystem::exists(lastTrainData);
 

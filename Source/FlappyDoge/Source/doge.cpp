@@ -14,8 +14,8 @@ bool doge::init(bool isDark)
 	unit = NULL;
 #endif
 
-	string shiba_path = "FlappyDoge/image/shiba.png";
-	if (isDark) shiba_path = "FlappyDoge/image/shiba-dark.png";
+	string shiba_path = "Data/FlappyDoge/image/shiba.png";
+	if (isDark) shiba_path = "Data/FlappyDoge/image/shiba-dark.png";
 	if (saved_path == shiba_path)
 	{
 		posDoge.getPos(75, SCREEN_HEIGHT / 2 - 10);
@@ -231,7 +231,7 @@ void doge::reportDie(double distanceToTarget)
 	}
 #else
 	// save data for learning
-	FILE* f = fopen("FlappyDoge/data/learning.txt", "wt");
+	FILE* f = fopen("Data/FlappyDoge/data/learning.txt", "wt");
 
 	int numData = (int)dataOutput.size();
 	for (int i = 0; i < numData; i++)

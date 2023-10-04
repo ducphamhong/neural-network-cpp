@@ -40,9 +40,9 @@ namespace SnakeGame {
 		TTF_Init();
 
 #ifdef AI_LEARNING_INPUT
-		m_sansFont = TTF_OpenFont("Snake/Roboto-Regular.ttf", 12);
+		m_sansFont = TTF_OpenFont("Data/Snake/Roboto-Regular.ttf", 12);
 #else
-		m_sansFont = TTF_OpenFont("Snake/Roboto-Regular.ttf", 18);
+		m_sansFont = TTF_OpenFont("Data/Snake/Roboto-Regular.ttf", 18);
 #endif
 		if (!m_sansFont)
 			SDL_Log("Error. Could not load font");

@@ -117,30 +117,30 @@ void Game::initImages()
 	char path[512];
 	for (int i = 0; i < 10; i++)
 	{
-		sprintf(path, "FlappyDoge/number/small/%d.png", i);
+		sprintf(path, "Data/FlappyDoge/number/small/%d.png", i);
 		imageNumberSmall[i].Load(std::string(path), scaleNumberS);
 
-		sprintf(path, "FlappyDoge/number/large/%d.png", i);
+		sprintf(path, "Data/FlappyDoge/number/large/%d.png", i);
 		imageNumberLarge[i].Load(std::string(path), scaleNumberS);
 	}
 
-	imageMessage.Load("FlappyDoge/image/message.png", 1);
-	imageBG.Load("FlappyDoge/image/background.png", 1);
-	imageBGNight.Load("FlappyDoge/image/background-night.png", 1);
-	imageLand.Load("FlappyDoge/image/land.png", 1);
-	imageResume.Load("FlappyDoge/image/resume.png", 1);
-	imagePause.Load("FlappyDoge/image/pause.png", 1);
-	imagePauseTab.Load("FlappyDoge/image/pauseTab.png", 1);
-	imageShibaLight.Load("FlappyDoge/image/shiba.png", 0.8);
-	imageShibaDark.Load("FlappyDoge/image/shiba-dark.png", 0.8);
-	imageRight.Load("FlappyDoge/image/nextRight.png", 1);
-	imageLeft.Load("FlappyDoge/image/nextLeft.png", 1);
-	imageGameOver.Load("FlappyDoge/image/gameOver.png", 1);
-	imageReplay.Load("FlappyDoge/image/replay.png", 1);
+	imageMessage.Load("Data/FlappyDoge/image/message.png", 1);
+	imageBG.Load("Data/FlappyDoge/image/background.png", 1);
+	imageBGNight.Load("Data/FlappyDoge/image/background-night.png", 1);
+	imageLand.Load("Data/FlappyDoge/image/land.png", 1);
+	imageResume.Load("Data/FlappyDoge/image/resume.png", 1);
+	imagePause.Load("Data/FlappyDoge/image/pause.png", 1);
+	imagePauseTab.Load("Data/FlappyDoge/image/pauseTab.png", 1);
+	imageShibaLight.Load("Data/FlappyDoge/image/shiba.png", 0.8);
+	imageShibaDark.Load("Data/FlappyDoge/image/shiba-dark.png", 0.8);
+	imageRight.Load("Data/FlappyDoge/image/nextRight.png", 1);
+	imageLeft.Load("Data/FlappyDoge/image/nextLeft.png", 1);
+	imageGameOver.Load("Data/FlappyDoge/image/gameOver.png", 1);
+	imageReplay.Load("Data/FlappyDoge/image/replay.png", 1);
 
-	imageMedal[0].Load("FlappyDoge/medal/silver.png", scaleNumberS);
-	imageMedal[1].Load("FlappyDoge/medal/gold.png", scaleNumberS);
-	imageMedal[2].Load("FlappyDoge/medal/honor.png", scaleNumberS);
+	imageMedal[0].Load("Data/FlappyDoge/medal/silver.png", scaleNumberS);
+	imageMedal[1].Load("Data/FlappyDoge/medal/gold.png", scaleNumberS);
+	imageMedal[2].Load("Data/FlappyDoge/medal/honor.png", scaleNumberS);
 }
 
 void Game::freeImages()
@@ -243,9 +243,9 @@ void Game::renderBestUnitID(int gen)
 
 void Game::renderBestScore()
 {
-	ifstream fileIn("FlappyDoge/data/bestScore.txt");
+	ifstream fileIn("Data/FlappyDoge/data/bestScore.txt");
 	fileIn >> bestScore;
-	ofstream fileOut("FlappyDoge/data/bestScore.txt", ios::trunc);
+	ofstream fileOut("Data/FlappyDoge/data/bestScore.txt", ios::trunc);
 
 	if (context::score > bestScore)
 	{
