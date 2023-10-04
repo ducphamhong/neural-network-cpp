@@ -3,6 +3,9 @@
 #include <iostream>
 #include <string>
 
+#define SDLMix_LoadWAV(file)   Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1)
+#define SDLMix_PlayChannel(channel,chunk,loops) Mix_PlayChannelTimed(channel,chunk,loops,-1)
+
 bool Sound::init()
 {
 	string breath_path = "FlappyDoge/sound/sfx_breath.wav";
@@ -24,22 +27,14 @@ bool Sound::init()
 			success = false;
 		}
 
-#if SDL_MIXER_MAJOR_VERSION >= 2 && SDL_MIXER_MINOR_VERSION >= 6
-		breath = Mix_LoadWAV(breath_path.c_str());
-#else
-		breath = NULL;
-#endif
+		breath = SDLMix_LoadWAV(breath_path.c_str());
 		if (breath == NULL)
 		{
 			printf("Failed to load sound! SDL_mixer Error: %s\n", Mix_GetError());
 			success = false;
 		}
 
-#if SDL_MIXER_MAJOR_VERSION >= 2 && SDL_MIXER_MINOR_VERSION >= 6
-		hit = Mix_LoadWAV(hit_path.c_str());
-#else
-		hit = NULL;
-#endif
+		hit = SDLMix_LoadWAV(hit_path.c_str());
 		if (hit == NULL)
 		{
 			printf("Failed to load chord! SDL_mixer Error: %s\n", Mix_GetError());
@@ -77,9 +72,7 @@ void Sound::playBreath()
 {
 	if (isPlay)
 	{
-#if SDL_MIXER_MAJOR_VERSION >= 2 && SDL_MIXER_MINOR_VERSION >= 6
-		Mix_PlayChannel(-1, breath, 0);
-#endif
+		SDLMix_PlayChannel(-1, breath, 0);
 	}
 }
 
@@ -87,9 +80,7 @@ void Sound::playHit()
 {
 	if (isPlay)
 	{
-#if SDL_MIXER_MAJOR_VERSION >= 2 && SDL_MIXER_MINOR_VERSION >= 6
-		Mix_PlayChannel(-1, hit, 0);
-#endif
+		SDLMix_PlayChannel(-1, hit, 0);
 	}
 }
 
