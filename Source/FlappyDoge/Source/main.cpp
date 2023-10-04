@@ -21,6 +21,24 @@ const short int frameDelay = 1000 / FPS;
 
 using namespace std;
 
+#ifdef AI_LEARNING_INPUT
+void train(ANN::CGeneticAlgorithm& aiGenetic, int learnCount, double* inputs, double* targetOutput, int count)
+{
+	std::vector<ANN::SUnit*>& units = aiGenetic.get();
+	int numTop = aiGenetic.getNumTopUnit();
+
+	for (int i = 0, n = (int)units.size(); i < n; i++)
+	{
+		units[i]->Scored = 0;
+
+		for (; learnCount > 0; learnCount--)
+		{
+			units[i]->ANN->train(inputs, targetOutput, count);
+		}
+	}
+}
+#endif
+
 #ifdef _MSC_VER
 int CALLBACK WinMain(
 	HINSTANCE   hInstance,
@@ -44,6 +62,11 @@ int main()
 	int killAll = 60 * 10;
 	bool firstTraining = true;
 
+	bool trainState = false;
+	int trainProgress = 0;
+	int trainStep = 10;
+	int fullTrainProgress = 1000 / trainStep;
+
 	context::gGame = &g;
 
 #ifdef AI_LEARNING_INPUT
@@ -57,11 +80,11 @@ int main()
 
 	firstTraining = !std::filesystem::exists(lastTrainData);
 
+	std::vector<double> input;
+	std::vector<double> output;
+
 	if (firstTraining)
 	{
-		std::vector<double> input;
-		std::vector<double> output;
-
 		// See the function doge::reportDie
 		// Read human played data
 		FILE* f = fopen(humanPlayedData, "rt");
@@ -79,6 +102,8 @@ int main()
 		}
 		fclose(f);
 
+		trainState = true;
+
 		// learn expected function
 		// need learning from human control for Gen 0
 		std::vector<ANN::SUnit*>& units = aiGenetic.get();
@@ -88,11 +113,6 @@ int main()
 			{
 				expectedOutput[0] = trainData[trainId];
 			};
-
-			for (int learnCount = 500; learnCount > 0; learnCount--)
-			{
-				units[i]->ANN->train(input.data(), output.data(), (int)output.size());
-			}
 		}
 	}
 	else
@@ -124,6 +144,26 @@ int main()
 	while (!g.isQuit())
 	{
 		frameStart = SDL_GetTicks();
+
+		if (trainState)
+		{
+			g.takeInput();
+
+			if (++trainProgress < fullTrainProgress)
+			{
+				float percent = trainProgress / (float)fullTrainProgress;
+				char title[512];
+				sprintf(title, "Train procress: %d %%", (int)(percent * 100));
+				g.log(title);
+				train(aiGenetic, trainStep, input.data(), output.data(), (int)output.size());
+			}
+			else
+			{
+				trainState = false;
+			}
+
+			continue;
+		}
 
 		if (g.isDie())
 		{
@@ -206,6 +246,10 @@ int main()
 							{
 								currentGenerationID[i] = aiGenetic.get()[i]->ID;
 							}
+
+							char title[512];
+							sprintf(title, "Top id: %d", currentGenerationID[0]);
+							g.log(title);
 						}
 						gen++;
 
@@ -282,7 +326,7 @@ int main()
 				g.pipe.update();
 				g.land.update();
 				g.pause();
-			}
+		}
 			else
 			{
 				g.resume();
@@ -318,14 +362,14 @@ int main()
 						{
 							g.shiba[i].init(isDark);
 							g.shiba[i].setAIUnit(aiGenetic.get()[i]);
-						}
+					}
 #else
 						g.shiba[0].init(isDark);
 #endif
-					}
-					g.userInput.Type = Game::input::NONE;
 				}
+					g.userInput.Type = Game::input::NONE;
 			}
+	}
 
 #ifdef AI_LEARNING_INPUT
 			int liveCount = 0;
@@ -392,14 +436,14 @@ int main()
 						// kill all after 600 frames (10s)
 						// we no need spent time to wait old generation
 					}
+					}
 				}
-			}
 #else
 			g.shiba[0].render();
 #endif
 
 			g.display();
-		}
+			}
 
 		// Limit FPS
 		frameTime = SDL_GetTicks() - frameStart;
@@ -409,6 +453,6 @@ int main()
 			if (d > 0 && d < 1000)
 				SDL_Delay(frameDelay - frameTime);
 		}
-	}
+}
 	return 0;
 }

@@ -54,6 +54,8 @@ public:
 
 	bool initGraphic();
 
+	void log(const char* string);
+
 	void initImages();
 
 	void freeImages();

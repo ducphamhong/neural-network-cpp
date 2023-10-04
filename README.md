@@ -2,7 +2,7 @@
 This project is the simple Artificial neural networks (ANN), which are computational systems that “learn” to perform tasks. This project is a library written in C++ language and it is easy to embed in another project.
 
 ## XOR
-In this example tech the AI learns to compute XOR function.
+In this example teach the AI learns to compute XOR function.
 
 Code example
 ``` C++

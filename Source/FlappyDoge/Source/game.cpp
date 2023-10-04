@@ -58,6 +58,16 @@ void Game::releaseGraphic()
 	SDL_Quit();
 }
 
+const char* GameName = "Flappy Doge";
+
+void Game::log(const char* string)
+{
+	std::string title = GameName;
+	title += " - ";
+	title += string;
+	SDL_SetWindowTitle(context::gWindow, title.c_str());
+}
+
 bool Game::initGraphic()
 {
 	bool success = true;
