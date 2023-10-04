@@ -399,6 +399,7 @@ int main()
 	Snake snake[MAX_AI_UNIT];
 	Food food[MAX_AI_UNIT];
 	int foodId[MAX_AI_UNIT];
+	int timeEatFood[MAX_AI_UNIT];
 
 	std::vector<Food> allFoods;
 	allFoods.push_back(Food());
@@ -416,6 +417,7 @@ int main()
 		createWalls(walls[i]);
 		score[i] = 0;
 		foodId[i] = 0;
+		timeEatFood[i] = 0;
 		waitStuckTime[i] = maxTime;
 	}
 
@@ -536,6 +538,7 @@ int main()
 					snake[i].setAIUnit(units[i]);
 					snake[i].reset();
 					foodId[i] = 0;
+					timeEatFood[i] = 0;
 					food[i] = allFoods[0];
 					score[i] = 0;
 					snake[i].live();
@@ -640,6 +643,7 @@ int main()
 						snake[i].setAIUnit(units[i]);
 						snake[i].reset();
 						foodId[i] = 0;
+						timeEatFood[i] = 0;
 						food[i] = allFoods[0];
 						score[i] = 0;
 						snake[i].live();
@@ -660,6 +664,7 @@ int main()
 					{
 						snake[i].reset();
 						foodId[i] = 0;
+						timeEatFood[i] = 0;
 						food[i] = allFoods[0];
 						snake[i].live();
 						waitStuckTime[i] = maxTime;
@@ -795,6 +800,7 @@ int main()
 				}
 #endif
 				waitStuckTime[agentId] = waitStuckTime[agentId] - frameTime;
+				timeEatFood[agentId] = timeEatFood[agentId] + frameTime;
 
 #ifndef AI_LEARNING_INPUT
 				bool needSaveInput = false;
@@ -831,8 +837,16 @@ int main()
 							if (f >= allFoods.size())
 								allFoods.push_back(Food());
 
+							float timeEatFoodSec = timeEatFood[agentId] / 1000.0f;
+							if (timeEatFoodSec < 1.0f)
+								timeEatFoodSec = 1.0f;
+
 							food[agentId] = allFoods[f];
-							score[agentId] += Food::S_VALUE;
+							timeEatFood[agentId] = 0;
+
+							// that will select the snake eat food fast
+							score[agentId] += (int)(Food::S_VALUE / timeEatFoodSec);
+
 							snake[agentId].addSection();
 
 							// set limit time to eat food
@@ -914,19 +928,19 @@ int main()
 
 							i1 += numInput;
 							i2 += numOutput;
-						}
+					}
 
 						fclose(f);
-					}
-#endif
 				}
+#endif
 			}
+		}
 			else
 			{
 				// is die
 				screen.update(score[agentId], gen, true, agentId, topUnit, aiId);
 			}
-		}
+	}
 
 #ifdef AI_LEARNING_INPUT
 		int liveCount = 0;
@@ -1001,7 +1015,7 @@ int main()
 		lastFrameElapsed = elapsed;
 
 		screen.present();
-	}
+}
 
 	for (int i = 0; i < MAX_AI_UNIT; i++)
 	{
