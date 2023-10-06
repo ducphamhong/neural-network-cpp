@@ -134,6 +134,7 @@ namespace ANN
 					m_units[i + j] = cloneUnit(newUnit[j]);
 				}
 
+				delete newUnit[j]->ANN;
 				delete newUnit[j];
 			}
 
