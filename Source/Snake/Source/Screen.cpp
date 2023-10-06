@@ -21,7 +21,7 @@ const char* GameName = "Snake Game";
 
 namespace SnakeGame {
 	cint Screen::S_WIDTH = (cint)(800 * S_SCALE);
-	cint Screen::S_HEIGHT = (cint)(600 * S_SCALE);
+	cint Screen::S_HEIGHT = (cint)(640 * S_SCALE);
 	cint Screen::S_TEXT_X = (cint)(20 * S_SCALE);
 	cint Screen::S_TEXT_Y = (cint)(0 * S_SCALE);
 	const std::string Screen::S_SCORE_TEXT = "Score: ";

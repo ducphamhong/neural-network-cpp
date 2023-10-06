@@ -723,10 +723,11 @@ int main()
 			};
 
 			bool topUnit = false;
+			int aiId = 0;
 
 #ifdef AI_LEARNING_INPUT
 			topUnit = snake[agentId].getAIUnit()->TopUnit;
-			int aiId = snake[agentId].getAIUnit()->ID;
+			aiId = snake[agentId].getAIUnit()->ID;
 #endif
 
 			if (!snake[agentId].isDie())
@@ -928,19 +929,19 @@ int main()
 
 							i1 += numInput;
 							i2 += numOutput;
-					}
+						}
 
 						fclose(f);
-				}
+					}
 #endif
+				}
 			}
-		}
 			else
 			{
 				// is die
 				screen.update(score[agentId], gen, true, agentId, topUnit, aiId);
 			}
-	}
+		}
 
 #ifdef AI_LEARNING_INPUT
 		int liveCount = 0;
@@ -1015,7 +1016,7 @@ int main()
 		lastFrameElapsed = elapsed;
 
 		screen.present();
-}
+	}
 
 	for (int i = 0; i < MAX_AI_UNIT; i++)
 	{
