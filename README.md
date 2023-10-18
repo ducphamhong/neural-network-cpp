@@ -310,4 +310,4 @@ default:
 
 [Flappy Bird ML](https://github.com/ssusnic/Machine-Learning-Flappy-Bird)
 
-
+[Snake game project](https://github.com/jcalvarezj/snake)
