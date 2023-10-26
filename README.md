@@ -167,7 +167,7 @@ aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 
 For this example, the AI ​​will learn how to control the game Snake.
 
-<video src="https://raw.githubusercontent.com/ducphamhong/neural-network-cpp/main/Image/Snake.mp4"></video>
+https://github.com/ducphamhong/neural-network-cpp/assets/57616039/e262d585-394e-46c5-8472-70a0b09f47f7
 
 
 ```C++
