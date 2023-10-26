@@ -167,7 +167,8 @@ aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 
 For this example, the AI ​​will learn how to control the game Snake.
 
-<img src="Image/Snake.png"/>
+<video src="Image/Snake.mp4"/>
+
 
 ```C++
 ANN::CGeneticAlgorithm aiGenetic(ANN::EActivation::Tanh);
