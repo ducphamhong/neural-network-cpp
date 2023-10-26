@@ -71,7 +71,7 @@ namespace SnakeGame {
 		 * @param score The game's score
 		 * @param isGameOver Indicates whether there is Game Over
 		 */
-		void update(int lives, int gen, bool isGameOver, int agentId, bool isTop, int id = -1);
+		void update(int score, int topScore, int gen, bool isGameOver, int agentId, bool isTop, int id = -1);
 		void present();
 		/**
 		 * Sets a pixel in the buffer with the specified (x,y) position, and colors

@@ -128,7 +128,7 @@ namespace SnakeGame {
 		return action;
 	}
 
-	void Screen::update(int score, int gen, bool isGameOver, int agentID, bool isTop, int id) {
+	void Screen::update(int score, int topScore, int gen, bool isGameOver, int agentID, bool isTop, int id) {
 		SDL_UpdateTexture(m_texture, NULL, m_mainBuffer, S_WIDTH * sizeof(Uint32));
 
 		int tx = 0;
@@ -186,7 +186,15 @@ namespace SnakeGame {
 			{
 				sstr << "; id: " << id;
 			}
+
 			drawText(sstr.str(), tx + 5, ty + 5, isTop ? cyanColor : whiteColor);
+
+			if (topScore > 0)
+			{
+				std::stringstream sstr2;
+				sstr2 << "Top score: " << topScore;
+				drawText(sstr2.str(), tx + 5, ty + 20, isTop ? cyanColor : whiteColor);
+			}
 		}
 #endif
 	}

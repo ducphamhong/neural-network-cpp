@@ -411,7 +411,17 @@ int main()
 
 	std::vector<Wall*> walls[MAX_AI_UNIT];
 	int score[MAX_AI_UNIT];
-	int maxTime = 1000 * 20;
+
+#ifndef AI_LEARNING_INPUT
+	int moveSpeed = 300;
+#else
+	int moveSpeed = 10;
+#endif
+
+	int maxTime = (int)(1000.0f * 20.0f * (float)moveSpeed / 300.0f);
+	if (maxTime < 5000)
+		maxTime = 5000;
+
 	for (int i = 0; i < MAX_AI_UNIT; i++)
 	{
 		createWalls(walls[i]);
@@ -436,9 +446,7 @@ int main()
 
 	int gen = 1;
 
-#ifndef AI_LEARNING_INPUT
-	int moveSpeed = 300;
-#else
+#ifdef AI_LEARNING_INPUT	
 	int waitResetTime = 1000;
 	int killAll = 60 * 10;
 	bool autoSkipOldGeneration = false;
@@ -452,8 +460,6 @@ int main()
 	const int dim[] = { 14, 128, 128, 4 };
 	aiGenetic.createPopulation(MAX_AI_UNIT, dim, 4);
 	aiGenetic.setMutate(0.25, 0.5);
-
-	int moveSpeed = 60;
 
 	bool trainState = true;
 
@@ -485,7 +491,7 @@ int main()
 	}
 
 
-	int maxTest = 1;
+	int maxTest = 2;
 	int testTime = maxTest;
 #endif
 
@@ -554,7 +560,7 @@ int main()
 			}
 
 			screen.clear();
-			screen.update(-1, 0, false, -1, false);
+			screen.update(-1, -1, 0, false, -1, false);
 			screen.present();
 			lastFrameElapsed = elapsed;
 			continue;
@@ -728,11 +734,16 @@ int main()
 #ifdef AI_LEARNING_INPUT
 			topUnit = snake[agentId].getAIUnit()->TopUnit;
 			aiId = snake[agentId].getAIUnit()->ID;
+#endif			
+
+			int topScore = 0;
+#ifdef AI_LEARNING_INPUT
+			topScore = snake[agentId].getAIUnit()->BestScored;
 #endif
 
 			if (!snake[agentId].isDie())
 			{
-				screen.update(score[agentId], gen, false, agentId, topUnit, aiId);
+				screen.update(score[agentId], topScore, gen, false, agentId, topUnit, aiId);
 
 #ifdef AI_LEARNING_INPUT
 				std::vector<double> input;
@@ -939,7 +950,7 @@ int main()
 			else
 			{
 				// is die
-				screen.update(score[agentId], gen, true, agentId, topUnit, aiId);
+				screen.update(score[agentId], topScore, gen, true, agentId, topUnit, aiId);
 			}
 		}
 
